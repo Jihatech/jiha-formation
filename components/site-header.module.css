@@ -1,0 +1,53 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  gap: 1rem;
+}
+
+.brand {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--fg);
+  font-size: 1rem;
+  white-space: nowrap;
+}
+.brand:hover {
+  text-decoration: none;
+  color: var(--accent);
+}
+.bracket {
+  color: var(--accent);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+}
+.nav a {
+  color: var(--fg-muted);
+}
+.nav a:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+@media (max-width: 560px) {
+  .nav {
+    gap: 0.6rem;
+    font-size: 0.74rem;
+  }
+}

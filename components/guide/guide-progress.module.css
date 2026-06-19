@@ -1,0 +1,60 @@
+.box {
+  position: sticky;
+  top: 72px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem;
+  margin: 1.5rem 0;
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.counter {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+}
+.bar {
+  height: 6px;
+  background: var(--bg-terminal);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0.7rem 0;
+}
+.fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width var(--transition);
+}
+.complete {
+  font-family: var(--font-mono);
+  color: var(--ok);
+  font-size: 0.85rem;
+  margin: 0.5rem 0;
+}
+.steps {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 0.4rem;
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--fg-muted);
+}
+.step input {
+  accent-color: var(--accent);
+}

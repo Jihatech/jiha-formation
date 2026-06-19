@@ -1,0 +1,52 @@
+.page {
+  padding-top: 2rem;
+  padding-bottom: 3rem;
+}
+
+.ctaBanner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 2rem;
+}
+
+.hero {
+  margin-bottom: 1rem;
+}
+.meta {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.title {
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  margin: 0.5rem 0;
+}
+.tagline {
+  color: var(--fg-muted);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.relations {
+  margin: 2rem 0;
+  padding: 1.2rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.strongCta {
+  margin-top: 1.2rem;
+}
