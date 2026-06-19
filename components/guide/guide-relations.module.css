@@ -1,0 +1,26 @@
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.item {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+.item::before {
+  content: "→ ";
+  color: var(--accent);
+}
+.soon {
+  color: var(--fg-faint);
+  cursor: not-allowed;
+}
+.soon em {
+  font-style: normal;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+}
