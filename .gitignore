@@ -1,5 +1,8 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# contenu vendorisé depuis JIHA-Learn (généré au build — voir scripts/sync-content.mjs)
+/content
+
 # dependencies
 /node_modules
 /.pnp

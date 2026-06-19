@@ -1,20 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 // Bascule clair/sombre, état mémorisé côté client (BUILD-SPEC §2.1).
 // localStorage est acceptable ici : préférence d'affichage, pas une donnée critique (§5.1).
-export function ThemeToggle({ label }: { label: string }) {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+// useSyncExternalStore : on lit l'état réel du DOM (posé par le bootstrap anti-FOUC)
+// sans setState-dans-effet ni mismatch d'hydratation.
 
-  useEffect(() => {
-    const stored = document.documentElement.getAttribute("data-theme");
-    setTheme(stored === "light" ? "light" : "dark");
-  }, []);
+const THEME_EVENT = "jiha-theme-change";
+
+function subscribe(callback: () => void): () => void {
+  window.addEventListener(THEME_EVENT, callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener(THEME_EVENT, callback);
+    window.removeEventListener("storage", callback);
+  };
+}
+
+function getSnapshot(): "dark" | "light" {
+  return document.documentElement.getAttribute("data-theme") === "light"
+    ? "light"
+    : "dark";
+}
+
+export function ThemeToggle({ label }: { label: string }) {
+  // Sombre par défaut côté serveur (§2.1).
+  const theme = useSyncExternalStore(subscribe, getSnapshot, () => "dark");
 
   function toggle() {
     const next = theme === "dark" ? "light" : "dark";
-    setTheme(next);
     if (next === "light") {
       document.documentElement.setAttribute("data-theme", "light");
     } else {
@@ -25,6 +40,7 @@ export function ThemeToggle({ label }: { label: string }) {
     } catch {
       /* stockage indisponible : on ignore, la préférence n'est pas critique */
     }
+    window.dispatchEvent(new Event(THEME_EVENT));
   }
 
   return (
