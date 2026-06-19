@@ -3,6 +3,7 @@ import type { Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { ThemeToggle } from "./theme-toggle";
 import { LangSwitch } from "./lang-switch";
+import { Logo } from "./logo";
 import styles from "./site-header.module.css";
 
 export function SiteHeader({ locale }: { locale: Locale }) {
@@ -10,8 +11,8 @@ export function SiteHeader({ locale }: { locale: Locale }) {
   return (
     <header className={styles.header}>
       <div className={`container ${styles.inner}`}>
-        <Link href={`/${locale}`} className={styles.brand}>
-          <span className={styles.bracket}>~/</span>jiha.tech
+        <Link href={`/${locale}`} className={styles.brand} aria-label="jiha.tech">
+          <Logo />
         </Link>
         <nav className={styles.nav}>
           <Link href={`/${locale}/guides`}>{t("nav.guides")}</Link>

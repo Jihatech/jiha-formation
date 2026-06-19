@@ -1,26 +1,85 @@
+.page {
+  padding-bottom: 4rem;
+}
+
+/* HERO */
 .hero {
   padding-top: 3.5rem;
-  padding-bottom: 2rem;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+@media (max-width: 820px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+    padding-top: 2.5rem;
+  }
 }
 
 .title {
-  font-size: clamp(2.2rem, 6vw, 3.4rem);
-  margin: 0.6rem 0 0.4rem;
+  font-size: clamp(2.2rem, 6vw, 3.6rem);
+  line-height: 1.1;
+  margin: 0.6rem 0 0.8rem;
   font-family: var(--font-mono);
+}
+.accent {
   color: var(--accent);
 }
-
-.tagline {
-  color: var(--fg);
-  font-family: var(--font-sans);
+.lead {
+  color: var(--fg-muted);
   font-size: 1.1rem;
-  max-width: 38ch;
-  margin: 0;
+  max-width: 46ch;
+  margin: 0 0 1.6rem;
+}
+.actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
 }
 
-.actions {
-  margin-top: 2rem;
-  display: flex;
+/* SECTIONS */
+.section {
+  margin-top: 3.5rem;
+}
+.h2 {
+  font-size: 1.6rem;
+  margin-bottom: 1.4rem;
+}
+.h2 .cli-header {
+  font-size: 0.95rem;
+}
+
+/* COMMENT CA MARCHE */
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
-  flex-wrap: wrap;
+}
+.step {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  padding: 1.2rem;
+}
+.stepNum {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.stepTitle {
+  font-size: 1.1rem;
+  margin: 0.4rem 0 0.3rem;
+}
+.stepDesc {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
 }
