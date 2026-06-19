@@ -1,0 +1,22 @@
+.term {
+  box-shadow: 0 0 0 1px var(--border), 0 20px 60px -20px rgba(0, 0, 0, 0.6);
+}
+.body {
+  min-height: 168px;
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+.cmd {
+  color: var(--fg);
+  white-space: pre-wrap;
+}
+.out {
+  color: var(--fg-muted);
+  white-space: pre-wrap;
+  padding-left: 1.1rem;
+}
+.prompt {
+  color: var(--accent);
+  margin-right: 0.5rem;
+  font-weight: 700;
+}
