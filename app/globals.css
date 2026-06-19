@@ -1,0 +1,253 @@
+/*
+ * Thème terminal / CRT — cohérent avec la couche v1 (BUILD-SPEC §2).
+ * Sombre par défaut, bascule claire, accent ambre #FFB627, prefers-reduced-motion respecté.
+ * La plateforme et les pages de guides doivent sembler le même produit (PLATFORM-SPEC §3.6).
+ */
+
+:root {
+  /* Accent signature ambre CRT (BUILD-SPEC §2.2). Un signal, pas un aplat. */
+  --accent: #ffb627;
+  --accent-dim: #c98f1c;
+
+  /* Fond sombre : pas un noir pur agressif (§2.2). */
+  --bg: #0d1117;
+  --bg-elevated: #161b22;
+  --bg-terminal: #11161d;
+  --border: #2a313c;
+
+  /* Texte : blanc cassé / gris clair, jamais blanc pur sur noir pur (§2.2). */
+  --fg: #e6e1d6;
+  --fg-muted: #9aa3ad;
+  --fg-faint: #6b7480;
+
+  --ok: #57d977;
+  --warn: #ffb627;
+  --danger: #ff6b6b;
+
+  --font-sans: var(--font-sans-stack), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-mono-stack), "SF Mono", "Fira Code", monospace;
+
+  --radius: 8px;
+  --maxw: 880px;
+  --transition: 160ms ease;
+}
+
+/* Mode clair : variante pensée (fond crème/papier, ambre assombri), pas une inversion (§2.1). */
+:root[data-theme="light"] {
+  --accent: #b9791a;
+  --accent-dim: #8a5a13;
+  --bg: #f5f1e8;
+  --bg-elevated: #fffdf8;
+  --bg-terminal: #efeade;
+  --border: #d8cfbc;
+  --fg: #2a2620;
+  --fg-muted: #5c564c;
+  --fg-faint: #8a8377;
+  --ok: #2e8b4f;
+  --danger: #c0392b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  line-height: 1.65;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Effet CRT subtil : léger scanline en arrière-plan, désactivé en reduced-motion. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.03),
+    rgba(0, 0, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.35;
+}
+:root[data-theme="light"] body::before {
+  display: none;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Monospace = signature : code, commandes, labels d'interface (§2.3). */
+code,
+kbd,
+pre,
+.mono {
+  font-family: var(--font-mono);
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+/* Headers de section façon CLI (§2.4). */
+.cli-header {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Fenêtre terminal stylisée : barre + 3 pastilles (§2.4). */
+.terminal {
+  background: var(--bg-terminal);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.terminal__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.8rem;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+}
+.terminal__dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.terminal__dot--red {
+  background: #ff5f56;
+}
+.terminal__dot--yellow {
+  background: #ffbd2e;
+}
+.terminal__dot--green {
+  background: #27c93f;
+}
+.terminal__title {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--fg-faint);
+  margin-left: 0.4rem;
+}
+.terminal__body {
+  padding: 1rem 1.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  overflow-x: auto;
+}
+
+/* Prompt $ distinguant l'input de l'output (§2.4). */
+.prompt::before {
+  content: "$ ";
+  color: var(--accent);
+}
+
+/* Curseur clignotant — coupé en reduced-motion (§2.4). */
+.cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  background: var(--accent);
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  animation: blink 1.05s step-end infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+button,
+.btn {
+  font-family: var(--font-mono);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--fg);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+  transition: border-color var(--transition), color var(--transition);
+}
+button:hover,
+.btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.btn--primary {
+  background: var(--accent);
+  color: #1a1505;
+  border-color: var(--accent);
+  font-weight: 700;
+}
+.btn--primary:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent-dim);
+  color: #1a1505;
+}
+
+/* Accessibilité : focus visible au clavier (§F). */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  position: relative;
+  z-index: 2;
+}
+
+main {
+  flex: 1;
+}
+
+/* Garde-fou non négociable : toute animation se désactive si demandé (§2.4, §F). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .cursor {
+    animation: none;
+    opacity: 1;
+  }
+  body::before {
+    display: none;
+  }
+}

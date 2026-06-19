@@ -1,0 +1,19 @@
+.footer {
+  border-top: 1px solid var(--border);
+  background: var(--bg-elevated);
+  margin-top: 4rem;
+}
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.4rem;
+  padding-bottom: 1.4rem;
+  font-size: 0.8rem;
+  color: var(--fg-muted);
+  font-family: var(--font-mono);
+}
+.meta {
+  color: var(--fg-faint);
+}
