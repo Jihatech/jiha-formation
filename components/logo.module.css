@@ -1,0 +1,41 @@
+.logo {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.jiha {
+  color: var(--fg);
+}
+.dot {
+  color: var(--accent);
+}
+.tech {
+  color: var(--fg-muted);
+  font-weight: 600;
+}
+/* Underscore ambre clignotant, façon curseur terminal. */
+.cursor {
+  width: 0.62em;
+  height: 0.14em;
+  background: var(--accent);
+  margin-left: 0.45em;
+  align-self: flex-end;
+  margin-bottom: 0.12em;
+  animation: logo-blink 1.05s step-end infinite;
+}
+@keyframes logo-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    animation: none;
+    opacity: 1;
+  }
+}

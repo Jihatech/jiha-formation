@@ -55,7 +55,6 @@ export default async function HomePage({
       {/* HERO */}
       <section className={`container ${styles.hero}`}>
         <div className={styles.heroCopy}>
-          <p className="cli-header">~/ jiha.tech</p>
           <h1 className={styles.title}>
             {fr ? "Apprends le DevOps " : "Learn DevOps "}
             <span className={styles.accent}>{fr ? "en déployant." : "by deploying."}</span>
