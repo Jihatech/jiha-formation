@@ -1,0 +1,32 @@
+.page {
+  padding-top: 2.5rem;
+  padding-bottom: 3rem;
+}
+.title {
+  font-size: clamp(1.8rem, 5vw, 2.4rem);
+  margin-bottom: 1.5rem;
+}
+.who {
+  font-family: var(--font-mono);
+  color: var(--accent);
+}
+.todo {
+  color: var(--fg-muted);
+  margin: 1.5rem 0 2.5rem;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-top: 1px solid var(--border);
+  padding-top: 1.5rem;
+}
+.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.danger:hover {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}

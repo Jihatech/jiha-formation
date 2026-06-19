@@ -13,6 +13,8 @@
     "check:parser": "tsx scripts/check-parser.mts"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.2",
     "marked": "^18.0.5",
     "next": "16.2.9",
     "react": "19.2.4",
