@@ -41,7 +41,7 @@ create index if not exists progress_user_idx on public.progress (user_id);
 
 -- updated_at auto
 create or replace function public.touch_updated_at()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql set search_path = public as $$
 begin
   new.updated_at = now();
   return new;
@@ -73,6 +73,10 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
+-- Fonction TRIGGER : ne doit pas être appelable en RPC (les triggers s'exécutent
+-- sans privilège EXECUTE de l'appelant). Évite l'exposition via /rest/v1/rpc.
+revoke all on function public.handle_new_user() from public, anon, authenticated;
+
 -- ── Row Level Security : chacun ne voit/écrit que SES données ────────────────
 alter table public.profiles enable row level security;
 alter table public.progress enable row level security;
@@ -103,7 +107,9 @@ begin
 end;
 $$;
 
-revoke all on function public.delete_account() from public;
+-- RGPD : réservé aux utilisateurs connectés (jamais anon). SECURITY DEFINER
+-- intentionnel — ne supprime que le compte de auth.uid() (l'appelant lui-même).
+revoke all on function public.delete_account() from public, anon;
 grant execute on function public.delete_account() to authenticated;
 
 -- ── Upsert de progression (gère les index uniques partiels, que PostgREST ne
