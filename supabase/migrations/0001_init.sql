@@ -105,3 +105,50 @@ $$;
 
 revoke all on function public.delete_account() from public;
 grant execute on function public.delete_account() to authenticated;
+
+-- ── Upsert de progression (gère les index uniques partiels, que PostgREST ne
+-- sait pas cibler directement). security invoker → la RLS s'applique. ───────────
+create or replace function public.set_progress(
+  p_guide_id text, p_step_id text, p_status text
+) returns void language plpgsql security invoker set search_path = public as $$
+begin
+  if p_status not in ('in_progress', 'completed') then
+    raise exception 'invalid status: %', p_status;
+  end if;
+
+  if p_step_id is null then
+    insert into public.progress (user_id, guide_id, step_id, status, completed_at)
+    values (auth.uid(), p_guide_id, null, p_status,
+            case when p_status = 'completed' then now() end)
+    on conflict (user_id, guide_id) where step_id is null
+    do update set status = excluded.status,
+                  completed_at = case when excluded.status = 'completed' then now() else null end;
+  else
+    insert into public.progress (user_id, guide_id, step_id, status, completed_at)
+    values (auth.uid(), p_guide_id, p_step_id, p_status,
+            case when p_status = 'completed' then now() end)
+    on conflict (user_id, guide_id, step_id) where step_id is not null
+    do update set status = excluded.status,
+                  completed_at = case when excluded.status = 'completed' then now() else null end;
+  end if;
+end;
+$$;
+
+grant execute on function public.set_progress(text, text, text) to authenticated;
+
+-- Annule une progression (retour à « non commencé » = absence de ligne).
+create or replace function public.unset_progress(
+  p_guide_id text, p_step_id text
+) returns void language plpgsql security invoker set search_path = public as $$
+begin
+  if p_step_id is null then
+    delete from public.progress
+      where user_id = auth.uid() and guide_id = p_guide_id and step_id is null;
+  else
+    delete from public.progress
+      where user_id = auth.uid() and guide_id = p_guide_id and step_id = p_step_id;
+  end if;
+end;
+$$;
+
+grant execute on function public.unset_progress(text, text) to authenticated;

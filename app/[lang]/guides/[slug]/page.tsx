@@ -14,6 +14,7 @@ import {
 import type { GuideNode, ParsedGuide } from "@/lib/content/types";
 import { GuideContent } from "@/components/guide/guide-content";
 import { GuideRelations } from "@/components/guide/guide-relations";
+import { GuideProgress } from "@/components/guide/guide-progress";
 import styles from "./guide.module.css";
 
 export const dynamicParams = false;
@@ -84,6 +85,7 @@ export default async function GuidePage({
 
   const title = locale === "fr" ? meta.title_fr : meta.title_en;
   const tagline = locale === "fr" ? meta.tagline_fr : meta.tagline_en;
+  const stepIds = guide.sections.flatMap((s) => s.steps.map((st) => st.id));
 
   return (
     <article className={`container ${styles.page}`}>
@@ -119,6 +121,9 @@ export default async function GuidePage({
           />
         </section>
       ) : null}
+
+      {/* Suivi de progression par étape — îlot client (la page reste SSG). */}
+      <GuideProgress guideId={meta.id} steps={stepIds} locale={locale} />
 
       <GuideContent guide={guide} locale={locale} figures={figures} />
 

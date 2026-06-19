@@ -10,9 +10,78 @@
   font-family: var(--font-mono);
   color: var(--accent);
 }
-.todo {
+.next {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  margin: 1.5rem 0;
+  color: var(--fg);
+}
+.next:hover {
+  text-decoration: none;
+  background: color-mix(in srgb, var(--accent) 10%, var(--bg-elevated));
+}
+.next strong {
+  font-size: 1.05rem;
+}
+.nextArrow {
+  margin-left: auto;
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+
+.parcours {
+  list-style: none;
+  margin: 2rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+.row_completed {
+  border-color: color-mix(in srgb, var(--ok) 50%, var(--border));
+}
+.row_inprogress {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+}
+.rowOrder {
+  color: var(--accent);
+  font-weight: 700;
+}
+.rowSoon {
+  color: var(--fg-faint);
+}
+.badge {
+  margin-left: auto;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
   color: var(--fg-muted);
-  margin: 1.5rem 0 2.5rem;
+}
+.badge_completed {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+.badge_inprogress {
+  color: var(--accent);
+  border-color: var(--accent);
 }
 .actions {
   display: flex;
