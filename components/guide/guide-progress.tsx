@@ -1,16 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { Locale } from "@/lib/i18n/config";
 import styles from "./guide-progress.module.css";
+
+type BrowserClient = ReturnType<typeof createSupabaseBrowserClient>;
 
 const COPY = {
   fr: {
     title: "Ta progression",
     login: "Connecte-toi pour suivre ta progression",
-    done: "Terminé",
     of: "sur",
     steps: "étapes",
     complete: "🎉 Guide terminé !",
@@ -18,7 +20,6 @@ const COPY = {
   en: {
     title: "Your progress",
     login: "Sign in to track your progress",
-    done: "Completed",
     of: "of",
     steps: "steps",
     complete: "🎉 Guide completed!",
@@ -38,11 +39,18 @@ export function GuideProgress({
   const [ready, setReady] = useState(false);
   const [authed, setAuthed] = useState(false);
   const [done, setDone] = useState<Set<string>>(new Set());
-  const [supabase] = useState(() => createSupabaseBrowserClient());
+  // Le client est créé UNIQUEMENT dans l'effet (navigateur) — jamais au rendu,
+  // sinon le prerender SSG des pages de guide planterait sans env Supabase.
+  const clientRef = useRef<BrowserClient | null>(null);
 
-  // Chargement initial : tout setState a lieu APRÈS un await (pas de synchrone dans l'effet).
   useEffect(() => {
     let active = true;
+    if (!isSupabaseConfigured()) {
+      setReady(true);
+      return;
+    }
+    clientRef.current ??= createSupabaseBrowserClient();
+    const supabase = clientRef.current;
     (async () => {
       const {
         data: { user },
@@ -69,10 +77,10 @@ export function GuideProgress({
     return () => {
       active = false;
     };
-  }, [guideId, supabase]);
+  }, [guideId]);
 
   // Maintient la ligne « niveau guide » cohérente avec l'état des étapes.
-  async function syncGuideLevel(completedCount: number) {
+  async function syncGuideLevel(supabase: BrowserClient, completedCount: number) {
     if (completedCount >= steps.length && steps.length > 0) {
       await supabase.rpc("set_progress", {
         p_guide_id: guideId,
@@ -94,6 +102,8 @@ export function GuideProgress({
   }
 
   async function toggle(stepId: string) {
+    const supabase = clientRef.current;
+    if (!supabase) return;
     const next = new Set(done);
     if (next.has(stepId)) {
       next.delete(stepId);
@@ -110,7 +120,7 @@ export function GuideProgress({
       });
     }
     setDone(next);
-    await syncGuideLevel(next.size);
+    await syncGuideLevel(supabase, next.size);
   }
 
   if (!ready) return null;
