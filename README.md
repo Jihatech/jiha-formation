@@ -45,8 +45,10 @@ docs/                Specs de référence (PLATFORM-SPEC, BUILD-SPEC, GUIDE-TEMP
 
 1. **Migration** : exécuter `supabase/migrations/0001_init.sql` dans Supabase → SQL Editor
    (tables `profiles`/`progress`, RLS, RPC `set_progress`/`unset_progress`/`delete_account`).
-2. **GitHub OAuth** : créer une OAuth App (callback `https://<ref>.supabase.co/auth/v1/callback`),
-   coller `client_id`/`client_secret` dans Supabase → Authentication → Providers → GitHub.
+2. **Google OAuth** : créer des identifiants OAuth (Google Cloud Console → APIs & Services →
+   Credentials → OAuth client ID, type *Web application*), avec l'URI de redirection autorisée
+   `https://<ref>.supabase.co/auth/v1/callback` ; coller `client_id`/`client_secret` dans
+   Supabase → Authentication → Providers → Google.
 3. **URL Configuration** : *Site URL* + *Redirect URLs* = `<NEXT_PUBLIC_SITE_URL>/auth/callback`.
 
 ## Déploiement Vercel
@@ -56,13 +58,13 @@ docs/                Specs de référence (PLATFORM-SPEC, BUILD-SPEC, GUIDE-TEMP
    - `NEXT_PUBLIC_SITE_URL` = l'URL de production Vercel
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY` *(optionnel au MVP — réservé)*
-3. Ajouter l'URL de prod dans les *Redirect URLs* Supabase + l'OAuth App GitHub.
+3. Ajouter l'URL de prod dans les *Redirect URLs* Supabase + les *Authorized redirect URIs* du client OAuth Google.
 4. (Phase 2) Webhook GitHub sur JIHA-Learn → *Deploy Hook* Vercel pour re-synchroniser le contenu.
 
 ## Avancement (phase 1 — MVP)
 
 - [x] **Lot 1** — Scaffold + thème CRT/ambre + i18n (URLs par langue).
 - [x] **Lot 2** — Sync contenu JIHA-Learn + parseur + rendu bilingue (Vaultwarden/Traefik, figures).
-- [x] **Lot 3** — Supabase : auth (email+mdp + GitHub OAuth) + table `progress` + RGPD.
+- [x] **Lot 3** — Supabase : auth (email+mdp + Google OAuth) + table `progress` + RGPD.
 - [x] **Lot 4** — Dashboard de progression + marquage par `step-xx` + prochain guide.
 - [ ] **Lot 5** — Déploiement Vercel _(config + CI prêts ; déploiement = action manuelle)_.
