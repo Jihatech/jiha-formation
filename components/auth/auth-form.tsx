@@ -9,7 +9,7 @@ import {
   signUpAction,
   type AuthState,
 } from "@/lib/auth/actions";
-import { GithubButton } from "./github-button";
+import { GoogleButton } from "./google-button";
 import styles from "./auth-form.module.css";
 
 type Mode = "login" | "signup" | "reset";
@@ -66,7 +66,7 @@ export function AuthForm({ mode, locale }: { mode: Mode; locale: Locale }) {
 
       {mode !== "reset" ? (
         <>
-          <GithubButton locale={locale} />
+          <GoogleButton locale={locale} />
           <div className={styles.divider}>{c.or}</div>
         </>
       ) : null}
