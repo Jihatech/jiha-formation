@@ -36,7 +36,10 @@ export function GuideProgress({
   locale: Locale;
 }) {
   const c = COPY[locale];
-  const [ready, setReady] = useState(false);
+  // Si Supabase n'est pas configuré, on est « prêt » d'emblée (invite à se connecter) :
+  // évite tout setState synchrone dans l'effet. Lecture d'env pure, sans client.
+  const configured = isSupabaseConfigured();
+  const [ready, setReady] = useState(!configured);
   const [authed, setAuthed] = useState(false);
   const [done, setDone] = useState<Set<string>>(new Set());
   // Le client est créé UNIQUEMENT dans l'effet (navigateur) — jamais au rendu,
@@ -45,10 +48,7 @@ export function GuideProgress({
 
   useEffect(() => {
     let active = true;
-    if (!isSupabaseConfigured()) {
-      setReady(true);
-      return;
-    }
+    if (!isSupabaseConfigured()) return;
     clientRef.current ??= createSupabaseBrowserClient();
     const supabase = clientRef.current;
     (async () => {
