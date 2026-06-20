@@ -1,9 +1,14 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { getGuidesInOrder } from "@/lib/content/source";
+import { getCurrentUser } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import styles from "./guides.module.css";
+
+// Parcours réservé aux inscrits (rendu dynamique : lit la session).
+export const dynamic = "force-dynamic";
 
 export default async function GuidesPage({
   params,
@@ -14,6 +19,13 @@ export default async function GuidesPage({
   if (!isLocale(lang)) notFound();
   const locale = lang as Locale;
   const t = getDictionary(locale);
+
+  // Gating : le parcours n'est visible qu'après inscription (pousse à l'envie).
+  if (isSupabaseConfigured()) {
+    const user = await getCurrentUser();
+    if (!user) redirect(`/${locale}/signup`);
+  }
+
   const guides = await getGuidesInOrder();
 
   return (

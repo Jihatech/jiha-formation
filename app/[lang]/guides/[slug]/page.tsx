@@ -1,27 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { isLocale, locales, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { SITE_URL } from "@/lib/config";
 import {
   getManifest,
   getManifestGuide,
-  getRenderableSlugs,
+  getPublicGuide,
   loadFigureSvg,
   loadGuide,
 } from "@/lib/content/source";
+import { getCurrentUser } from "@/lib/supabase/server";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { GuideNode, ParsedGuide } from "@/lib/content/types";
 import { GuideContent } from "@/components/guide/guide-content";
 import { GuideRelations } from "@/components/guide/guide-relations";
 import { GuideProgress } from "@/components/guide/guide-progress";
 import styles from "./guide.module.css";
 
-export const dynamicParams = false;
+// Le 1er guide (public) est prérendu ; les autres sont rendus à la demande
+// avec contrôle d'accès (parcours gated).
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const slugs = await getRenderableSlugs();
-  return locales.flatMap((lang) => slugs.map((slug) => ({ lang, slug })));
+  const pub = await getPublicGuide();
+  if (!pub) return [];
+  return locales.map((lang) => ({ lang, slug: pub.slug }));
 }
 
 function figureNames(guide: ParsedGuide): string[] {
@@ -72,6 +77,15 @@ export default async function GuidePage({
   const meta = await getManifestGuide(slug);
   const guide = await loadGuide(slug);
   if (!meta || !guide) notFound();
+
+  // Gating : seul le 1er guide (public) est ouvert ; les autres exigent un compte.
+  // Le guide public ne lit pas les cookies → reste prérendu (SSG, SEO).
+  const pub = await getPublicGuide();
+  const isPublic = pub?.id === meta.id;
+  if (!isPublic && isSupabaseConfigured()) {
+    const user = await getCurrentUser();
+    if (!user) redirect(`/${locale}/signup`);
+  }
 
   const manifest = (await getManifest()).guides;
 

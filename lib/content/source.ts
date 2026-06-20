@@ -54,6 +54,16 @@ export async function getManifestGuide(
   return (await getManifest()).guides.find((g) => g.id === id || g.slug === id);
 }
 
+// Guide « public » (1er gratuit) : le guide publié au plus petit `order`.
+// Décision produit : parcours gated, mais 1er guide ouvert (SEO + acquisition).
+export async function getPublicGuide(): Promise<ManifestGuide | null> {
+  const published = (await getManifest()).guides.filter(
+    (g) => g.status === "published",
+  );
+  if (!published.length) return null;
+  return published.reduce((a, b) => (a.order <= b.order ? a : b));
+}
+
 /** Liste des slugs de guides dont le fichier content/<id>.md existe (pour generateStaticParams). */
 export async function getRenderableSlugs(): Promise<string[]> {
   let files: string[] = [];
