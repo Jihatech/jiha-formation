@@ -16,7 +16,8 @@ import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { GuideNode, ParsedGuide } from "@/lib/content/types";
 import { GuideContent } from "@/components/guide/guide-content";
 import { GuideRelations } from "@/components/guide/guide-relations";
-import { GuideProgress } from "@/components/guide/guide-progress";
+import { QuizProgress } from "@/components/guide/quiz-progress";
+import { getGuideQuiz } from "@/lib/quiz";
 import styles from "./guide.module.css";
 
 // Le 1er guide (public) est prérendu ; les autres sont rendus à la demande
@@ -136,8 +137,13 @@ export default async function GuidePage({
         </section>
       ) : null}
 
-      {/* Suivi de progression par étape — îlot client (la page reste SSG). */}
-      <GuideProgress guideId={meta.id} steps={stepIds} locale={locale} />
+      {/* Progression validée par QCM — îlot client (la page reste SSG). */}
+      <QuizProgress
+        guideId={meta.id}
+        steps={stepIds}
+        quiz={getGuideQuiz(meta.id)}
+        locale={locale}
+      />
 
       <GuideContent guide={guide} locale={locale} figures={figures} />
 
