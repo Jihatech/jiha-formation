@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi peut-on écrire WORDPRESS_DB_HOST: db, sans aucune IP ?",
+      "q_en": "Why can we write WORDPRESS_DB_HOST: db, without any IP?",
+      "choices": [
+        { "fr": "Parce que « db » est un alias magique réservé aux bases de données", "en": "Because \"db\" is a magic alias reserved for databases" },
+        { "fr": "Compose crée un réseau pour la stack avec DNS interne : le nom du service EST son adresse", "en": "Compose creates a network for the stack with internal DNS: the service name IS its address" },
+        { "fr": "Parce que depends_on: [db] copie l'IP de db dans wordpress", "en": "Because depends_on: [db] copies db's IP into wordpress" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le réseau automatique de la stack résout chaque service par son nom — aucune IP à gérer.",
+      "explain_en": "The stack's automatic network resolves each service by name — no IPs to manage."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Si tu lances docker compose up SANS -d, que se passe-t-il ?",
+      "q_en": "If you run docker compose up WITHOUT -d, what happens?",
+      "choices": [
+        { "fr": "La stack refuse de démarrer : -d est obligatoire", "en": "The stack refuses to start: -d is mandatory" },
+        { "fr": "Seul le premier service du fichier démarre", "en": "Only the first service in the file starts" },
+        { "fr": "Tu restes attaché aux logs, et un Ctrl+C arrête toute la stack", "en": "You stay attached to the logs, and a Ctrl+C stops the whole stack" }
+      ],
+      "answer": 2,
+      "explain_fr": "-d (detached) fait tourner la stack en arrière-plan et te rend la main — en pratique, on est toujours en -d.",
+      "explain_en": "-d (detached) runs the stack in the background and frees your shell — in practice you always use -d."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Après docker compose down puis up -d, pourquoi WordPress se souvient-il de ton installation ?",
+      "q_en": "After docker compose down then up -d, why does WordPress remember your installation?",
+      "choices": [
+        { "fr": "down supprime les conteneurs mais préserve les volumes nommés : db-data a survécu", "en": "down removes the containers but preserves named volumes: db-data survived" },
+        { "fr": "down met les conteneurs en pause sans rien supprimer", "en": "down pauses the containers without removing anything" },
+        { "fr": "Compose garde une copie des conteneurs dans un cache interne", "en": "Compose keeps a copy of the containers in an internal cache" }
+      ],
+      "answer": 0,
+      "explain_fr": "down est non-destructif pour la donnée ; c'est down -v qui détruit aussi les volumes — donc ta base.",
+      "explain_en": "down is non-destructive for data; it's down -v that also destroys the volumes — meaning your database."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi sortir MARIADB_ROOT_PASSWORD du compose.yaml vers un fichier .env ?",
+      "q_en": "Why move MARIADB_ROOT_PASSWORD out of compose.yaml into a .env file?",
+      "choices": [
+        { "fr": "Parce que MariaDB ne lit ses mots de passe que depuis un .env", "en": "Because MariaDB only reads its passwords from a .env file" },
+        { "fr": "Pour versionner et partager le compose.yaml sans exposer tes secrets — le .env reste sur ta machine (et gitignoré)", "en": "To version and share compose.yaml without exposing your secrets — the .env stays on your machine (and gitignored)" },
+        { "fr": "Parce que l'interpolation ${...} rend le démarrage plus rapide", "en": "Because ${...} interpolation makes startup faster" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un mot de passe en dur dans un YAML poussé sur Git est public — le pattern universel : YAML partageable, .env local.",
+      "explain_en": "A hard-coded password in a YAML pushed to Git is public — the universal pattern: shareable YAML, local .env."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi attacher wordpress au réseau proxy, mais surtout PAS db ?",
+      "q_en": "Why attach wordpress to the proxy network, but NOT db?",
+      "choices": [
+        { "fr": "Parce qu'un conteneur ne peut appartenir qu'à un seul réseau à la fois", "en": "Because a container can only belong to one network at a time" },
+        { "fr": "Parce que le réseau proxy est trop lent pour une base de données", "en": "Because the proxy network is too slow for a database" },
+        { "fr": "Règle de sécurité : seuls les services à exposer rejoignent proxy ; la base reste isolée sur le réseau de la stack", "en": "Security rule: only services meant to be exposed join proxy; the database stays isolated on the stack's network" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le reverse proxy doit joindre wordpress, jamais ta base : moins un service est exposé, mieux c'est.",
+      "explain_en": "The reverse proxy must reach wordpress, never your database: the less a service is exposed, the better."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que garantit depends_on basique (sans healthcheck), et pourquoi est-ce insuffisant ?",
+      "q_en": "What does basic depends_on (without a healthcheck) guarantee, and why isn't it enough?",
+      "choices": [
+        { "fr": "Il garantit seulement l'ordre de démarrage, pas que la base soit prête — WordPress peut planter pendant que MariaDB s'initialise", "en": "It only guarantees start order, not that the database is ready — WordPress can crash while MariaDB is still initializing" },
+        { "fr": "Il garantit que db est saine avant de lancer wordpress, mais ralentit le démarrage", "en": "It guarantees db is healthy before starting wordpress, but slows down startup" },
+        { "fr": "Il redémarre automatiquement wordpress si db tombe en panne", "en": "It automatically restarts wordpress if db goes down" }
+      ],
+      "answer": 0,
+      "explain_fr": "« Démarré » n'est pas « prêt » : healthcheck + condition: service_healthy fait attendre Compose jusqu'à ce que la base réponde sainement.",
+      "explain_en": "\"Started\" is not \"ready\": healthcheck + condition: service_healthy makes Compose wait until the database answers healthily."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Dans le squelette bonnes pratiques, pourquoi restart: unless-stopped plutôt que always ?",
+      "q_en": "In the best-practices skeleton, why restart: unless-stopped rather than always?",
+      "choices": [
+        { "fr": "unless-stopped consomme moins de mémoire que always", "en": "unless-stopped uses less memory than always" },
+        { "fr": "always relancerait le service même après un arrêt volontaire de ta part", "en": "always would restart the service even after you deliberately stopped it" },
+        { "fr": "always est déprécié depuis Compose v2", "en": "always has been deprecated since Compose v2" }
+      ],
+      "answer": 1,
+      "explain_fr": "unless-stopped respecte tes arrêts volontaires tout en relançant le service après un crash ou un reboot.",
+      "explain_en": "unless-stopped honors your deliberate stops while still restarting the service after a crash or reboot."
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi séparer library/ et postgres/ en deux dossiers distincts ?",
+      "q_en": "Why keep library/ and postgres/ as two separate folders?",
+      "choices": [
+        { "fr": "Parce qu'Immich refuse de démarrer si tout est dans le même dossier", "en": "Because Immich refuses to start if everything is in the same folder" },
+        { "fr": "Ce sont deux natures de données qui se sauvegardent différemment : photos par ajout, base figée (pas copiée à chaud)", "en": "They're two kinds of data backed up differently: photos by addition, database frozen (not copied hot)" },
+        { "fr": "Pour que PostgreSQL démarre plus vite", "en": "So PostgreSQL starts faster" }
+      ],
+      "answer": 1,
+      "explain_fr": "La base doit être sauvegardée figée via un dump, les photos par synchronisation incrémentale — d'où les deux dossiers.",
+      "explain_en": "The database must be backed up frozen via a dump, the photos via incremental sync — hence the two folders."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi télécharger le compose officiel de la release v1.135.3 au lieu d'écrire le tien ou de prendre « latest » ?",
+      "q_en": "Why download the official compose file from release v1.135.3 instead of writing your own or grabbing \"latest\"?",
+      "choices": [
+        { "fr": "La stack a 4 conteneurs interdépendants dont les versions doivent matcher : le compose de la release garantit la compatibilité avec la version qu'on pinne", "en": "The stack has 4 interdependent containers whose versions must match: the release's compose file guarantees compatibility with the version we pin" },
+        { "fr": "Le compose officiel est le seul à contenir les labels Traefik", "en": "The official compose file is the only one containing the Traefik labels" },
+        { "fr": "GitHub bloque le téléchargement des fichiers « latest »", "en": "GitHub blocks downloading \"latest\" files" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un compose maintenu à la main = casse assurée à chaque mise à jour majeure ; celui de la release matche exactement la version pinée.",
+      "explain_en": "A hand-maintained compose file = guaranteed breakage at every major update; the release's file exactly matches the pinned version."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que risques-tu en laissant IMMICH_VERSION=release au lieu de pinner v1.135.3 ?",
+      "q_en": "What do you risk by leaving IMMICH_VERSION=release instead of pinning v1.135.3?",
+      "choices": [
+        { "fr": "Rien, « release » est plus stable que les tags versionnés", "en": "Nothing — \"release\" is more stable than versioned tags" },
+        { "fr": "Immich refusera de télécharger les images", "en": "Immich will refuse to pull the images" },
+        { "fr": "C'est un tag flottant : une mise à jour majeure peut casser la migration de la base pendant que tu dors", "en": "It's a floating tag: a major update can break the database migration while you sleep" }
+      ],
+      "answer": 2,
+      "explain_fr": "En pinnant, c'est toi qui décides quand mettre à jour — après avoir lu les release notes.",
+      "explain_en": "By pinning, you decide when to update — after reading the release notes."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quels services de la stack Immich doivent rejoindre le réseau proxy de Traefik ?",
+      "q_en": "Which services of the Immich stack should join Traefik's proxy network?",
+      "choices": [
+        { "fr": "Les 4, pour que Traefik puisse tous les surveiller", "en": "All 4, so Traefik can watch them all" },
+        { "fr": "Seulement immich-server — la base, redis et le ML restent sur le réseau interne default", "en": "Only immich-server — the database, redis and the ML stay on the internal default network" },
+        { "fr": "immich-server et la base de données, puisque le serveur doit lui parler", "en": "immich-server and the database, since the server must talk to it" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le réseau proxy est partagé entre toutes tes stacks : une base qui y traîne serait joignable par tous les autres conteneurs.",
+      "explain_en": "The proxy network is shared across all your stacks: a database sitting there would be reachable by every other container."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi lancer docker compose pull avant up -d pour cette stack ?",
+      "q_en": "Why run docker compose pull before up -d for this stack?",
+      "choices": [
+        { "fr": "Les images Immich sont lourdes : sans pull préalable, tu peux prendre un long téléchargement en arrière-plan pour un crash", "en": "Immich images are heavy: without a prior pull, you may mistake a long background download for a crash" },
+        { "fr": "up -d ne sait pas télécharger les images manquantes", "en": "up -d can't download missing images" },
+        { "fr": "pull vérifie la signature de sécurité des images", "en": "pull verifies the images' security signatures" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le pull séparé rend le téléchargement visible ; ensuite le premier démarrage (init de la base) peut encore prendre 2 à 5 minutes.",
+      "explain_en": "A separate pull makes the download visible; after that, first startup (database init) can still take 2 to 5 minutes."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi configurer le Storage Template AVANT d'uploader la moindre photo ?",
+      "q_en": "Why configure the Storage Template BEFORE uploading a single photo?",
+      "choices": [
+        { "fr": "Sans template, Immich refuse les uploads", "en": "Without a template, Immich rejects uploads" },
+        { "fr": "Le template chiffre les photos sur le disque", "en": "The template encrypts photos on disk" },
+        { "fr": "Par défaut les fichiers sont nommés en UUIDs illisibles ; le template les range en année/mois, récupérables « à la main »", "en": "By default files are named with unreadable UUIDs; the template organizes them by year/month, recoverable \"by hand\"" }
+      ],
+      "answer": 2,
+      "explain_fr": "Même logique que le premier compte qui devient admin : ces deux réglages se font avant tout upload.",
+      "explain_en": "Same logic as the first account becoming admin: both settings must be done before any upload."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quelle URL donnes-tu à l'app mobile comme Server Endpoint ?",
+      "q_en": "Which URL do you give the mobile app as the Server Endpoint?",
+      "choices": [
+        { "fr": "L'IP locale du serveur avec le port 2283", "en": "The server's local IP with port 2283" },
+        { "fr": "https://photos.exemple.com — l'app refuse d'envoyer tes photos en clair sans HTTPS valide", "en": "https://photos.exemple.com — the app refuses to send your photos in clear text without valid HTTPS" },
+        { "fr": "http://photos.exemple.com, le HTTPS est ajouté automatiquement", "en": "http://photos.exemple.com — HTTPS is added automatically" }
+      ],
+      "answer": 1,
+      "explain_fr": "Si le cadenas n'est pas vert dans le navigateur du téléphone, l'app ne marchera pas non plus.",
+      "explain_en": "If the padlock isn't green in the phone's browser, the app won't work either."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Pourquoi sauvegarder la base avec pg_dumpall dans le conteneur plutôt qu'un cp -r du dossier postgres ?",
+      "q_en": "Why back up the database with pg_dumpall inside the container rather than a cp -r of the postgres folder?",
+      "choices": [
+        { "fr": "cp -r ne suit pas les liens symboliques de PostgreSQL", "en": "cp -r doesn't follow PostgreSQL's symbolic links" },
+        { "fr": "pg_dumpall compresse mieux que gzip", "en": "pg_dumpall compresses better than gzip" },
+        { "fr": "Copier les fichiers d'une base en cours d'écriture peut corrompre le backup ; pg_dumpall produit un SQL cohérent même base active", "en": "Copying a database's files while it's being written can corrupt the backup; pg_dumpall produces consistent SQL even with the database live" }
+      ],
+      "answer": 2,
+      "explain_fr": "Et on l'exécute DANS le conteneur database : le binaire y est présent, contrairement au sqlite3 absent de l'image Vaultwarden.",
+      "explain_en": "And we run it INSIDE the database container: the binary is there, unlike the sqlite3 missing from the Vaultwarden image."
+    }
+  ]
+}
