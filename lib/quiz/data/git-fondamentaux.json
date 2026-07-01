@@ -1,0 +1,72 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Juste après un git add (et avant tout commit), dans quelle zone se trouve ton fichier ?",
+      "q_en": "Right after a git add (and before any commit), which area is your file in?",
+      "choices": [
+        { "fr": "Dans le dépôt local (.git/), il fait déjà partie de l'historique", "en": "In the local repository (.git/), already part of the history" },
+        { "fr": "Dans le staging (l'index), en préparation pour le prochain commit", "en": "In the staging area (the index), prepared for the next commit" },
+        { "fr": "Sur le dépôt distant (origin), visible par les autres", "en": "On the remote (origin), visible to others" }
+      ],
+      "answer": 1,
+      "explain_fr": "git add sélectionne ce qui entrera dans le prochain commit ; c'est git commit qui l'enregistre dans le dépôt local.",
+      "explain_en": "git add selects what goes into the next commit; only git commit records it in the local repository."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi git reset --hard est-il classé dangereux dans ce palier ?",
+      "q_en": "Why is git reset --hard flagged as dangerous in this tier?",
+      "choices": [
+        { "fr": "Il détruit tes modifications non commitées, sans corbeille ni retour en arrière", "en": "It destroys your uncommitted changes, with no trash bin and no way back" },
+        { "fr": "Il supprime la branche courante et tout son historique", "en": "It deletes the current branch and its entire history" },
+        { "fr": "Il pousse automatiquement tes changements sur le dépôt distant", "en": "It automatically pushes your changes to the remote" }
+      ],
+      "answer": 0,
+      "explain_fr": "Ce qui n'a jamais été commité n'existe nulle part ailleurs : --hard l'efface définitivement.",
+      "explain_en": "Anything never committed exists nowhere else: --hard wipes it for good."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Tu veux une identité différente sur un projet pro (email boulot) sans toucher au reste. Comment fais-tu ?",
+      "q_en": "You want a different identity on a work project (work email) without affecting anything else. How do you do it?",
+      "choices": [
+        { "fr": "Impossible : l'identité Git est unique pour toute la machine", "en": "Impossible: the Git identity is unique for the whole machine" },
+        { "fr": "Tu refais git config --global à chaque fois que tu changes de projet", "en": "You redo git config --global every time you switch projects" },
+        { "fr": "Tu lances git config user.email ... (sans --global) à la racine du projet : la config locale gagne", "en": "You run git config user.email ... (without --global) at the project's root: local config wins" }
+      ],
+      "answer": 2,
+      "explain_fr": "La config locale d'un repo prime sur la globale — et l'identité est inscrite dans chaque commit que tu crées.",
+      "explain_en": "A repo's local config overrides the global one — and that identity is written into every commit you make."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "À quoi sert le -u dans git push -u origin main ?",
+      "q_en": "What does the -u do in git push -u origin main?",
+      "choices": [
+        { "fr": "Il force le push même si les historiques ont divergé", "en": "It forces the push even if the histories have diverged" },
+        { "fr": "Il lie main local à main sur origin : ensuite un simple git push ou git pull suffit", "en": "It links local main to main on origin: afterwards a plain git push or git pull is enough" },
+        { "fr": "Il met à jour Git vers la dernière version avant de pousser", "en": "It updates Git to the latest version before pushing" }
+      ],
+      "answer": 1,
+      "explain_fr": "-u (upstream) établit le suivi entre ta branche locale et la distante, une fois pour toutes.",
+      "explain_en": "-u (upstream) sets up tracking between your local branch and the remote one, once and for all."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Dans le GitHub Flow, pourquoi créer une branche dédiée par feature au lieu de committer sur main ?",
+      "q_en": "In GitHub Flow, why create a dedicated branch per feature instead of committing to main?",
+      "choices": [
+        { "fr": "Ça force la revue de code via PR et garde main toujours propre et déployable", "en": "It enforces code review through PRs and keeps main clean and deployable at all times" },
+        { "fr": "Parce que Git interdit techniquement de committer directement sur main", "en": "Because Git technically forbids committing directly to main" },
+        { "fr": "Parce que les commits sont plus rapides sur une branche que sur main", "en": "Because commits are faster on a branch than on main" }
+      ],
+      "answer": 0,
+      "explain_fr": "Une feature = une branche = une PR : le workflow utilisé par 90 % des équipes modernes.",
+      "explain_en": "One feature = one branch = one PR: the workflow used by 90% of modern teams."
+    }
+  ]
+}

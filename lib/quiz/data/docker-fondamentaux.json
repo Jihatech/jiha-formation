@@ -1,0 +1,114 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Après docker stop web puis docker rm web, que reste-t-il sur ta machine ?",
+      "q_en": "After docker stop web then docker rm web, what is left on your machine?",
+      "choices": [
+        { "fr": "Rien : le conteneur et l'image nginx:1.27 sont supprimés", "en": "Nothing: both the container and the nginx:1.27 image are removed" },
+        { "fr": "Le conteneur, en état « Exited », prêt à être redémarré", "en": "The container, in \"Exited\" state, ready to be restarted" },
+        { "fr": "L'image nginx:1.27 : rm supprime le conteneur, pas l'image", "en": "The nginx:1.27 image: rm removes the container, not the image" }
+      ],
+      "answer": 2,
+      "explain_fr": "L'image est la recette, le conteneur le plat servi : détruire un conteneur ne détruit jamais son image.",
+      "explain_en": "The image is the recipe, the container the dish: destroying a container never destroys its image."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Dans -p 8080:80, pourquoi mapper sur 8080 côté hôte plutôt que 80:80 ?",
+      "q_en": "In -p 8080:80, why map to 8080 on the host rather than 80:80?",
+      "choices": [
+        { "fr": "Les ports sous 1024 exigent d'être root sur l'hôte", "en": "Ports below 1024 require root on the host" },
+        { "fr": "nginx refuse d'écouter sur le port 80", "en": "nginx refuses to listen on port 80" },
+        { "fr": "Docker n'autorise pas le même numéro des deux côtés", "en": "Docker doesn't allow the same number on both sides" }
+      ],
+      "answer": 0,
+      "explain_fr": "La syntaxe est HOTE:CONTENEUR ; 80:80 marche, mais seulement en root — d'où la convention 8080.",
+      "explain_en": "The syntax is HOST:CONTAINER; 80:80 works, but only as root — hence the 8080 convention."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi les flags -it dans docker exec -it web bash ?",
+      "q_en": "Why the -it flags in docker exec -it web bash?",
+      "choices": [
+        { "fr": "Pour lancer bash en arrière-plan sans bloquer ton terminal", "en": "To run bash in the background without blocking your terminal" },
+        { "fr": "Interactive + TTY : sans eux, bash se lance mais tu ne peux pas taper de commandes", "en": "Interactive + TTY: without them, bash starts but you can't type commands" },
+        { "fr": "Pour obtenir les droits root dans le conteneur", "en": "To get root privileges inside the container" }
+      ],
+      "answer": 1,
+      "explain_fr": "-i (interactive) + -t (TTY) = un vrai shell utilisable pour débugger l'intérieur du conteneur.",
+      "explain_en": "-i (interactive) + -t (TTY) = a real usable shell to debug inside the container."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi configurer PostgreSQL avec -e POSTGRES_USER=... plutôt qu'en modifiant l'image ?",
+      "q_en": "Why configure PostgreSQL with -e POSTGRES_USER=... rather than modifying the image?",
+      "choices": [
+        { "fr": "Parce que l'image PostgreSQL est en lecture seule et impossible à rebuild", "en": "Because the PostgreSQL image is read-only and impossible to rebuild" },
+        { "fr": "Parce que les variables d'env sont chiffrées par Docker", "en": "Because env variables are encrypted by Docker" },
+        { "fr": "C'est la convention Docker : une même image sert 1000 contextes juste avec des env vars", "en": "It's the Docker convention: one image serves 1000 contexts with env vars alone" }
+      ],
+      "answer": 2,
+      "explain_fr": "Configurer sans toucher à l'image, c'est le pattern « 12-factor app » — universel dans l'écosystème Docker.",
+      "explain_en": "Configuring without touching the image is the \"12-factor app\" pattern — universal in the Docker ecosystem."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi la table « persistant » survit-elle au docker rm -f db du second crash-test ?",
+      "q_en": "Why does the \"persistant\" table survive the docker rm -f db in the second crash test?",
+      "choices": [
+        { "fr": "Postgres écrit sa base dans le volume nommé db-data, qui n'est pas détruit avec le conteneur", "en": "Postgres writes its database to the named volume db-data, which isn't destroyed with the container" },
+        { "fr": "docker rm -f garde automatiquement une sauvegarde des données", "en": "docker rm -f automatically keeps a backup of the data" },
+        { "fr": "Le nouveau conteneur retélécharge les données depuis Docker Hub", "en": "The new container re-downloads the data from Docker Hub" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sans volume, les données meurent avec le conteneur ; avec un volume nommé, elles vivent séparément de lui.",
+      "explain_en": "Without a volume, data dies with the container; with a named volume, it lives separately from it."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi créer un network custom (mon-reseau) au lieu de laisser les conteneurs sur le bridge par défaut ?",
+      "q_en": "Why create a custom network (mon-reseau) instead of leaving containers on the default bridge?",
+      "choices": [
+        { "fr": "Le bridge par défaut est plus lent qu'un network custom", "en": "The default bridge is slower than a custom network" },
+        { "fr": "Sur le bridge par défaut, les conteneurs ne se joignent que par IP ; le network nommé apporte la résolution DNS par nom", "en": "On the default bridge, containers can only reach each other by IP; a named network brings DNS resolution by name" },
+        { "fr": "Le bridge par défaut n'accepte qu'un seul conteneur à la fois", "en": "The default bridge only accepts one container at a time" }
+      ],
+      "answer": 1,
+      "explain_fr": "C'est grâce au DNS interne du network nommé que client joint api par son nom, sans aucune IP.",
+      "explain_en": "It's the named network's internal DNS that lets client reach api by name, without any IP."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi choisir python:3.12-slim comme image de base plutôt que python:3.12 ?",
+      "q_en": "Why choose python:3.12-slim as the base image rather than python:3.12?",
+      "choices": [
+        { "fr": "slim est la seule variante qui accepte la commande COPY", "en": "slim is the only variant that supports the COPY command" },
+        { "fr": "slim inclut plus d'outils de debug préinstallés", "en": "slim ships with more debugging tools preinstalled" },
+        { "fr": "La variante slim pèse ~150 Mo au lieu de ~1 Go, pour le même Python", "en": "The slim variant weighs ~150 MB instead of ~1 GB, for the same Python" }
+      ],
+      "answer": 2,
+      "explain_fr": "Préfère toujours slim/alpine : des images plus légères, plus rapides à pull et à déployer.",
+      "explain_en": "Always prefer slim/alpine: lighter images, faster to pull and deploy."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Pourquoi inventorier (docker volume ls, docker system df) AVANT de lancer docker system prune -a --volumes ?",
+      "q_en": "Why take inventory (docker volume ls, docker system df) BEFORE running docker system prune -a --volumes?",
+      "choices": [
+        { "fr": "Parce que cette variante supprime irréversiblement les volumes non rattachés à un conteneur — données précieuses comprises", "en": "Because that variant irreversibly deletes volumes not attached to a container — valuable data included" },
+        { "fr": "Parce que prune refuse de s'exécuter si on n'a pas listé les volumes avant", "en": "Because prune refuses to run if you haven't listed volumes first" },
+        { "fr": "Pour accélérer le prune en pré-calculant l'espace à libérer", "en": "To speed up the prune by pre-computing the space to reclaim" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un volume orphelin (conteneur supprimé, pas relancé) part définitivement : inventorier d'abord, supprimer ensuite.",
+      "explain_en": "An orphaned volume (container removed, not restarted) is gone for good: inventory first, delete second."
+    }
+  ]
+}

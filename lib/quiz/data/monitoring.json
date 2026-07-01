@@ -1,0 +1,142 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi un dossier ~/monitoring dédié avec un sous-dossier prometheus/ ?",
+      "q_en": "Why a dedicated ~/monitoring folder with a prometheus/ sub-folder?",
+      "choices": [
+        { "fr": "Un dossier = une stack (compose, .env, config) : le pattern qui garde ton serveur lisible dans six mois", "en": "One folder = one stack (compose, .env, config): the pattern that keeps your server readable six months from now" },
+        { "fr": "Prometheus exige ce chemin exact pour trouver sa config", "en": "Prometheus requires this exact path to find its config" },
+        { "fr": "Docker Compose ne fonctionne qu'à la racine du home", "en": "Docker Compose only works at the root of your home directory" }
+      ],
+      "answer": 0,
+      "explain_fr": "Toute la stack (4 services) vit dans un seul projet Compose, rangé au même endroit.",
+      "explain_en": "The whole stack (4 services) lives in a single Compose project, kept in one place."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Dans prometheus.yml, pourquoi les cibles sont-elles node-exporter:9100 ou cadvisor:8080 et pas des IP ?",
+      "q_en": "In prometheus.yml, why are the targets node-exporter:9100 or cadvisor:8080 rather than IPs?",
+      "choices": [
+        { "fr": "Prometheus n'accepte pas les adresses IP dans static_configs", "en": "Prometheus doesn't accept IP addresses in static_configs" },
+        { "fr": "Ce sont des alias définis dans /etc/hosts de l'hôte", "en": "They're aliases defined in the host's /etc/hosts" },
+        { "fr": "Ce sont des noms de services Docker : Prometheus les résout sur le réseau interne du projet Compose", "en": "They're Docker service names: Prometheus resolves them on the Compose project's internal network" }
+      ],
+      "answer": 2,
+      "explain_fr": "C'est le modèle pull : Prometheus va chercher lui-même les /metrics de ses cibles, jointes par nom de service.",
+      "explain_en": "That's the pull model: Prometheus fetches its targets' /metrics itself, reaching them by service name."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Tu changes GF_SECURITY_ADMIN_PASSWORD dans le .env après le premier démarrage de Grafana. Que se passe-t-il ?",
+      "q_en": "You change GF_SECURITY_ADMIN_PASSWORD in .env after Grafana's first startup. What happens?",
+      "choices": [
+        { "fr": "Le mot de passe admin est mis à jour au prochain redémarrage", "en": "The admin password is updated on the next restart" },
+        { "fr": "Rien : le compte admin est créé au premier démarrage, ensuite le mot de passe se change dans l'UI", "en": "Nothing: the admin account is created on first startup; after that the password is changed in the UI" },
+        { "fr": "Grafana refuse de démarrer tant que l'ancien mot de passe est en cache", "en": "Grafana refuses to start while the old password is cached" }
+      ],
+      "answer": 1,
+      "explain_fr": "Ces variables ne servent qu'à la création initiale du compte — et via env_file, les valeurs se collent brutes, sans guillemets ni $$.",
+      "explain_en": "Those variables only seed the initial account — and via env_file, values are pasted raw, no quotes and no $$."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi doubler chaque $ du hash bcrypt en $$ avant de le coller dans le compose.yaml ?",
+      "q_en": "Why double every $ of the bcrypt hash into $$ before pasting it into compose.yaml?",
+      "choices": [
+        { "fr": "Compose interprète ${...} (interpolation) : un $ littéral doit être échappé en $$ — l'inverse du .env chargé par env_file", "en": "Compose interprets ${...} (interpolation): a literal $ must be escaped as $$ — the opposite of the env_file-loaded .env" },
+        { "fr": "Traefik exige des $$ dans tous ses labels", "en": "Traefik requires $$ in all its labels" },
+        { "fr": "Le doublement rend le hash deux fois plus difficile à casser", "en": "Doubling makes the hash twice as hard to crack" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sans le doublement, Compose « mange » les $ du hash et la basic auth refusera ton mot de passe.",
+      "explain_en": "Without the doubling, Compose \"eats\" the hash's $ signs and basic auth will reject your password."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Dans le compose, quels services rejoignent le réseau proxy en plus de default ?",
+      "q_en": "In the compose file, which services join the proxy network in addition to default?",
+      "choices": [
+        { "fr": "Les 4, pour que Traefik voie toute la stack", "en": "All 4, so Traefik sees the whole stack" },
+        { "fr": "Seulement node-exporter et cAdvisor, puisqu'ils exposent les métriques", "en": "Only node-exporter and cAdvisor, since they expose the metrics" },
+        { "fr": "Seulement Prometheus et Grafana : les exporters n'ont rien à faire sur le réseau d'exposition", "en": "Only Prometheus and Grafana: the exporters have no business on the exposure network" }
+      ],
+      "answer": 2,
+      "explain_fr": "Les exporters restent internes : rien à exposer, rien à protéger — Prometheus les scrape via default.",
+      "explain_en": "The exporters stay internal: nothing to expose, nothing to protect — Prometheus scrapes them over default."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Après le up -d, pourquoi aller vérifier Status → Targets plutôt que se contenter d'un docker compose ps tout vert ?",
+      "q_en": "After up -d, why check Status → Targets instead of settling for an all-green docker compose ps?",
+      "choices": [
+        { "fr": "Parce que docker compose ps ne fonctionne pas sur cette stack", "en": "Because docker compose ps doesn't work on this stack" },
+        { "fr": "« Le conteneur tourne » ne veut pas dire « le scrape fonctionne » : une cible DOWN maintenant = un dashboard vide plus tard", "en": "\"The container is running\" doesn't mean \"the scrape works\": a DOWN target now = an empty dashboard later" },
+        { "fr": "C'est la seule page qui affiche la version de Prometheus", "en": "It's the only page showing the Prometheus version" }
+      ],
+      "answer": 1,
+      "explain_fr": "Status → Targets est ta source de vérité : les 3 jobs (prometheus, node, cadvisor) doivent être UP.",
+      "explain_en": "Status → Targets is your source of truth: all 3 jobs (prometheus, node, cadvisor) must be UP."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi la data source Grafana pointe-t-elle sur http://prometheus:9090 et pas http://localhost:9090 ?",
+      "q_en": "Why does the Grafana data source point at http://prometheus:9090 and not http://localhost:9090?",
+      "choices": [
+        { "fr": "Vu depuis le conteneur Grafana, localhost c'est… Grafana lui-même ; les conteneurs se résolvent par nom de service", "en": "Seen from the Grafana container, localhost is… Grafana itself; containers resolve each other by service name" },
+        { "fr": "localhost fonctionne mais est plus lent que le nom de service", "en": "localhost works but is slower than the service name" },
+        { "fr": "Il faut passer par l'URL publique HTTPS de Prometheus", "en": "You must go through Prometheus's public HTTPS URL" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'erreur n°1 des débutants ici — et bonus : pas besoin d'exposer Prometheus à Internet pour que Grafana lui parle.",
+      "explain_en": "The #1 beginner mistake here — bonus: no need to expose Prometheus to the Internet for Grafana to reach it."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Pourquoi importer les dashboards 1860, 893 et 3662 plutôt que construire les tiens from scratch ?",
+      "q_en": "Why import dashboards 1860, 893 and 3662 instead of building your own from scratch?",
+      "choices": [
+        { "fr": "Grafana ne permet pas de créer des dashboards à la main", "en": "Grafana doesn't let you build dashboards by hand" },
+        { "fr": "Des milliers de gens ont déjà itéré dessus : bons panels, bonnes requêtes PromQL — tu apprends plus vite en lisant leurs requêtes", "en": "Thousands of people have already iterated on them: good panels, good PromQL queries — you learn faster reading their queries" },
+        { "fr": "Les dashboards importés se mettent à jour automatiquement", "en": "Imported dashboards update themselves automatically" }
+      ],
+      "answer": 1,
+      "explain_fr": "Et reste discipliné : 3-5 dashboards que tu regardes vraiment valent mieux que 30 jamais ouverts.",
+      "explain_en": "And stay disciplined: 3-5 dashboards you actually look at beat 30 you never open."
+    }
+  ],
+  "step-09": [
+    {
+      "q_fr": "Pourquoi ce guide utilise-t-il les alertes Grafana plutôt qu'Alertmanager ?",
+      "q_en": "Why does this guide use Grafana alerts rather than Alertmanager?",
+      "choices": [
+        { "fr": "Alertmanager ne sait pas notifier Discord ou Telegram", "en": "Alertmanager can't notify Discord or Telegram" },
+        { "fr": "Les alertes Grafana sont plus fiables que celles de Prometheus", "en": "Grafana alerts are more reliable than Prometheus's" },
+        { "fr": "Pour un homelab, elles couvrent le besoin avec beaucoup moins de pièces mobiles ; Alertmanager viendra si les règles se multiplient", "en": "For a homelab they cover the need with far fewer moving parts; Alertmanager can come later once rules multiply" }
+      ],
+      "answer": 2,
+      "explain_fr": "Et n'oublie pas le contact point : une règle d'alerte sans contact point évalue dans le vide.",
+      "explain_en": "And don't forget the contact point: an alert rule without one evaluates into the void."
+    }
+  ],
+  "step-10": [
+    {
+      "q_fr": "Pourquoi Prometheus s'interroge-t-il en PromQL et pas en SQL ?",
+      "q_en": "Why is Prometheus queried with PromQL and not SQL?",
+      "choices": [
+        { "fr": "Il stocke des séries temporelles, pas des lignes : PromQL est conçu pour ça (rate(), sum(), agrégations par label)", "en": "It stores time series, not rows: PromQL is built for that (rate(), sum(), aggregations by label)" },
+        { "fr": "SQL est trop lent pour les métriques", "en": "SQL is too slow for metrics" },
+        { "fr": "PromQL est juste un dialecte SQL renommé", "en": "PromQL is just a renamed SQL dialect" }
+      ],
+      "answer": 0,
+      "explain_fr": "Quelques heures d'apprentissage : c'est le langage de toutes tes futures alertes et de tous tes panels.",
+      "explain_en": "A few hours of learning: it's the language of all your future alerts and panels."
+    }
+  ]
+}

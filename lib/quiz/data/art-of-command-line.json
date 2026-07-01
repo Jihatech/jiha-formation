@@ -1,0 +1,58 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi le mini-défi te fait-il travailler dans un bac à sable ~/playground avec des fichiers vides ?",
+      "q_en": "Why does the mini-challenge have you work in a ~/playground sandbox with empty files?",
+      "choices": [
+        { "fr": "Parce que les commandes de base ne fonctionnent que dans ton dossier home", "en": "Because the basic commands only work inside your home folder" },
+        { "fr": "Parce que les fichiers vides s'affichent mieux avec ls -la", "en": "Because empty files display better with ls -la" },
+        { "fr": "Parce que rm supprime définitivement, sans corbeille — le bac à sable évite de perdre de vraies données", "en": "Because rm deletes permanently, with no trash bin — the sandbox keeps real data safe" }
+      ],
+      "answer": 2,
+      "explain_fr": "En CLI il n'y a pas de corbeille : on s'entraîne sur du jetable avant de toucher au vrai.",
+      "explain_en": "There is no trash bin on the CLI: you practice on disposable files before touching anything real."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "touch test{1..10}.txt crée 10 fichiers d'un coup. Qui transforme {1..10} en dix noms de fichiers ?",
+      "q_en": "touch test{1..10}.txt creates 10 files at once. What turns {1..10} into ten file names?",
+      "choices": [
+        { "fr": "Le shell, avant de lancer touch — la commande reçoit déjà les 10 noms", "en": "The shell, before touch even runs — the command already receives the 10 names" },
+        { "fr": "La commande touch elle-même, qui sait interpréter les accolades", "en": "The touch command itself, which knows how to parse braces" },
+        { "fr": "Le système de fichiers, qui génère les noms à la création", "en": "The filesystem, which generates the names at creation time" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'expansion shell (*, {1..10}, $VAR) se fait avant l'exécution : la commande ne voit jamais le motif.",
+      "explain_en": "Shell expansion (*, {1..10}, $VAR) happens before execution: the command never sees the pattern."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Dans le pattern « top N » sort | uniq -c | sort -rn, pourquoi le premier sort est-il indispensable avant uniq -c ?",
+      "q_en": "In the \"top N\" pattern sort | uniq -c | sort -rn, why is the first sort essential before uniq -c?",
+      "choices": [
+        { "fr": "Parce que uniq refuse de s'exécuter sur une entrée non triée", "en": "Because uniq refuses to run on unsorted input" },
+        { "fr": "Parce que uniq -c ne compte que les doublons consécutifs — sans tri, les comptes seraient faux", "en": "Because uniq -c only counts consecutive duplicates — without sorting, the counts would be wrong" },
+        { "fr": "Uniquement pour accélérer le traitement des gros fichiers", "en": "Purely to speed up processing on large files" }
+      ],
+      "answer": 1,
+      "explain_fr": "sort regroupe les lignes identiques côte à côte, condition pour que uniq -c les compte correctement.",
+      "explain_en": "sort puts identical lines next to each other, which is what lets uniq -c count them correctly."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi du -sh ~/*/ 2>/dev/null affiche les tailles des dossiers mais aucune erreur « Permission denied » ?",
+      "q_en": "Why does du -sh ~/*/ 2>/dev/null show folder sizes but no \"Permission denied\" errors?",
+      "choices": [
+        { "fr": "Parce que du ignore par défaut les dossiers qu'il ne peut pas lire", "en": "Because du silently skips unreadable folders by default" },
+        { "fr": "Parce que /dev/null filtre les lignes contenant le mot « denied »", "en": "Because /dev/null filters out lines containing the word \"denied\"" },
+        { "fr": "Parce que les erreurs sortent sur stderr, redirigé vers /dev/null, tandis que les résultats restent sur stdout", "en": "Because errors go to stderr, redirected to /dev/null, while the results stay on stdout" }
+      ],
+      "answer": 2,
+      "explain_fr": "stdout et stderr sont deux flux séparés : 2> ne détourne que les erreurs, le résultat utile reste visible.",
+      "explain_en": "stdout and stderr are two separate streams: 2> only diverts the errors, the useful output stays visible."
+    }
+  ]
+}
