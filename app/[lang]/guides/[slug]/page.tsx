@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { isLocale, locales, type Locale } from "@/lib/i18n/config";
+import { isLocale, type Locale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/dictionaries";
 import { SITE_URL } from "@/lib/config";
 import {
@@ -20,15 +20,12 @@ import { QuizProgress } from "@/components/guide/quiz-progress";
 import { getGuideQuiz } from "@/lib/quiz";
 import styles from "./guide.module.css";
 
-// Le 1er guide (public) est prérendu ; les autres sont rendus à la demande
-// avec contrôle d'accès (parcours gated).
-export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  const pub = await getPublicGuide();
-  if (!pub) return [];
-  return locales.map((lang) => ({ lang, slug: pub.slug }));
-}
+// Rendu DYNAMIQUE obligatoire : la page lit les cookies (session) pour le
+// gating. Un rendu statique à la demande avec cookies() lève
+// DYNAMIC_SERVER_USAGE → 500 en prod (vu dans les logs Vercel).
+// Le guide public reste servi en SSR (indexable) ; optimisation possible plus
+// tard : gating au niveau du proxy pour re-prérendre les pages (ROADMAP).
+export const dynamic = "force-dynamic";
 
 function figureNames(guide: ParsedGuide): string[] {
   const names = new Set<string>();
