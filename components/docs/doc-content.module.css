@@ -1,0 +1,16 @@
+.content {
+  min-width: 0;
+}
+.section {
+  margin: 2rem 0;
+  scroll-margin-top: 72px;
+}
+.section:first-child {
+  margin-top: 0.5rem;
+}
+.sectionTitle {
+  font-size: 1.35rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.45rem;
+  margin-bottom: 1rem;
+}

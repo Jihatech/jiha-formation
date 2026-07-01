@@ -4,6 +4,7 @@ import type { Locale } from "./config";
 // never from here — see PLATFORM-SPEC §2 (le manifeste/contenu reste source de vérité).
 const dictionaries = {
   fr: {
+    "nav.docs": "Docs",
     "nav.guides": "Parcours",
     "nav.dashboard": "Ma progression",
     "nav.login": "Connexion",
@@ -31,6 +32,7 @@ const dictionaries = {
     "footer.tagline": "jiha.tech — formation DevOps & self-hosting",
   },
   en: {
+    "nav.docs": "Docs",
     "nav.guides": "Path",
     "nav.dashboard": "My progress",
     "nav.login": "Sign in",

@@ -1,0 +1,114 @@
+{
+  "step-01": [
+    {
+      "q_fr": "À quoi sert le wildcard DNS *.exemple.com ?",
+      "q_en": "What is the *.exemple.com DNS wildcard for?",
+      "choices": [
+        { "fr": "À obtenir un certificat wildcard automatiquement", "en": "To automatically get a wildcard certificate" },
+        { "fr": "À créer de nouveaux sous-domaines (vault., photos., …) sans retoucher le DNS", "en": "To create new subdomains (vault., photos., …) without touching DNS again" },
+        { "fr": "À accélérer la résolution DNS", "en": "To speed up DNS resolution" }
+      ],
+      "answer": 1,
+      "explain_fr": "Attention : wildcard DNS (routage) ≠ certificat wildcard (qui exigerait un DNS challenge).",
+      "explain_en": "Careful: DNS wildcard (routing) ≠ wildcard certificate (which would require a DNS challenge)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi créer un réseau Docker externe partagé (proxy) ?",
+      "q_en": "Why create a shared external Docker network (proxy)?",
+      "choices": [
+        { "fr": "C'est le point de rendez-vous : sans lui, Traefik ne peut pas joindre les conteneurs des autres stacks", "en": "It's the meeting point: without it, Traefik can't reach containers from other stacks" },
+        { "fr": "Pour isoler Traefik d'Internet", "en": "To isolate Traefik from the Internet" },
+        { "fr": "Docker l'exige pour tout reverse proxy", "en": "Docker requires it for any reverse proxy" }
+      ],
+      "answer": 0,
+      "explain_fr": "Toutes tes futures stacks s'y rattachent via external: true.",
+      "explain_en": "All your future stacks attach to it via external: true."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi chmod 600 sur acme.json ?",
+      "q_en": "Why chmod 600 on acme.json?",
+      "choices": [
+        { "fr": "Pour que Docker puisse l'écrire", "en": "So Docker can write to it" },
+        { "fr": "Il contient tes certificats et clés privées ; Traefik refuse de l'utiliser sinon", "en": "It holds your certificates and private keys; Traefik refuses to use it otherwise" },
+        { "fr": "C'est purement cosmétique", "en": "It's purely cosmetic" }
+      ],
+      "answer": 1,
+      "explain_fr": "600 = lisible uniquement par le propriétaire. Protection de base des clés privées.",
+      "explain_en": "600 = readable only by the owner. Basic protection for private keys."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Avec le TLS challenge de Let's Encrypt, quel port doit être joignable depuis Internet ?",
+      "q_en": "With Let's Encrypt's TLS challenge, which port must be reachable from the Internet?",
+      "choices": [
+        { "fr": "Le port 80", "en": "Port 80" },
+        { "fr": "Le port 8080", "en": "Port 8080" },
+        { "fr": "Le port 443", "en": "Port 443" }
+      ],
+      "answer": 2,
+      "explain_fr": "TLS challenge → 443. HTTP challenge → 80. Ne pas confondre (bug réel déjà rencontré).",
+      "explain_en": "TLS challenge → 443. HTTP challenge → 80. Don't mix them up (a real bug we've hit)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi protéger le dashboard avec un hash htpasswd plutôt qu'un mot de passe en clair ?",
+      "q_en": "Why protect the dashboard with an htpasswd hash rather than a plain password?",
+      "choices": [
+        { "fr": "Si le .env fuite ou finit dans Git, le mot de passe reste protégé", "en": "If the .env leaks or lands in Git, the password stays protected" },
+        { "fr": "Traefik ne supporte pas les mots de passe en clair", "en": "Traefik doesn't support plain passwords" },
+        { "fr": "Le hash est plus rapide à vérifier", "en": "A hash is faster to verify" }
+      ],
+      "answer": 0,
+      "explain_fr": "Même logique que l'ADMIN_TOKEN de Vaultwarden : jamais de secret en clair dans la config.",
+      "explain_en": "Same logic as Vaultwarden's ADMIN_TOKEN: never keep plain secrets in config."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Où Traefik stocke-t-il les certificats qu'il négocie avec Let's Encrypt ?",
+      "q_en": "Where does Traefik store the certificates it negotiates with Let's Encrypt?",
+      "choices": [
+        { "fr": "Dans le fichier acme.json", "en": "In the acme.json file" },
+        { "fr": "Dans la base de données Docker", "en": "In the Docker database" },
+        { "fr": "Dans /etc/ssl du conteneur, perdu à chaque redémarrage", "en": "In the container's /etc/ssl, lost on every restart" }
+      ],
+      "answer": 0,
+      "explain_fr": "C'est pour ça qu'acme.json est monté en volume et protégé en 600.",
+      "explain_en": "That's why acme.json is volume-mounted and protected with 600."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "À quoi sert le conteneur whoami dans ce guide ?",
+      "q_en": "What is the whoami container for in this guide?",
+      "choices": [
+        { "fr": "À afficher l'utilisateur Linux courant", "en": "To display the current Linux user" },
+        { "fr": "À monitorer Traefik en continu", "en": "To continuously monitor Traefik" },
+        { "fr": "À valider la mécanique de routage HTTPS de bout en bout avant de brancher de vrais services", "en": "To validate the end-to-end HTTPS routing before wiring real services" }
+      ],
+      "answer": 2,
+      "explain_fr": "Service jetable : si whoami répond en HTTPS valide, ton reverse proxy fonctionne.",
+      "explain_en": "Disposable service: if whoami answers over valid HTTPS, your reverse proxy works."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Pour exposer un nouveau service derrière Traefik, le pattern c'est…",
+      "q_en": "To expose a new service behind Traefik, the pattern is…",
+      "choices": [
+        { "fr": "Ouvrir un nouveau port sur l'hôte pour chaque service", "en": "Open a new host port for each service" },
+        { "fr": "Attacher le service au réseau proxy + ajouter les labels traefik.*, sans exposer de port", "en": "Attach the service to the proxy network + add traefik.* labels, exposing no ports" },
+        { "fr": "Redémarrer Traefik avec une nouvelle config statique", "en": "Restart Traefik with a new static config" }
+      ],
+      "answer": 1,
+      "explain_fr": "Traefik découvre le service via les labels Docker : zéro port exposé, zéro config centrale à éditer.",
+      "explain_en": "Traefik discovers the service via Docker labels: no exposed ports, no central config to edit."
+    }
+  ]
+}

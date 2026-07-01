@@ -1,0 +1,114 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi le dossier vw-data/ est-il « ta vraie donnée précieuse » ?",
+      "q_en": "Why is the vw-data/ folder \"your real valuable data\"?",
+      "choices": [
+        { "fr": "Il contient la base, les clés RSA et les pièces jointes, qui survivent à la destruction du conteneur", "en": "It holds the database, RSA keys and attachments, which survive container destruction" },
+        { "fr": "Il contient l'image Docker de Vaultwarden", "en": "It contains the Vaultwarden Docker image" },
+        { "fr": "Il accélère le démarrage du conteneur", "en": "It speeds up container startup" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le conteneur est jetable ; tout ce qui doit survivre vit dans le volume monté.",
+      "explain_en": "The container is disposable; everything that must survive lives in the mounted volume."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi stocker un hash Argon2id plutôt que le mot de passe admin en clair ?",
+      "q_en": "Why store an Argon2id hash instead of the plain admin password?",
+      "choices": [
+        { "fr": "Parce que Vaultwarden refuse les mots de passe en clair", "en": "Because Vaultwarden refuses plain-text passwords" },
+        { "fr": "Si le .env fuite (ou finit dans Git), le secret reste protégé", "en": "If the .env leaks (or ends up in Git), the secret stays protected" },
+        { "fr": "Pour que le mot de passe soit plus court à taper", "en": "So the password is shorter to type" }
+      ],
+      "answer": 1,
+      "explain_fr": "Même principe que les mots de passe utilisateurs en base : on ne stocke jamais le clair.",
+      "explain_en": "Same principle as user passwords in a database: never store the plain text."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Avec env_file (notre cas), comment colles-tu le hash ADMIN_TOKEN dans le .env ?",
+      "q_en": "With env_file (our setup), how do you paste the ADMIN_TOKEN hash into .env?",
+      "choices": [
+        { "fr": "Entre guillemets simples", "en": "Wrapped in single quotes" },
+        { "fr": "En doublant chaque $ en $$", "en": "Doubling every $ into $$" },
+        { "fr": "Brut : sans guillemets et sans doubler les $", "en": "Raw: no quotes and no doubling of $" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le doublement $$ n'est nécessaire que via environment: avec interpolation ${...}.",
+      "explain_en": "Doubling $$ is only needed via environment: with ${...} interpolation."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi pinner l'image (vaultwarden/server:1.34.1) au lieu de :latest ?",
+      "q_en": "Why pin the image (vaultwarden/server:1.34.1) instead of :latest?",
+      "choices": [
+        { "fr": ":latest est plus lent à télécharger", "en": ":latest is slower to download" },
+        { "fr": "Tu décides quand mettre à jour et tu sais quoi rollback si ça casse", "en": "You decide when to upgrade and know what to roll back to if it breaks" },
+        { "fr": "Les tags versionnés sont gratuits, :latest est payant", "en": "Versioned tags are free, :latest is paid" }
+      ],
+      "answer": 1,
+      "explain_fr": "Avec :latest, une mise à jour majeure peut casser ton service pendant la nuit.",
+      "explain_en": "With :latest, a major update can break your service overnight."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que fait l'option -d dans docker compose up -d ?",
+      "q_en": "What does the -d flag do in docker compose up -d?",
+      "choices": [
+        { "fr": "Elle lance le conteneur en arrière-plan (détaché) et te rend la main", "en": "It runs the container in the background (detached) and frees your shell" },
+        { "fr": "Elle supprime le conteneur précédent", "en": "It deletes the previous container" },
+        { "fr": "Elle active le mode debug", "en": "It enables debug mode" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sans -d, un Ctrl+C arrêterait le service. En prod on est toujours détaché.",
+      "explain_en": "Without -d, a Ctrl+C would stop the service. In production you always run detached."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Le label tls.certresolver=le doit correspondre à quoi, exactement ?",
+      "q_en": "The tls.certresolver=le label must match what, exactly?",
+      "choices": [
+        { "fr": "Au nom de domaine du service", "en": "The service's domain name" },
+        { "fr": "Au nom du certresolver défini dans la config Traefik", "en": "The certresolver name defined in the Traefik config" },
+        { "fr": "Au nom du conteneur Docker", "en": "The Docker container name" }
+      ],
+      "answer": 1,
+      "explain_fr": "Sinon : « certificate resolver not found ». C'est un bug réel déjà rencontré.",
+      "explain_en": "Otherwise: \"certificate resolver not found\". A real bug we've hit before."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi passer SIGNUPS_ALLOWED à false après avoir créé ton compte ?",
+      "q_en": "Why set SIGNUPS_ALLOWED to false after creating your account?",
+      "choices": [
+        { "fr": "Pour empêcher n'importe qui de créer un compte sur ton instance", "en": "To prevent anyone from creating an account on your instance" },
+        { "fr": "Pour chiffrer la base de données", "en": "To encrypt the database" },
+        { "fr": "Pour activer le panel admin", "en": "To enable the admin panel" }
+      ],
+      "answer": 0,
+      "explain_fr": "Tant que c'est true, quiconque découvre l'URL peut s'inscrire et consommer tes ressources.",
+      "explain_en": "While it's true, anyone who finds the URL can sign up and consume your resources."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Pourquoi utiliser la commande .backup de SQLite plutôt qu'un simple cp ?",
+      "q_en": "Why use SQLite's .backup command rather than a plain cp?",
+      "choices": [
+        { "fr": "cp ne fonctionne pas sur les fichiers .sqlite3", "en": "cp doesn't work on .sqlite3 files" },
+        { "fr": ".backup compresse automatiquement l'archive", "en": ".backup compresses the archive automatically" },
+        { "fr": "Copier pendant une écriture peut corrompre le backup ; .backup fait un snapshot cohérent", "en": "Copying during a write can corrupt the backup; .backup takes a consistent snapshot" }
+      ],
+      "answer": 2,
+      "explain_fr": "Et on utilise le sqlite3 de l'hôte : l'image Vaultwarden ne contient pas ce binaire.",
+      "explain_en": "And we use the host's sqlite3: the Vaultwarden image doesn't ship that binary."
+    }
+  ]
+}

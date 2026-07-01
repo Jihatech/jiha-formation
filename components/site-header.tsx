@@ -15,6 +15,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
           <Logo />
         </Link>
         <nav className={styles.nav}>
+          <Link href={`/${locale}/docs`}>{t("nav.docs")}</Link>
           <Link href={`/${locale}/guides`}>{t("nav.guides")}</Link>
           <Link href={`/${locale}/dashboard`}>{t("nav.dashboard")}</Link>
           <Link href={`/${locale}/login`}>{t("nav.login")}</Link>

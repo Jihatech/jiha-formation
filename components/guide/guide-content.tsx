@@ -1,121 +1,8 @@
-import { marked } from "marked";
 import type { Locale } from "@/lib/i18n/config";
-import type {
-  GuideNode,
-  GuideSection,
-  GuideStep,
-  ParsedGuide,
-} from "@/lib/content/types";
-import { codeTitle, sectionLabel } from "@/lib/content/section-labels";
+import type { GuideSection, GuideStep, ParsedGuide } from "@/lib/content/types";
+import { sectionLabel } from "@/lib/content/section-labels";
+import { Nodes, type FigureMap } from "@/components/content/nodes";
 import styles from "./guide-content.module.css";
-
-marked.setOptions({ async: false, gfm: true, breaks: false });
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
-
-// Prose : markdown → HTML. La prose de l'AUTRE langue est simplement ignorée
-// (URLs par langue : une page = une langue, BUILD-SPEC §6.2).
-function Prose({ markdown }: { markdown: string }) {
-  const html = marked.parse(markdown) as string;
-  return (
-    <div className={styles.prose} dangerouslySetInnerHTML={{ __html: html }} />
-  );
-}
-
-// Code PARTAGÉ : rendu verbatim dans une fenêtre terminal. On ne touche pas au
-// contenu (CHECKLIST §B : $/$$, guillemets). Seul l'échappement HTML d'affichage.
-function CodeBlock({ lang, content }: { lang: string | null; content: string }) {
-  return (
-    <div className={`terminal ${styles.code}`}>
-      <div className="terminal__bar">
-        <span className="terminal__dot terminal__dot--red" />
-        <span className="terminal__dot terminal__dot--yellow" />
-        <span className="terminal__dot terminal__dot--green" />
-        <span className="terminal__title">{codeTitle(lang)}</span>
-      </div>
-      <pre className="terminal__body">
-        <code dangerouslySetInnerHTML={{ __html: escapeHtml(content) }} />
-      </pre>
-    </div>
-  );
-}
-
-// Figure : SVG inline (s'il a été synchronisé depuis JIHA-Learn) + légende localisée.
-// Les libellés data-lang internes au SVG sont gérés par CSS via html[lang].
-function Figure({
-  caption,
-  svg,
-  name,
-}: {
-  caption: string;
-  svg: string | null;
-  name: string;
-}) {
-  return (
-    <figure className={styles.figure}>
-      {svg ? (
-        <div
-          className={styles.figureSvg}
-          dangerouslySetInnerHTML={{ __html: svg }}
-        />
-      ) : (
-        <div className={styles.figureMissing} role="img" aria-label={caption}>
-          [ schéma « {name} » à venir ]
-        </div>
-      )}
-      <figcaption className={styles.figcaption}>{caption}</figcaption>
-    </figure>
-  );
-}
-
-function Node({
-  node,
-  locale,
-  figures,
-}: {
-  node: GuideNode;
-  locale: Locale;
-  figures: Map<string, string | null>;
-}) {
-  switch (node.type) {
-    case "prose":
-      if (node.lang !== locale) return null;
-      return <Prose markdown={node.markdown} />;
-    case "code":
-      return <CodeBlock lang={node.lang} content={node.content} />;
-    case "figure":
-      return (
-        <Figure
-          name={node.name}
-          caption={locale === "fr" ? node.caption_fr : node.caption_en}
-          svg={figures.get(node.name) ?? null}
-        />
-      );
-  }
-}
-
-function Nodes({
-  nodes,
-  locale,
-  figures,
-}: {
-  nodes: GuideNode[];
-  locale: Locale;
-  figures: Map<string, string | null>;
-}) {
-  return (
-    <>
-      {nodes.map((node, i) => (
-        <Node key={i} node={node} locale={locale} figures={figures} />
-      ))}
-    </>
-  );
-}
 
 function Step({
   step,
@@ -124,7 +11,7 @@ function Step({
 }: {
   step: GuideStep;
   locale: Locale;
-  figures: Map<string, string | null>;
+  figures: FigureMap;
 }) {
   return (
     <section id={step.id} className={styles.step}>
@@ -146,7 +33,7 @@ function Section({
   section: GuideSection;
   index: number;
   locale: Locale;
-  figures: Map<string, string | null>;
+  figures: FigureMap;
 }) {
   const num = String(index + 1).padStart(2, "0");
   return (
@@ -170,7 +57,7 @@ export function GuideContent({
 }: {
   guide: ParsedGuide;
   locale: Locale;
-  figures: Map<string, string | null>;
+  figures: FigureMap;
 }) {
   return (
     <div className={styles.content}>

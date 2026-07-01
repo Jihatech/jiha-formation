@@ -1,0 +1,131 @@
+.box {
+  position: sticky;
+  top: 72px;
+  z-index: 5;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.1rem;
+  margin: 1.5rem 0;
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.counter {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+}
+.bar {
+  height: 6px;
+  background: var(--bg-terminal);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0.7rem 0;
+}
+.fill {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transition: width var(--transition);
+}
+.complete {
+  font-family: var(--font-mono);
+  color: var(--ok);
+  font-size: 0.85rem;
+  margin: 0.5rem 0;
+}
+
+.steps {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.35rem;
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.stepIcon {
+  width: 1.1em;
+  text-align: center;
+}
+.done {
+  color: var(--ok);
+}
+.done a {
+  color: var(--ok);
+}
+.current {
+  color: var(--accent);
+  font-weight: 700;
+}
+.current a {
+  color: var(--accent);
+}
+.locked {
+  color: var(--fg-faint);
+}
+.lockedLabel {
+  font-style: normal;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+}
+
+.quiz {
+  margin-top: 1rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 1rem;
+}
+.quizIntro {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+  margin: 0 0 0.4rem;
+}
+.question {
+  font-weight: 600;
+  margin: 0 0 0.7rem;
+}
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+}
+.choice {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  line-height: 1.4;
+}
+.choice:hover {
+  border-color: var(--accent);
+}
+.choice input {
+  accent-color: var(--accent);
+  margin-top: 0.2rem;
+}
+.wrong {
+  color: var(--danger);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+.right {
+  color: var(--ok);
+  font-size: 0.9rem;
+}

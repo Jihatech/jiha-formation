@@ -90,7 +90,7 @@ function parseBody(body: string): GuideSection[] {
   // Cible courante où pousser un node : l'étape ouverte, sinon les nodes de section.
   const pushNode = (node: GuideNode) => {
     if (!section) {
-      section = { id: "_preamble", nodes: [], steps: [] };
+      section = { id: "_preamble", title: "", nodes: [], steps: [] };
       sections.push(section);
     }
     (step ? step.nodes : section.nodes).push(node);
@@ -101,10 +101,18 @@ function parseBody(body: string): GuideSection[] {
     const line = lines[i];
     const trimmed = line.trim();
 
-    // Section : ## name
+    // Section : ## name — pour les fiches, le titre peut être bilingue « fr | en » ;
+    // l'ancre dérive de la partie FR (identique dans les deux langues, BUILD-SPEC §6.2).
     const sectionMatch = trimmed.match(/^##\s+(.+)$/);
     if (sectionMatch) {
-      section = { id: slugifyHeading(sectionMatch[1]), nodes: [], steps: [] };
+      const rawTitle = sectionMatch[1].trim();
+      const anchorSource = rawTitle.split("|")[0].trim();
+      section = {
+        id: slugifyHeading(anchorSource),
+        title: rawTitle,
+        nodes: [],
+        steps: [],
+      };
       sections.push(section);
       step = null;
       i++;
@@ -115,7 +123,7 @@ function parseBody(body: string): GuideSection[] {
     const stepMatch = trimmed.match(/^###\s+(.+)$/);
     if (stepMatch) {
       if (!section) {
-        section = { id: "_preamble", nodes: [], steps: [] };
+        section = { id: "_preamble", title: "", nodes: [], steps: [] };
         sections.push(section);
       }
       step = { id: slugifyHeading(stepMatch[1]), nodes: [] };
