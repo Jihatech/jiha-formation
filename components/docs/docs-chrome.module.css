@@ -1,0 +1,93 @@
+/* Sidebar gauche : arbre catégories → fiches */
+.sidebar {
+  font-size: 0.86rem;
+  position: sticky;
+  top: 72px;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+.group {
+  margin-bottom: 1.1rem;
+}
+.groupTitle {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 0.35rem;
+}
+.groupTitle:hover {
+  text-decoration: none;
+  color: var(--fg);
+}
+.groupList {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 0.6rem;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.groupList a {
+  color: var(--fg-muted);
+  display: block;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  line-height: 1.35;
+}
+.groupList a:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+.active {
+  color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+/* ToC droite */
+.toc {
+  position: sticky;
+  top: 72px;
+  font-size: 0.82rem;
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+}
+.toc ul {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0 0 0 0.6rem;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.toc a {
+  color: var(--fg-muted);
+  line-height: 1.35;
+}
+.toc a:hover {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* Fil d'Ariane */
+.crumbs {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--fg-muted);
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+}
+.crumbSep {
+  margin: 0 0.4rem;
+  color: var(--fg-faint);
+}
+.crumbCurrent {
+  color: var(--fg);
+}

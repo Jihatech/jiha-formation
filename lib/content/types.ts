@@ -60,6 +60,8 @@ export interface GuideStep {
 
 export interface GuideSection {
   id: string;
+  /** Titre brut du heading `## …` (les fiches utilisent `fr | en` ; les guides, des ids canoniques). */
+  title: string;
   /** Nodes avant le premier `### step` (ou tous les nodes pour les sections sans étapes). */
   nodes: GuideNode[];
   steps: GuideStep[];
