@@ -116,3 +116,33 @@
 :global(html[lang="en"]) .figureSvg :global([data-lang="fr"]) {
   display: none;
 }
+
+/* Admonitions :::note / :::warning (ROADMAP D3). */
+.admonition {
+  margin: 1.2rem 0;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+}
+.admonition > :last-child {
+  margin-bottom: 0;
+}
+.admonition p {
+  margin: 0.4rem 0;
+}
+.admonitionLabel {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+.admonitionWarning {
+  border-left-color: var(--danger);
+}
+.admonitionWarning .admonitionLabel {
+  color: var(--danger);
+}

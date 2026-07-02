@@ -14,8 +14,10 @@ import {
 import { getCurrentUser } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
 import type { GuideNode, ParsedGuide } from "@/lib/content/types";
+import { sectionLabel } from "@/lib/content/section-labels";
 import { GuideContent } from "@/components/guide/guide-content";
 import { GuideRelations } from "@/components/guide/guide-relations";
+import { DocToc } from "@/components/docs/docs-chrome";
 import { QuizProgress } from "@/components/guide/quiz-progress";
 import { getGuideQuiz } from "@/lib/quiz";
 import styles from "./guide.module.css";
@@ -121,46 +123,61 @@ export default async function GuidePage({
         <p className={styles.tagline}>{tagline}</p>
       </header>
 
-      {/* Prérequis résolus via le manifeste (BUILD-SPEC §3.4) */}
-      {meta.prerequisites?.length ? (
-        <section className={styles.relations}>
-          <h2 className="cli-header">{t("guide.prerequisites")}</h2>
-          <GuideRelations
-            ids={meta.prerequisites}
-            manifest={manifest}
+      {/* Corps + ToC des sections à droite (ROADMAP D3, comme /docs). */}
+      <div className={styles.grid}>
+        <div className={styles.mainCol}>
+          {/* Prérequis résolus via le manifeste (BUILD-SPEC §3.4) */}
+          {meta.prerequisites?.length ? (
+            <section className={styles.relations}>
+              <h2 className="cli-header">{t("guide.prerequisites")}</h2>
+              <GuideRelations
+                ids={meta.prerequisites}
+                manifest={manifest}
+                locale={locale}
+                soonLabel={t("guide.soon")}
+              />
+            </section>
+          ) : null}
+
+          {/* Progression validée par QCM — îlot client (la page reste SSG). */}
+          <QuizProgress
+            guideId={meta.id}
+            steps={stepIds}
+            quiz={getGuideQuiz(meta.id)}
             locale={locale}
-            soonLabel={t("guide.soon")}
           />
-        </section>
-      ) : null}
 
-      {/* Progression validée par QCM — îlot client (la page reste SSG). */}
-      <QuizProgress
-        guideId={meta.id}
-        steps={stepIds}
-        quiz={getGuideQuiz(meta.id)}
-        locale={locale}
-      />
+          <GuideContent guide={guide} locale={locale} figures={figures} />
 
-      <GuideContent guide={guide} locale={locale} figures={figures} />
-
-      {/* Et après ? + CTA fort (BUILD-SPEC §3.2 / §10) */}
-      <section className={styles.relations}>
-        <h2 className="cli-header">{t("guide.next")}</h2>
-        {meta.next?.length ? (
-          <GuideRelations
-            ids={meta.next}
-            manifest={manifest}
-            locale={locale}
-            soonLabel={t("guide.soon")}
-          />
-        ) : null}
-        <div className={styles.strongCta}>
-          <Link href={`/${locale}/dashboard`} className="btn btn--primary">
-            {t("nav.dashboard")} →
-          </Link>
+          {/* Et après ? + CTA fort (BUILD-SPEC §3.2 / §10) */}
+          <section className={styles.relations}>
+            <h2 className="cli-header">{t("guide.next")}</h2>
+            {meta.next?.length ? (
+              <GuideRelations
+                ids={meta.next}
+                manifest={manifest}
+                locale={locale}
+                soonLabel={t("guide.soon")}
+              />
+            ) : null}
+            <div className={styles.strongCta}>
+              <Link href={`/${locale}/dashboard`} className="btn btn--primary">
+                {t("nav.dashboard")} →
+              </Link>
+            </div>
+          </section>
         </div>
-      </section>
+
+        <div className={styles.tocCol}>
+          <DocToc
+            items={guide.sections.map((s) => ({
+              id: s.id,
+              label: sectionLabel(s.id, locale),
+            }))}
+            locale={locale}
+          />
+        </div>
+      </div>
     </article>
   );
 }
