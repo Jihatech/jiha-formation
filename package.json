@@ -8,6 +8,7 @@
     "dev": "next dev",
     "prebuild": "node scripts/sync-content.mjs",
     "build": "next build",
+    "postbuild": "rm -rf public/_pagefind && pagefind --site .next/server/app --output-path public/_pagefind",
     "start": "next start",
     "lint": "eslint",
     "check:parser": "tsx scripts/check-parser.mts"
@@ -27,6 +28,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
+    "pagefind": "^1.5.2",
     "tsx": "^4.22.4",
     "typescript": "^5"
   }

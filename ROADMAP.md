@@ -30,7 +30,9 @@ Invariants : ids stables (jamais renommés) · bilingue FR/EN systématique · c
 ## 3. Chantiers
 
 ### Court terme (plateforme)
-- [ ] **D2** — Recherche instantanée (Pagefind) sur /docs + sitemap.xml.
+- [x] **D2** — Recherche instantanée (Pagefind) sur /docs + sitemap.xml (+ robots.txt).
+      Index généré au postbuild depuis les pages prérendues (`data-pagefind-body`,
+      bilingue via `<html lang>`) ; sitemap = couche ouverte (home, docs, guide public).
 - [ ] **D3** — UX docs sur les pages guides : ToC à droite, admonitions `:::note/:::warning`, bouton copier le code.
 
 ### Moyen terme (contenu)

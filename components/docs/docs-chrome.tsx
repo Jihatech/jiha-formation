@@ -82,7 +82,7 @@ export function Breadcrumbs({
   items: { href?: string; label: string }[];
 }) {
   return (
-    <nav className={styles.crumbs} aria-label="Breadcrumb">
+    <nav className={styles.crumbs} aria-label="Breadcrumb" data-pagefind-ignore>
       {items.map((item, i) => (
         <span key={i}>
           {i > 0 ? <span className={styles.crumbSep}>/</span> : null}
