@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { isLocale, locales, type Locale } from "@/lib/i18n/config";
 import { SITE_URL } from "@/lib/config";
 import { getCategory } from "@/lib/docs/categories";
-import { getAllDocs, getDoc } from "@/lib/docs/source";
+import { getAllDocs, getDoc, splitSectionTitle } from "@/lib/docs/source";
 import { DocContent } from "@/components/docs/doc-content";
 import {
   Breadcrumbs,
@@ -112,7 +112,13 @@ export default async function DocPage({
         </article>
 
         <div className={styles.tocCol}>
-          <DocToc sections={entry.doc.sections} locale={locale} />
+          <DocToc
+            items={entry.doc.sections.map((s) => ({
+              id: s.id,
+              label: splitSectionTitle(s.title, locale),
+            }))}
+            locale={locale}
+          />
         </div>
       </div>
     </div>

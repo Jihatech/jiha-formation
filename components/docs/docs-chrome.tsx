@@ -2,8 +2,6 @@ import Link from "next/link";
 import type { Locale } from "@/lib/i18n/config";
 import type { DocEntry } from "@/lib/docs/source";
 import { docsCategories } from "@/lib/docs/categories";
-import { splitSectionTitle } from "@/lib/docs/source";
-import type { GuideSection } from "@/lib/content/types";
 import styles from "./docs-chrome.module.css";
 
 // Chrome de la section /docs : sidebar (arbre catégories → fiches),
@@ -52,23 +50,25 @@ export function DocsSidebar({
   );
 }
 
+// ToC générique (fiches ET guides, ROADMAP D3) : le libellé est préparé par
+// l'appelant (fiches : titre « fr | en » ; guides : label de section canonique).
 export function DocToc({
-  sections,
+  items,
   locale,
 }: {
-  sections: GuideSection[];
+  items: { id: string; label: string }[];
   locale: Locale;
 }) {
-  if (sections.length < 2) return null;
+  if (items.length < 2) return null;
   return (
     <nav className={styles.toc} aria-label="Table of contents">
       <p className="cli-header">
         {locale === "fr" ? "Sur cette page" : "On this page"}
       </p>
       <ul>
-        {sections.map((s) => (
-          <li key={s.id}>
-            <a href={`#${s.id}`}>{splitSectionTitle(s.title, locale)}</a>
+        {items.map((item) => (
+          <li key={item.id}>
+            <a href={`#${item.id}`}>{item.label}</a>
           </li>
         ))}
       </ul>

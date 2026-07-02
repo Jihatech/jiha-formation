@@ -55,11 +55,15 @@ docker builder prune --filter until=168h   # cache de plus de 7 jours / cache ol
 ```
 
 :::lang fr
-⚠️ `docker image prune -a` supprime **toutes** les images qu'aucun conteneur n'utilise — y compris celles que tu comptais relancer plus tard. Elles seront re-téléchargées, mais sur une connexion lente ou un registre privé, ça se paie.
+:::warning
+`docker image prune -a` supprime **toutes** les images qu'aucun conteneur n'utilise — y compris celles que tu comptais relancer plus tard. Elles seront re-téléchargées, mais sur une connexion lente ou un registre privé, ça se paie.
+:::
 :::
 
 :::lang en
-⚠️ `docker image prune -a` removes **every** image not used by a container — including ones you meant to run again later. They can be re-pulled, but on a slow connection or a private registry, that costs you.
+:::warning
+`docker image prune -a` removes **every** image not used by a container — including ones you meant to run again later. They can be re-pulled, but on a slow connection or a private registry, that costs you.
+:::
 :::
 
 ## Volumes : la zone dangereuse | Volumes: the danger zone
