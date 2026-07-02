@@ -1,7 +1,7 @@
 # ROADMAP — jiha.tech
 
 > Organisation du produit, du contenu et des chantiers. Mise à jour au fil des sessions.
-> Dernière mise à jour : 2026-07-01.
+> Dernière mise à jour : 2026-07-02.
 
 ---
 
@@ -29,12 +29,7 @@ Invariants : ids stables (jamais renommés) · bilingue FR/EN systématique · c
 
 ## 3. Chantiers
 
-### En attente d'action humaine
-- [ ] **Committer le zip livré dans JIHA-Learn** (6 guides convertis + guides.json + 8 SVG) → les 8 guides apparaissent au redeploy.
-- [ ] **Merger la PR #4** (gating + QCM + /docs) → mise en prod.
-
 ### Court terme (plateforme)
-- [ ] Quiz des 6 nouveaux guides (après commit JIHA-Learn).
 - [ ] **D2** — Recherche instantanée (Pagefind) sur /docs + sitemap.xml.
 - [ ] **D3** — UX docs sur les pages guides : ToC à droite, admonitions `:::note/:::warning`, bouton copier le code.
 
@@ -58,3 +53,7 @@ Invariants : ids stables (jamais renommés) · bilingue FR/EN systématique · c
 - [x] Gating (parcours inscrit, 1er guide public) + QCM séquentiels (traefik, vaultwarden).
 - [x] Base de connaissances /docs (6 fiches, 3 colonnes, ToC, CTA tunnel).
 - [x] CI lint+build, déploiement Vercel, migration Supabase appliquée.
+- [x] Les 8 guides convertis et publiés (JIHA-Learn) + quiz sur chaque étape.
+- [x] Fixes prod : contenu embarqué dans les fonctions serverless
+      (outputFileTracingIncludes) + route guide en force-dynamic
+      (cookies interdits en rendu statique — DYNAMIC_SERVER_USAGE).
