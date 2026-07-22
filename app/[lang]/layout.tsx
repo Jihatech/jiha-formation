@@ -3,8 +3,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import { isLocale, locales, type Locale } from "@/lib/i18n/config";
+import { SITE_URL } from "@/lib/config";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { Analytics } from "@/components/analytics";
 
 const sans = Geist({ variable: "--font-sans-stack", subsets: ["latin"] });
 const mono = Geist_Mono({ variable: "--font-mono-stack", subsets: ["latin"] });
@@ -14,6 +16,7 @@ export function generateStaticParams() {
 }
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "jiha.tech — formation DevOps & self-hosting",
   description:
     "Plateforme de formation DevOps, cloud et self-hosting. Guides hands-on, parcours structuré, suivi de progression.",
@@ -42,6 +45,7 @@ export default async function LangLayout({
         <SiteHeader locale={locale} />
         <main>{children}</main>
         <SiteFooter locale={locale} />
+        <Analytics />
       </body>
     </html>
   );
