@@ -29,7 +29,7 @@ export async function DocCta({
       : `/${locale}/signup`;
 
   return (
-    <aside className={styles.cta}>
+    <aside className={styles.cta} data-pagefind-ignore>
       <p className={styles.pitch}>
         {fr
           ? "Cette fiche répond à ta question. Pour vraiment maîtriser le sujet, apprends en déployant :"

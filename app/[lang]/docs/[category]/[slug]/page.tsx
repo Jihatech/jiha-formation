@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { isLocale, locales, type Locale } from "@/lib/i18n/config";
 import { SITE_URL } from "@/lib/config";
 import { getCategory } from "@/lib/docs/categories";
-import { getAllDocs, getDoc } from "@/lib/docs/source";
+import { getAllDocs, getDoc, splitSectionTitle } from "@/lib/docs/source";
 import { DocContent } from "@/components/docs/doc-content";
 import {
   Breadcrumbs,
@@ -11,6 +11,7 @@ import {
   DocToc,
 } from "@/components/docs/docs-chrome";
 import { DocCta } from "@/components/docs/doc-cta";
+import { DocsSearch } from "@/components/docs/docs-search";
 import styles from "../../docs.module.css";
 
 export const dynamicParams = false;
@@ -73,10 +74,12 @@ export default async function DocPage({
     <div className={`container ${styles.page}`}>
       <div className={styles.grid}>
         <div className={styles.sideCol}>
+          <DocsSearch locale={locale} />
           <DocsSidebar entries={entries} locale={locale} activeSlug={slug} />
         </div>
 
-        <article>
+        {/* data-pagefind-body : seules les fiches entrent dans l'index. */}
+        <article data-pagefind-body>
           <Breadcrumbs
             items={[
               { href: `/${locale}/docs`, label: "docs" },
@@ -90,7 +93,7 @@ export default async function DocPage({
           <h1 className={styles.title}>
             {fr ? entry.meta.title_fr : entry.meta.title_en}
           </h1>
-          <div className={styles.meta}>
+          <div className={styles.meta} data-pagefind-ignore>
             {entry.meta.updated ? (
               <span>
                 {fr ? "mis à jour le " : "updated "}
@@ -109,7 +112,13 @@ export default async function DocPage({
         </article>
 
         <div className={styles.tocCol}>
-          <DocToc sections={entry.doc.sections} locale={locale} />
+          <DocToc
+            items={entry.doc.sections.map((s) => ({
+              id: s.id,
+              label: splitSectionTitle(s.title, locale),
+            }))}
+            locale={locale}
+          />
         </div>
       </div>
     </div>

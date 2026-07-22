@@ -11,6 +11,7 @@ import {
   nextRecommended,
   type GuideStatus,
 } from "@/lib/progress/server";
+import { getSubscription, isSubscriptionActive } from "@/lib/billing/access";
 import styles from "./dashboard.module.css";
 
 const STATUS_LABEL: Record<GuideStatus, { fr: string; en: string }> = {
@@ -43,6 +44,9 @@ export default async function DashboardPage({
   const user = await getCurrentUser();
   if (!user) redirect(`/${locale}/login`);
 
+  const sub = await getSubscription();
+  const premium = isSubscriptionActive(sub);
+
   const guides = await getGuidesInOrder();
   const statuses = await getGuideStatuses();
   const next = nextRecommended(guides, statuses);
@@ -64,6 +68,36 @@ export default async function DashboardPage({
         {user.email} · {completedCount}/{publishedCount}{" "}
         {locale === "fr" ? "guides terminés" : "guides completed"}
       </p>
+
+      <div className={styles.billing}>
+        {premium ? (
+          <>
+            <span className={styles.billingOk}>
+              ● {locale === "fr" ? "Premium actif" : "Premium active"}
+              {sub?.cancelAtPeriodEnd && sub.currentPeriodEnd
+                ? locale === "fr"
+                  ? ` · se termine le ${new Date(sub.currentPeriodEnd).toLocaleDateString("fr")}`
+                  : ` · ends ${new Date(sub.currentPeriodEnd).toLocaleDateString("en")}`
+                : null}
+            </span>
+            <form action="/api/billing/portal" method="post">
+              <input type="hidden" name="lang" value={locale} />
+              <button type="submit">
+                {locale === "fr" ? "Gérer l'abonnement" : "Manage subscription"}
+              </button>
+            </form>
+          </>
+        ) : (
+          <>
+            <span className={styles.billingOff}>
+              {locale === "fr" ? "Accès gratuit" : "Free access"}
+            </span>
+            <Link href={`/${locale}/premium`} className="btn btn--primary">
+              {locale === "fr" ? "Passer premium →" : "Go premium →"}
+            </Link>
+          </>
+        )}
+      </div>
 
       {next ? (
         <Link href={`/${locale}/guides/${next.slug}`} className={styles.next}>

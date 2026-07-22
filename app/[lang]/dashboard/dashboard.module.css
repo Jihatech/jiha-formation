@@ -10,6 +10,21 @@
   font-family: var(--font-mono);
   color: var(--accent);
 }
+.billing {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0.75rem 0 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+.billingOk {
+  color: var(--ok);
+}
+.billingOff {
+  color: var(--fg-muted);
+}
 .next {
   display: flex;
   align-items: center;

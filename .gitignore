@@ -3,6 +3,9 @@
 # contenu vendorisé depuis JIHA-Learn (généré au build — voir scripts/sync-content.mjs)
 /content
 
+# index de recherche Pagefind (généré au postbuild — voir package.json)
+/public/_pagefind
+
 # dependencies
 /node_modules
 /.pnp

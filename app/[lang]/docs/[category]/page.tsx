@@ -6,6 +6,7 @@ import { SITE_URL } from "@/lib/config";
 import { docsCategories, getCategory } from "@/lib/docs/categories";
 import { getDocsByCategory } from "@/lib/docs/source";
 import { Breadcrumbs } from "@/components/docs/docs-chrome";
+import { DocsSearch } from "@/components/docs/docs-search";
 import styles from "../docs.module.css";
 
 export const dynamicParams = false;
@@ -63,6 +64,7 @@ export default async function DocsCategoryPage({
       />
       <h1 className={styles.title}>{fr ? cat.label_fr : cat.label_en}</h1>
       <p className={styles.subtitle}>{fr ? cat.desc_fr : cat.desc_en}</p>
+      <DocsSearch locale={locale} />
       <ul className={styles.list}>
         {docs.map((e) => (
           <li key={e.meta.id}>

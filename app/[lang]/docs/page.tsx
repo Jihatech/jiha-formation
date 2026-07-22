@@ -5,6 +5,7 @@ import { isLocale, locales, type Locale } from "@/lib/i18n/config";
 import { SITE_URL } from "@/lib/config";
 import { docsCategories } from "@/lib/docs/categories";
 import { getAllDocs } from "@/lib/docs/source";
+import { DocsSearch } from "@/components/docs/docs-search";
 import styles from "./docs.module.css";
 
 export function generateStaticParams() {
@@ -61,6 +62,7 @@ export default async function DocsHomePage({
           ? "Des fiches courtes qui répondent vite : cheatsheets, choix d'outils, dépannage. Ouvertes à tous — le parcours guidé, lui, t'apprend en déployant."
           : "Short pages with fast answers: cheatsheets, tool choices, troubleshooting. Open to everyone — the guided path teaches you by deploying."}
       </p>
+      <DocsSearch locale={locale} />
       <ul className={styles.cards}>
         {docsCategories.map((cat) => {
           const count = entries.filter(

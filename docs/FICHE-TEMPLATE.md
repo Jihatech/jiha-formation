@@ -30,6 +30,8 @@ related_guide: docker-fondamentaux   # optionnel : id de guide du parcours (CTA)
   identique dans les deux langues. Sans ` | `, le même titre sert aux deux.
 - Prose : paires `:::lang fr` puis `:::lang en` adjacentes, comme les guides.
 - Blocs de code : écrits UNE fois, hors `:::lang` (jamais dupliqués/traduits).
+- Admonitions : `:::note` / `:::warning` … `:::` dans un bloc `:::lang`
+  (même syntaxe que les guides — voir GUIDE-TEMPLATE §2).
 - Pas de `### step-xx` (les fiches ne portent pas de progression).
 - Longueur cible : 80–200 lignes. Une fiche = UNE question à laquelle on répond vite.
 

@@ -30,8 +30,13 @@ Invariants : ids stables (jamais renommés) · bilingue FR/EN systématique · c
 ## 3. Chantiers
 
 ### Court terme (plateforme)
-- [ ] **D2** — Recherche instantanée (Pagefind) sur /docs + sitemap.xml.
-- [ ] **D3** — UX docs sur les pages guides : ToC à droite, admonitions `:::note/:::warning`, bouton copier le code.
+- [x] **D2** — Recherche instantanée (Pagefind) sur /docs + sitemap.xml (+ robots.txt).
+      Index généré au postbuild depuis les pages prérendues (`data-pagefind-body`,
+      bilingue via `<html lang>`) ; sitemap = couche ouverte (home, docs, guide public).
+- [x] **D3** — UX docs sur les pages guides : ToC à droite, admonitions `:::note/:::warning`, bouton copier le code.
+      Admonitions dans la prose `:::lang` (guides ET fiches, syntaxe documentée
+      dans les templates) ; bouton copier sur tous les blocs de code (terminaux
+      et prose), rendu serveur + un seul îlot client délégué.
 
 ### Moyen terme (contenu)
 - [ ] Fiches /docs en continu (cadence visée : 1-2 / semaine — le SEO se cumule).

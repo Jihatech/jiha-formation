@@ -1,0 +1,51 @@
+/* Bouton « copier » des blocs de code (prose et terminaux). */
+
+.button {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 3px);
+  background: var(--bg-elevated);
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: opacity var(--transition), color var(--transition),
+    border-color var(--transition);
+}
+.button:hover,
+.button:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.button:global(.is-copied) {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+
+/* Dans la barre d'un terminal : poussé à droite. */
+.bar {
+  margin-left: auto;
+}
+
+/* Sur un <pre> de prose : superposé en haut à droite du wrapper (qui ne
+   défile pas — le bouton reste en place pendant le scroll horizontal). */
+.host {
+  position: relative;
+}
+.host > .button {
+  position: absolute;
+  top: 0.45rem;
+  right: 0.45rem;
+  opacity: 0;
+}
+.host:hover > .button,
+.host > .button:focus-visible,
+.host > .button:global(.is-copied) {
+  opacity: 1;
+}
+/* Pas de survol (tactile) : bouton toujours visible. */
+@media (hover: none) {
+  .host > .button {
+    opacity: 1;
+  }
+}

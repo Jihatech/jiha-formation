@@ -171,20 +171,30 @@ function parseBody(body: string): GuideSection[] {
   return sections.filter((s) => s.id !== "_preamble" || hasContent(s));
 }
 
-// Collecte le contenu d'un bloc :::lang jusqu'au :::, en respectant les fences ``` internes.
+// Collecte le contenu d'un bloc :::lang jusqu'au :::, en respectant les fences
+// ``` internes et les directives imbriquées (:::note / :::warning — le ::: qui
+// les ferme ne doit pas fermer le bloc langue). Elles restent dans le markdown,
+// rendues par la couche d'affichage (components/content/nodes).
 function collectUntilCloser(
   lines: string[],
   start: number,
 ): { markdown: string; next: number } {
   const buf: string[] = [];
   let inFence = false;
+  let depth = 0;
   let i = start;
   for (; i < lines.length; i++) {
     const trimmed = lines[i].trim();
     if (FENCE.test(trimmed)) inFence = !inFence;
-    else if (!inFence && trimmed === ":::") {
-      i++;
-      break;
+    else if (!inFence) {
+      if (/^:::\S/.test(trimmed)) depth++;
+      else if (trimmed === ":::") {
+        if (depth === 0) {
+          i++;
+          break;
+        }
+        depth--;
+      }
     }
     buf.push(lines[i]);
   }

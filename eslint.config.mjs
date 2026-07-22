@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Index Pagefind généré au postbuild (bundles minifiés).
+    "public/_pagefind/**",
   ]),
 ]);
 

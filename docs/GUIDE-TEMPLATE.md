@@ -102,6 +102,20 @@ docker compose up -d
 **Règles corps :**
 - Tout texte lu par l'utilisateur a ses deux versions `:::lang fr` et `:::lang en`, adjacentes.
 - Les blocs de code, commandes, et noms de fichiers ne sont **pas** traduits (écrits une seule fois).
+- **Admonitions** : à l'intérieur d'un bloc `:::lang`, `:::note` et `:::warning`
+  encadrent un encart mis en avant, fermé par `:::`. Le contenu est du markdown
+  de la langue du bloc ; le libellé (« Note », « Attention »/« Warning ») est
+  ajouté automatiquement au rendu par la plateforme.
+
+  ```markdown
+  :::lang fr
+  Texte courant.
+
+  :::warning
+  Ne commite jamais ton `.env`.
+  :::
+  :::
+  ```
 - Les **schémas SVG** (obligatoires, cf. BUILD-SPEC §2.5) ont leurs **légendes** en deux langues ; le schéma lui-même est unique, mais ses libellés internes doivent être soit neutres, soit fournis en deux variantes (préciser au générateur lequel).
 - Le générateur produit un PDF mono-langue en ne gardant qu'un jeu de marqueurs : un PDF FR propre, un PDF EN propre (jamais mélangés).
 

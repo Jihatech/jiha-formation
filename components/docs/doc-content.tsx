@@ -2,6 +2,7 @@ import type { Locale } from "@/lib/i18n/config";
 import type { ParsedGuide } from "@/lib/content/types";
 import { splitSectionTitle } from "@/lib/docs/source";
 import { Nodes, type FigureMap } from "@/components/content/nodes";
+import { CopyDelegate } from "@/components/content/code-copy";
 import styles from "./doc-content.module.css";
 
 const EMPTY_FIGURES: FigureMap = new Map();
@@ -17,6 +18,7 @@ export function DocContent({
 }) {
   return (
     <div className={styles.content}>
+      <CopyDelegate />
       {doc.sections.map((section) => (
         <section key={section.id} id={section.id} className={styles.section}>
           <h2 className={styles.sectionTitle}>

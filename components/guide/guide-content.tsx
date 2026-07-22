@@ -2,6 +2,7 @@ import type { Locale } from "@/lib/i18n/config";
 import type { GuideSection, GuideStep, ParsedGuide } from "@/lib/content/types";
 import { sectionLabel } from "@/lib/content/section-labels";
 import { Nodes, type FigureMap } from "@/components/content/nodes";
+import { CopyDelegate } from "@/components/content/code-copy";
 import styles from "./guide-content.module.css";
 
 function Step({
@@ -61,6 +62,7 @@ export function GuideContent({
 }) {
   return (
     <div className={styles.content}>
+      <CopyDelegate />
       {guide.sections.map((section, i) => (
         <Section
           key={section.id}

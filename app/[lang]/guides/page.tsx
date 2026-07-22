@@ -53,6 +53,8 @@ export default async function GuidesPage({
                 </span>
                 {!published ? (
                   <span className={styles.soon}>{t("guide.soon")}</span>
+                ) : g.access === "premium" ? (
+                  <span className={styles.premium}>★ premium</span>
                 ) : null}
               </div>
               <h2 className={styles.cardTitle}>{title}</h2>

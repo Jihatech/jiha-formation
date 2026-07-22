@@ -50,3 +50,26 @@
 .strongCta {
   margin-top: 1.2rem;
 }
+
+/* Corps + ToC à droite (ROADMAP D3) — même logique que la grille /docs. */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 200px;
+  gap: 2.2rem;
+  align-items: start;
+}
+.mainCol {
+  min-width: 0;
+}
+.tocCol {
+  position: sticky;
+  top: 72px;
+}
+@media (max-width: 1080px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .tocCol {
+    display: none;
+  }
+}
