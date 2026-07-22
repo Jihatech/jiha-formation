@@ -13,6 +13,8 @@ import {
 } from "@/lib/content/source";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { hasPremiumAccess } from "@/lib/billing/access";
+import { Paywall } from "@/components/billing/paywall";
 import type { GuideNode, ParsedGuide } from "@/lib/content/types";
 import { sectionLabel } from "@/lib/content/section-labels";
 import { GuideContent } from "@/components/guide/guide-content";
@@ -78,13 +80,33 @@ export default async function GuidePage({
   const guide = await loadGuide(slug);
   if (!meta || !guide) notFound();
 
-  // Gating : seul le 1er guide (public) est ouvert ; les autres exigent un compte.
-  // Le guide public ne lit pas les cookies → reste prérendu (SSG, SEO).
+  const title = locale === "fr" ? meta.title_fr : meta.title_en;
+  const tagline = locale === "fr" ? meta.tagline_fr : meta.tagline_en;
+
+  // Gating à trois niveaux :
+  //   · guide public (1er, order min) → ouvert à tous, prérendu (SSG, SEO) ;
+  //   · guide `free` → exige un compte connecté ;
+  //   · guide `premium` → exige un compte ET un abonnement actif, sinon paywall.
   const pub = await getPublicGuide();
   const isPublic = pub?.id === meta.id;
   if (!isPublic && isSupabaseConfigured()) {
     const user = await getCurrentUser();
     if (!user) redirect(`/${locale}/signup`);
+    if (meta.access === "premium" && !(await hasPremiumAccess())) {
+      return (
+        <article className={`container ${styles.page}`}>
+          <header className={styles.hero}>
+            <div className={styles.meta}>
+              <span>{t(`guide.level.${meta.level}`)}</span>
+              <span>· {meta.duration_min} {t("guide.duration")}</span>
+            </div>
+            <h1 className={styles.title}>{title}</h1>
+            <p className={styles.tagline}>{tagline}</p>
+          </header>
+          <Paywall locale={locale} guideSlug={meta.slug} />
+        </article>
+      );
+    }
   }
 
   const manifest = (await getManifest()).guides;
@@ -97,8 +119,6 @@ export default async function GuidePage({
     ),
   );
 
-  const title = locale === "fr" ? meta.title_fr : meta.title_en;
-  const tagline = locale === "fr" ? meta.tagline_fr : meta.tagline_en;
   const stepIds = guide.sections.flatMap((s) => s.steps.map((st) => st.id));
 
   return (
