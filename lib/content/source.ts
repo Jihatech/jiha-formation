@@ -2,6 +2,7 @@ import "server-only";
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { parseGuide } from "./parser";
+import { TRACK_BY_ID, TRACK_ORDER, type TrackMeta } from "./tracks";
 import type { GuideFrontmatter, ParsedGuide } from "./types";
 
 const CONTENT_DIR = join(process.cwd(), "content");
@@ -17,6 +18,7 @@ export interface ManifestGuide {
   level: "beginner" | "intermediate" | "advanced";
   duration_min: number;
   access: "free" | "premium";
+  track?: string;
   title_fr: string;
   title_en: string;
   tagline_fr: string;
@@ -46,6 +48,38 @@ export async function getManifest(): Promise<Manifest> {
 
 export async function getGuidesInOrder(): Promise<ManifestGuide[]> {
   return (await getManifest()).guides;
+}
+
+// Guides regroupés par filière (voir lib/content/tracks.ts).
+// Les filières suivent l'ordre du registre ; à l'intérieur, l'ordre du manifeste.
+// Une filière inconnue du registre (guide sans `track` ou track non déclaré) est
+// rangée en dernier sous un libellé neutre — le parcours reste exhaustif.
+export interface TrackGroup {
+  track: TrackMeta;
+  guides: ManifestGuide[];
+}
+
+export async function getGuidesByTrack(): Promise<TrackGroup[]> {
+  const guides = await getGuidesInOrder(); // déjà triés par `order`
+  const groups = new Map<string, ManifestGuide[]>();
+  for (const g of guides) {
+    const id = typeof g.track === "string" && g.track ? g.track : "autres";
+    const bucket = groups.get(id) ?? [];
+    if (!groups.has(id)) groups.set(id, bucket);
+    bucket.push(g);
+  }
+  return [...groups.entries()]
+    .map(([id, gs]) => ({
+      track:
+        TRACK_BY_ID[id] ??
+        ({ id, label_fr: "Autres", label_en: "Other" } as TrackMeta),
+      guides: gs,
+    }))
+    .sort(
+      (a, b) =>
+        (TRACK_ORDER[a.track.id] ?? Number.MAX_SAFE_INTEGER) -
+        (TRACK_ORDER[b.track.id] ?? Number.MAX_SAFE_INTEGER),
+    );
 }
 
 export async function getManifestGuide(
