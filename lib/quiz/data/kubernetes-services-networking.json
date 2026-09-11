@@ -1,0 +1,86 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Comment un Service `ClusterIP` sait-il vers quels pods router, et que contiennent ses Endpoints ?",
+      "q_en": "How does a `ClusterIP` Service know which pods to route to, and what do its Endpoints contain?",
+      "choices": [
+        { "fr": "Le Service contient une copie des pods ; ses Endpoints listent les nœuds", "en": "The Service contains a copy of the pods; its Endpoints list the nodes" },
+        { "fr": "Il sélectionne les pods par label ; ses Endpoints sont remplis avec les IP des pods prêts qui matchent, et suivent le scaling automatiquement", "en": "It selects pods by label; its Endpoints are filled with the IPs of the ready matching pods, and follow scaling automatically" },
+        { "fr": "Il route vers une IP fixe codée dans le manifeste du pod", "en": "It routes to a fixed IP hardcoded in the pod manifest" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un Service ne « contient » pas de pods : il les sélectionne par label, et Kubernetes remplit les Endpoints avec les IP des pods prêts. Scaler le deployment met à jour les Endpoints sans toucher au Service.",
+      "explain_en": "A Service doesn't \"contain\" pods: it selects them by label, and Kubernetes fills the Endpoints with the ready pods' IPs. Scaling the deployment updates the Endpoints without touching the Service."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi joindre `app1` par son nom DNS plutôt que par l'IP d'un pod ?",
+      "q_en": "Why reach `app1` by its DNS name rather than by a pod's IP?",
+      "choices": [
+        { "fr": "Parce que les IP de pods sont éphémères ; le nom de Service est stable et se résout vers l'IP du Service qui load-balance vers les pods", "en": "Because pod IPs are ephemeral; the Service name is stable and resolves to the Service IP that load-balances across the pods" },
+        { "fr": "Parce que le DNS est plus rapide que l'accès direct par IP", "en": "Because DNS is faster than direct IP access" },
+        { "fr": "Parce qu'un pod ne possède jamais d'adresse IP", "en": "Because a pod never has an IP address" }
+      ],
+      "answer": 0,
+      "explain_fr": "On ne code jamais une IP : `nslookup app1` résout vers `app1.net.svc.cluster.local` et l'IP du Service. Les requêtes se répartissent (statistiquement) sur les pods.",
+      "explain_en": "You never hardcode an IP: `nslookup app1` resolves to `app1.net.svc.cluster.local` and the Service IP. Requests spread (statistically) across the pods."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Qu'est-ce qu'un Service de type `NodePort`, et pourquoi le préfère-t-on rarement en frontal de prod ?",
+      "q_en": "What is a `NodePort` Service, and why is it rarely preferred at the front in production?",
+      "choices": [
+        { "fr": "Il ouvre un port aléatoire sur un seul nœud ; on l'évite car il n'est pas load-balancé", "en": "It opens a random port on a single node; avoided because it isn't load-balanced" },
+        { "fr": "Il crée une IP publique par pod ; on l'évite car c'est trop cher", "en": "It creates a public IP per pod; avoided because it's too expensive" },
+        { "fr": "Il ouvre un port haut (30000-32767) sur tous les nœuds ; en prod on préfère un Ingress plutôt qu'un NodePort par service", "en": "It opens a high port (30000-32767) on every node; in prod an Ingress is preferred over one NodePort per service" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un NodePort ouvre le même port (dans 30000-32767) sur tous les nœuds, exposant le service hors du cluster. En prod, un port haut par service est peu pratique : on met un Ingress en frontal.",
+      "explain_en": "A NodePort opens the same port (within 30000-32767) on all nodes, exposing the service outside the cluster. In prod, one high port per service is impractical: an Ingress goes at the front."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Que permet un `Ingress` avec des règles `/app1` → `app1` et `/app2` → `app2` ?",
+      "q_en": "What does an `Ingress` with rules `/app1` → `app1` and `/app2` → `app2` enable?",
+      "choices": [
+        { "fr": "Un seul point d'entrée HTTP qui route vers plusieurs services selon le chemin, au lieu d'un NodePort/LoadBalancer par service", "en": "A single HTTP entry point routing to several services by path, instead of one NodePort/LoadBalancer per service" },
+        { "fr": "Fusionner `app1` et `app2` en un seul deployment", "en": "Merging `app1` and `app2` into a single deployment" },
+        { "fr": "Chiffrer automatiquement tout le trafic interne du cluster", "en": "Automatically encrypting all internal cluster traffic" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'Ingress (implémenté par Traefik) offre un point d'entrée unique qui aiguille vers plusieurs services par chemin ou par hôte — le pattern de prod devant tous les services.",
+      "explain_en": "The Ingress (implemented by Traefik) provides a single entry point routing to several services by path or host — the prod pattern in front of all services."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que renvoie le DNS pour un Service headless (`clusterIP: None`), et à quoi cela sert-il ?",
+      "q_en": "What does DNS return for a headless Service (`clusterIP: None`), and what is it for?",
+      "choices": [
+        { "fr": "Une seule IP virtuelle load-balancée, comme un ClusterIP classique", "en": "A single load-balanced virtual IP, like a regular ClusterIP" },
+        { "fr": "Toutes les IP des pods sélectionnés directement, pour les joindre un par un (réplicas de base, découverte de pairs)", "en": "All the selected pods' IPs directly, to reach them one by one (DB replicas, peer discovery)" },
+        { "fr": "Aucun enregistrement : un service headless n'a pas de DNS", "en": "No record: a headless service has no DNS" }
+      ],
+      "answer": 1,
+      "explain_fr": "Sans IP virtuelle, le DNS d'un service headless renvoie la liste des IP de pods. Utile quand le client veut les pods eux-mêmes plutôt qu'une porte d'entrée load-balancée.",
+      "explain_en": "With no virtual IP, a headless service's DNS returns the list of pod IPs. Useful when the client wants the pods themselves rather than a load-balanced entry point."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que se passe-t-il dès qu'une `NetworkPolicy` de type `Ingress` sélectionne les pods `app1` sans définir de règle `ingress` ?",
+      "q_en": "What happens as soon as an `Ingress`-type `NetworkPolicy` selects the `app1` pods without defining any `ingress` rule?",
+      "choices": [
+        { "fr": "Rien ne change tant qu'on n'ajoute pas de règle `allow`", "en": "Nothing changes until an `allow` rule is added" },
+        { "fr": "Tout le trafic entrant vers `app1` est bloqué (default-deny) ; seules des règles ultérieures rouvrent des sources précises", "en": "All inbound traffic to `app1` is blocked (default-deny); only later rules reopen specific sources" },
+        { "fr": "Tout le trafic reste autorisé, la policy ne s'applique qu'au trafic sortant", "en": "All traffic stays allowed; the policy applies only to egress" }
+      ],
+      "answer": 1,
+      "explain_fr": "Sans policy, tout est permis. Dès qu'une policy sélectionne le pod pour l'Ingress sans règle, ce pod passe en deny : seules ses règles `ingress` (ex. `access: app1`) rouvrent le trafic.",
+      "explain_en": "With no policy, all is allowed. Once a policy selects the pod for Ingress with no rule, that pod flips to deny: only its `ingress` rules (e.g. `access: app1`) reopen traffic."
+    }
+  ]
+}

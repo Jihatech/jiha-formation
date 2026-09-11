@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi segmenter un VNet en sous-réseaux web/app/data ?",
+      "q_en": "Why segment a VNet into web/app/data subnets ?",
+      "choices": [
+        { "fr": "Pour augmenter la bande passante", "en": "To increase bandwidth" },
+        { "fr": "Casser le réseau plat en tiers, le tier sensible (data) recevant son propre NSG", "en": "To break the flat network into tiers, the sensitive tier (data) getting its own NSG" },
+        { "fr": "Pour supprimer le besoin de pare-feu", "en": "To remove the need for a firewall" }
+      ],
+      "answer": 1,
+      "explain_fr": "Diviser pour protéger : chaque tier est un sous-réseau, et le tier sensible reçoit son garde (le NSG associé au sous-réseau).",
+      "explain_en": "Divide to protect: each tier is a subnet, and the sensitive tier gets its guard (the NSG associated with the subnet)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Comment un NSG évalue-t-il ses règles ?",
+      "q_en": "How does an NSG evaluate its rules ?",
+      "choices": [
+        { "fr": "Par ordre alphabétique des noms de règles", "en": "In alphabetical order of rule names" },
+        { "fr": "Toutes les règles à la fois, la plus permissive gagne", "en": "All rules at once, the most permissive wins" },
+        { "fr": "Par priorité croissante, il s'arrête à la première règle qui matche ; sinon refus implicite", "en": "By ascending priority, stopping at the first matching rule; otherwise implicit deny" }
+      ],
+      "answer": 2,
+      "explain_fr": "L'ordre décide : une règle large en tête masque les suivantes. Aucune correspondance → refus implicite (priorité 65500).",
+      "explain_en": "Order decides: a broad rule at the top masks the following ones. No match → implicit deny (priority 65500)."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Qu'apporte la micro-segmentation (web→app OK, app→data OK, mais web→data NON) ?",
+      "q_en": "What does micro-segmentation bring (web→app OK, app→data OK, but web→data NO) ?",
+      "choices": [
+        { "fr": "Si le front-end est compromis, il ne peut pas attaquer la base directement — le mouvement latéral est bloqué", "en": "If the front-end is compromised, it can't attack the database directly — lateral movement is blocked" },
+        { "fr": "Elle chiffre les données au repos", "en": "It encrypts data at rest" },
+        { "fr": "Elle supprime le refus par défaut du NSG", "en": "It removes the NSG's deny by default" }
+      ],
+      "answer": 0,
+      "explain_fr": "La micro-segmentation cloisonne les tiers entre eux : chaque flux légitime est autorisé explicitement, tout le reste est refusé. Un attaquant ne se déplace plus à volonté.",
+      "explain_en": "Micro-segmentation partitions the tiers from each other: each legitimate flow is explicitly allowed, everything else denied. An attacker no longer moves at will."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "À quoi sert le contrôle de la sortie (egress) via un pare-feu à liste blanche de FQDN ?",
+      "q_en": "What is egress control via an FQDN-allowlist firewall for ?",
+      "choices": [
+        { "fr": "À accélérer les téléchargements", "en": "To speed up downloads" },
+        { "fr": "À empêcher l'exfiltration : seules les sorties vers des FQDN approuvés passent, le reste est bloqué", "en": "To prevent exfiltration: only egress to approved FQDNs passes, the rest is blocked" },
+        { "fr": "À filtrer uniquement le trafic entrant", "en": "To filter inbound traffic only" }
+      ],
+      "answer": 1,
+      "explain_fr": "On oublie souvent la sortie : un attaquant exfiltre par là. Le refus par défaut en sortie coupe l'exfiltration vers un domaine inconnu.",
+      "explain_en": "Egress is often forgotten: an attacker exfiltrates through it. Deny-by-default egress cuts exfiltration to an unknown domain."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Qu'est-ce qu'un point de terminaison privé avec `public_network_access = Disabled` ?",
+      "q_en": "What is a private endpoint with `public_network_access = Disabled` ?",
+      "choices": [
+        { "fr": "Il ouvre le PaaS à Internet avec un pare-feu devant", "en": "It opens the PaaS to the Internet with a firewall in front" },
+        { "fr": "Il chiffre le trafic PaaS", "en": "It encrypts the PaaS traffic" },
+        { "fr": "Il donne au service PaaS une IP privée dans le VNet et coupe l'accès Internet — joignable seulement depuis le VNet", "en": "It gives the PaaS service a private IP in the VNet and cuts Internet access — reachable only from the VNet" }
+      ],
+      "answer": 2,
+      "explain_fr": "Couper l'accès public : la base et le stockage ne sont joignables que depuis le VNet (via l'IP privée). C'est la surface la plus réduite pour les données.",
+      "explain_en": "Cut public access: the database and storage are reachable only from the VNet (via the private IP). It's the smallest attack surface for data."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi un WAF en plus d'un NSG ?",
+      "q_en": "Why a WAF in addition to an NSG ?",
+      "choices": [
+        { "fr": "Un NSG laisse passer HTTPS mais ne voit pas une injection SQL dans la requête ; le WAF inspecte le contenu et bloque injections/XSS", "en": "An NSG lets HTTPS through but doesn't see a SQL injection inside the request; the WAF inspects the content and blocks injections/XSS" },
+        { "fr": "Le WAF remplace le NSG pour le trafic sortant", "en": "The WAF replaces the NSG for outbound traffic" },
+        { "fr": "Le WAF chiffre les données au repos", "en": "The WAF encrypts data at rest" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le réseau ne voit pas tout : le WAF inspecte le contenu applicatif (règles OWASP) et un rate-limiter coupe les abus. En vrai Azure : Application Gateway WAF / Front Door + DDoS Protection.",
+      "explain_en": "The network doesn't see everything: the WAF inspects app-layer content (OWASP rules) and a rate-limiter cuts abuse. On real Azure: Application Gateway WAF / Front Door + DDoS Protection."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quels leviers composent la posture réseau AZ-500 ?",
+      "q_en": "Which levers make up the AZ-500 network posture ?",
+      "choices": [
+        { "fr": "Uniquement le chiffrement des secrets", "en": "Only secret encryption" },
+        { "fr": "Segmenter, refuser par défaut (NSG), micro-segmenter, filtrer la sortie, points privés, filtrer l'applicatif (WAF/DDoS)", "en": "Segment, deny by default (NSG), micro-segment, filter egress, private endpoints, filter the app layer (WAF/DDoS)" },
+        { "fr": "Uniquement l'identité managée", "en": "Only the managed identity" }
+      ],
+      "answer": 1,
+      "explain_fr": "Chaque couche contient un attaquant qui aurait franchi la précédente : segmentation, NSG, micro-segmentation, egress, points privés, WAF/DDoS.",
+      "explain_en": "Each layer contains an attacker who broke through the previous one: segmentation, NSG, micro-segmentation, egress, private endpoints, WAF/DDoS."
+    }
+  ]
+}

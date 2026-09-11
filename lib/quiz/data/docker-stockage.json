@@ -1,0 +1,86 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Que démontre le fait qu'un second conteneur relise « donnée persistante » dans le volume `appdata` après suppression du premier ?",
+      "q_en": "What does it prove that a second container reads back \"donnée persistante\" from the `appdata` volume after the first container was deleted?",
+      "choices": [
+        { "fr": "Que le cycle de vie de la donnée est découplé de celui du conteneur", "en": "That the data's lifecycle is decoupled from the container's" },
+        { "fr": "Que la donnée est stockée dans la couche image du conteneur", "en": "That the data is stored in the container's image layer" },
+        { "fr": "Que les deux conteneurs sont en réalité le même processus", "en": "That both containers are actually the same process" }
+      ],
+      "answer": 0,
+      "explain_fr": "La donnée écrite dans le volume survit à la disparition du conteneur qui l'a créée : le cycle de vie de la donnée est découplé de celui du conteneur. C'est le mécanisme fondamental de persistance ; Docker gère le stockage (voir le Mountpoint via inspect).",
+      "explain_en": "Data written to the volume survives the disappearance of the container that created it: the data's lifecycle is decoupled from the container's. That's the fundamental persistence mechanism; Docker manages the storage (see the Mountpoint via inspect)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Après avoir édité `site/index.html` sur l'hôte, pourquoi un nouveau `curl` renvoie-t-il immédiatement la v2 sans redémarrer le conteneur nginx ?",
+      "q_en": "After editing `site/index.html` on the host, why does a new `curl` return v2 immediately without restarting the nginx container?",
+      "choices": [
+        { "fr": "Parce que nginx recharge automatiquement son image toutes les secondes", "en": "Because nginx automatically reloads its image every second" },
+        { "fr": "Parce qu'un bind mount fait voir en direct le dossier de l'hôte dans le conteneur", "en": "Because a bind mount shows the host folder live inside the container" },
+        { "fr": "Parce que le volume nommé a été recopié dans la couche image", "en": "Because the named volume was copied into the image layer" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un bind mount monte un dossier de l'hôte directement dans le conteneur : toute édition sur l'hôte est visible en direct, sans rebuild ni restart. C'est le motif du développement (monter son code). Le :ro rend le montage en lecture seule.",
+      "explain_en": "A bind mount maps a host folder directly into the container: any edit on the host is visible live, with no rebuild or restart. That's the development pattern (mount your code). The :ro makes the mount read-only."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que devient le contenu d'un montage `--tmpfs /scratch` après un `docker restart` du conteneur ?",
+      "q_en": "What happens to the content of a `--tmpfs /scratch` mount after a `docker restart` of the container?",
+      "choices": [
+        { "fr": "Il est sauvegardé automatiquement sur disque puis restauré", "en": "It is automatically saved to disk then restored" },
+        { "fr": "Il est déplacé vers un volume nommé", "en": "It is moved to a named volume" },
+        { "fr": "Il est effacé, car tmpfs vit en mémoire vive et jamais sur disque", "en": "It is wiped, because tmpfs lives in RAM and never on disk" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un tmpfs vit en mémoire vive, jamais sur disque : après un restart, ls /scratch est vide. Usage : secrets ou fichiers temporaires qu'on ne veut pas laisser sur disque, ou un cache rapide.",
+      "explain_en": "A tmpfs lives in RAM, never on disk: after a restart, ls /scratch is empty. Use: secrets or temporary files you don't want left on disk, or a fast cache."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Sur un bind mount dont le chemin source n'existe pas sur l'hôte, comment se comportent `-v` et `--mount type=bind` ?",
+      "q_en": "On a bind mount whose source path doesn't exist on the host, how do `-v` and `--mount type=bind` behave?",
+      "choices": [
+        { "fr": "-v crée silencieusement un dossier vide, --mount échoue avec une erreur", "en": "-v silently creates an empty folder, --mount fails with an error" },
+        { "fr": "Les deux échouent de la même manière", "en": "Both fail in the same way" },
+        { "fr": "-v échoue, --mount crée le dossier automatiquement", "en": "-v fails, --mount creates the folder automatically" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sur un chemin inexistant, -v crée silencieusement un dossier vide (source classique de bugs), tandis que --mount type=bind refuse et affiche une erreur. C'est pourquoi --mount est recommandé en production : explicite et échoue proprement.",
+      "explain_en": "On a missing path, -v silently creates an empty folder (a classic bug source), while --mount type=bind refuses and prints an error. That's why --mount is recommended in production: explicit and fails cleanly."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Deux conteneurs montent le même volume `shared` : que se passe-t-il quand l'un y écrit ?",
+      "q_en": "Two containers mount the same `shared` volume: what happens when one writes to it?",
+      "choices": [
+        { "fr": "Chaque conteneur a en réalité sa propre copie isolée", "en": "Each container actually has its own isolated copy" },
+        { "fr": "L'autre conteneur voit les mêmes fichiers et lit la valeur mise à jour", "en": "The other container sees the same files and reads the updated value" },
+        { "fr": "L'écriture est bloquée tant que l'autre conteneur lit", "en": "The write is blocked while the other container reads" }
+      ],
+      "answer": 1,
+      "explain_fr": "Deux conteneurs qui montent le même volume partagent le même espace de stockage : ce que l'un écrit, l'autre le lit (et le relit mis à jour). C'est le motif d'un pipeline producteur/consommateur. Le volume existe indépendamment des conteneurs.",
+      "explain_en": "Two containers mounting the same volume share the same storage: what one writes, the other reads (and re-reads updated). That's the producer/consumer pipeline pattern. The volume exists independently of the containers."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Puisqu'il n'existe pas de commande `docker volume backup` native, comment sauvegarde-t-on le contenu d'un volume ?",
+      "q_en": "Since there is no native `docker volume backup` command, how do you back up a volume's content?",
+      "choices": [
+        { "fr": "En copiant directement le dossier /var/lib/docker avec cp", "en": "By copying the /var/lib/docker folder directly with cp" },
+        { "fr": "Avec docker commit qui capture le volume dans une image", "en": "With docker commit which captures the volume into an image" },
+        { "fr": "Avec un conteneur jetable montant le volume et un dossier hôte, en faisant un tar de l'un vers l'autre", "en": "With a throwaway container mounting the volume and a host folder, running tar from one to the other" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le motif standard : monter le volume ET un dossier de l'hôte dans un conteneur jetable (alpine), et tar le contenu vers une archive sur l'hôte. La restauration extrait l'archive dans un nouveau volume. docker volume prune supprime les volumes inutilisés.",
+      "explain_en": "The standard pattern: mount the volume AND a host folder in a throwaway container (alpine), and tar the content into an archive on the host. Restore extracts the archive into a new volume. docker volume prune removes unused volumes."
+    }
+  ]
+}

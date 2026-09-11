@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quelle est la différence entre Continuous Delivery et Continuous Deployment ?",
+      "q_en": "What is the difference between Continuous Delivery and Continuous Deployment ?",
+      "choices": [
+        { "fr": "Delivery livre en prod automatiquement ; Deployment exige un clic manuel", "en": "Delivery releases to prod automatically; Deployment requires a manual click" },
+        { "fr": "Delivery garde le code toujours prêt (déclenchement manuel vers la prod) ; Deployment livre en prod automatiquement", "en": "Delivery keeps the code always ready (manual trigger to prod); Deployment releases to prod automatically" },
+        { "fr": "Ce sont deux noms d'un même processus automatique", "en": "They are two names for the same automatic process" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le dernier pas vers la prod distingue les deux : manuel (Delivery) ou automatique (Deployment). Piège d'examen classique.",
+      "explain_en": "The last step to prod tells them apart: manual (Delivery) or automatic (Deployment). Classic exam trap."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi fusionner avec `git merge --no-ff feature/login` ?",
+      "q_en": "Why merge with `git merge --no-ff feature/login` ?",
+      "choices": [
+        { "fr": "Cela garde un commit de fusion explicite qui trace la fonctionnalité dans l'historique", "en": "It keeps an explicit merge commit that traces the feature in the history" },
+        { "fr": "Cela supprime automatiquement la branche de fonctionnalité", "en": "It automatically deletes the feature branch" },
+        { "fr": "C'est obligatoire pour fusionner des branches en conflit", "en": "It is required to merge branches that conflict" }
+      ],
+      "answer": 0,
+      "explain_fr": "`--no-ff` force un commit de fusion : le graphe montre la fonctionnalité comme une branche à part, utile pour l'audit.",
+      "explain_en": "`--no-ff` forces a merge commit: the graph shows the feature as a separate branch, useful for auditing."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que fait une stratégie de branche (branch policy) sur `main` ?",
+      "q_en": "What does a branch policy on `main` do ?",
+      "choices": [
+        { "fr": "Elle écrit automatiquement la pipeline CI à ta place", "en": "It automatically writes the CI pipeline for you" },
+        { "fr": "Elle impose des règles avant fusion : PR obligatoire, approbation de revue, checks CI verts", "en": "It enforces rules before merging: PR required, review approval, green CI checks" },
+        { "fr": "Elle rend `main` en lecture seule pour tout le monde, admins compris", "en": "It makes `main` read-only for everyone, admins included" }
+      ],
+      "answer": 1,
+      "explain_fr": "La stratégie de branche empêche un push cassé d'atteindre `main` en combinant revue humaine et checks CI.",
+      "explain_en": "The branch policy prevents a broken push from reaching `main` by combining human review and CI checks."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Dans le YAML CI, que signifie `needs: valider` pour le job `test` ?",
+      "q_en": "In the CI YAML, what does `needs: valider` mean for the `test` job ?",
+      "choices": [
+        { "fr": "`test` s'exécute en parallèle de `valider`", "en": "`test` runs in parallel with `valider`" },
+        { "fr": "`test` relance `valider` à chaque fois", "en": "`test` restarts `valider` each time" },
+        { "fr": "`test` ne s'exécute qu'APRÈS le succès de `valider` — une dépendance explicite", "en": "`test` runs only AFTER `valider` succeeds — an explicit dependency" }
+      ],
+      "answer": 2,
+      "explain_fr": "Par défaut les jobs sont parallèles ; `needs` crée l'ordre : rien ne teste avant que la validation soit passée.",
+      "explain_en": "By default jobs are parallel; `needs` creates the order: nothing tests before validation has passed."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Dans Azure Pipelines, quel mot-clé est l'équivalent du `needs` de GitHub Actions ?",
+      "q_en": "In Azure Pipelines, which keyword is the equivalent of GitHub Actions' `needs` ?",
+      "choices": [
+        { "fr": "dependsOn", "en": "dependsOn" },
+        { "fr": "pool", "en": "pool" },
+        { "fr": "trigger", "en": "trigger" }
+      ],
+      "answer": 0,
+      "explain_fr": "Même anatomie, autre syntaxe : `trigger`=`on`, `pool/vmImage`=`runs-on`, `dependsOn`=`needs`.",
+      "explain_en": "Same anatomy, different syntax: `trigger`=`on`, `pool/vmImage`=`runs-on`, `dependsOn`=`needs`."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quelle combinaison convient le mieux à une équipe qui livre plusieurs fois par jour ?",
+      "q_en": "Which combination best fits a team shipping several times a day ?",
+      "choices": [
+        { "fr": "GitFlow avec des branches develop/release longues", "en": "GitFlow with long-lived develop/release branches" },
+        { "fr": "Trunk-based (branches courtes) + Continuous Deployment", "en": "Trunk-based (short branches) + Continuous Deployment" },
+        { "fr": "Aucune stratégie de branches", "en": "No branching strategy at all" }
+      ],
+      "answer": 1,
+      "explain_fr": "Cadence élevée → trunk-based (fusions fréquentes) et déploiement automatique. GitFlow vise les releases versionnées peu fréquentes.",
+      "explain_en": "High cadence → trunk-based (frequent merges) and automatic deployment. GitFlow targets infrequent versioned releases."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi commiter le fichier `.github/workflows/ci.yml` dans le dépôt ?",
+      "q_en": "Why commit the `.github/workflows/ci.yml` file into the repo ?",
+      "choices": [
+        { "fr": "Pipeline-as-code : la pipeline est versionnée avec le code, chaque clone la possède", "en": "Pipeline-as-code: the pipeline is versioned with the code, every clone has it" },
+        { "fr": "GitHub ne lit les workflows que s'ils sont sur `master` uniquement", "en": "GitHub only reads workflows if they're on `master` only" },
+        { "fr": "Le commiter désactive la stratégie de branche", "en": "Committing it disables the branch policy" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le YAML de pipeline est du code : il se versionne avec le reste (principe pipeline-as-code).",
+      "explain_en": "The pipeline YAML is code: it is versioned with everything else (pipeline-as-code principle)."
+    }
+  ]
+}

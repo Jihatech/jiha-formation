@@ -69,12 +69,15 @@ async function main() {
   }
 
   // Figures : SVG standalone promus dans JIHA-Learn (décision validée).
-  // Chemin attendu : assets/figures/<nom>.svg. Tant qu'ils n'existent pas, on avertit.
+  // Ordre de résolution : assets/figures/ (schémas soignés à la main, prioritaires)
+  // → content/figures/ → schemas/ (schémas générés par tools/gen-schemas.mjs).
+  // Tant qu'aucune source ne fournit le SVG, on avertit.
   let missing = [];
   for (const name of wantedFigures) {
     const svg =
       (await fetchTextOptional(`assets/figures/${name}.svg`)) ??
-      (await fetchTextOptional(`content/figures/${name}.svg`));
+      (await fetchTextOptional(`content/figures/${name}.svg`)) ??
+      (await fetchTextOptional(`schemas/${name}.svg`));
     if (svg) {
       await writeFile(join(FIG_DIR, `${name}.svg`), svg, "utf8");
       console.log(`✓ figures/${name}.svg`);

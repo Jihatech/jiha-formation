@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Créer un compte de stockage sur miniblue relève de quel plan ?",
+      "q_en": "Creating a storage account on miniblue belongs to which plane?",
+      "choices": [
+        { "fr": "Le plan de données (les blobs)", "en": "The data plane (the blobs)" },
+        { "fr": "Le plan de contrôle (ARM)", "en": "The control plane (ARM)" },
+        { "fr": "Aucun : c'est une opération purement locale au disque", "en": "Neither: it is a purely local disk operation" }
+      ],
+      "answer": 1,
+      "explain_fr": "Créer le compte de stockage est une opération de plan de contrôle (ARM), servie par miniblue ; les blobs à l'intérieur relèvent du plan de données (Azurite).",
+      "explain_en": "Creating the storage account is a control-plane operation (ARM), served by miniblue; the blobs inside belong to the data plane (Azurite)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quel niveau d'accès est recommandé par défaut pour un conteneur de blobs ?",
+      "q_en": "Which access level is recommended by default for a blob container?",
+      "choices": [
+        { "fr": "Privé : aucun accès anonyme", "en": "Private: no anonymous access" },
+        { "fr": "Public en lecture pour tous les blobs", "en": "Public read for all blobs" },
+        { "fr": "Public au niveau du conteneur (liste des blobs visible)", "en": "Public at container level (blob list visible)" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le niveau d'accès décide de la visibilité anonyme ; privé est le défaut recommandé, on n'ouvre l'accès public que sur besoin explicite.",
+      "explain_en": "The access level decides anonymous visibility; private is the recommended default, public access is opened only on explicit need."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Une sauvegarde rarement consultée devrait aller dans quel niveau de stockage ?",
+      "q_en": "A rarely accessed backup should go to which storage tier?",
+      "choices": [
+        { "fr": "Hot : stockage moins cher, accès gratuit", "en": "Hot: cheaper storage, free access" },
+        { "fr": "Cool : stockage moins cher, récupération un peu plus chère", "en": "Cool: cheaper storage, slightly pricier retrieval" },
+        { "fr": "Premium : le plus performant et le moins cher", "en": "Premium: the most performant and the cheapest" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le niveau suit la fréquence d'accès : Cool convient à une sauvegarde rarement lue (stockage moins cher, récupération un peu plus chère) ; Hot vise les fichiers consultés souvent.",
+      "explain_en": "The tier follows access frequency: Cool suits a rarely-read backup (cheaper storage, slightly pricier retrieval); Hot targets frequently-read files."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pour laisser quelqu'un lire un seul blob pendant un temps limité, quelle est la bonne approche ?",
+      "q_en": "To let someone read a single blob for a limited time, what is the right approach?",
+      "choices": [
+        { "fr": "Lui donner la clé du compte de stockage", "en": "Give them the storage account key" },
+        { "fr": "Rendre le conteneur public", "en": "Make the container public" },
+        { "fr": "Générer un jeton SAS restreint (permissions, cible, expiration)", "en": "Generate a restricted SAS token (permissions, target, expiry)" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un SAS est un jeton signé limité en permissions (r = lecture), en cible et dans le temps : on délègue sans jamais livrer la clé de compte, toute-puissante.",
+      "explain_en": "A SAS is a signed token limited in permissions (r = read), target and time: you delegate without ever handing over the all-powerful account key."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que permet une règle de cycle de vie (managementPolicies) décrite en Bicep ?",
+      "q_en": "What does a lifecycle rule (managementPolicies) described in Bicep enable?",
+      "choices": [
+        { "fr": "De retiérer et supprimer automatiquement les blobs selon leur âge (Cool à 30 j, Archive à 90 j, suppression à 365 j)", "en": "To automatically re-tier and delete blobs by age (Cool at 30 d, Archive at 90 d, delete at 365 d)" },
+        { "fr": "De chiffrer chaque blob avec une clé différente", "en": "To encrypt each blob with a different key" },
+        { "fr": "De rendre le conteneur public à une date donnée", "en": "To make the container public on a given date" }
+      ],
+      "answer": 0,
+      "explain_fr": "La règle de cycle de vie automatise le coût : elle déplace les blobs vers Cool/Archive puis les supprime selon leur âge, sans intervention manuelle.",
+      "explain_en": "The lifecycle rule automates cost: it moves blobs to Cool/Archive then deletes them by age, without manual work."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quelles sont les deux décisions clés à la création/gestion d'un compte de stockage (cœur de l'AZ-104) ?",
+      "q_en": "What are the two key decisions when creating/managing a storage account (AZ-104 core)?",
+      "choices": [
+        { "fr": "Le nom du conteneur et le nom du blob", "en": "The container name and the blob name" },
+        { "fr": "La redondance (combien de copies, où) et le niveau (fréquence d'accès)", "en": "Redundancy (how many copies, where) and tier (access frequency)" },
+        { "fr": "La version d'API et le port réseau", "en": "The API version and the network port" }
+      ],
+      "answer": 1,
+      "explain_fr": "L'examen attend le bon choix de redondance (LRS/ZRS/GRS…) et de niveau (Hot/Cool/Archive) selon un scénario donné.",
+      "explain_en": "The exam expects the right choice of redundancy (LRS/ZRS/GRS…) and tier (Hot/Cool/Archive) for a given scenario."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Lors du nettoyage, quelle ressource relève du plan de données (Azurite) ?",
+      "q_en": "During cleanup, which resource belongs to the data plane (Azurite)?",
+      "choices": [
+        { "fr": "Le groupe de ressources", "en": "The resource group" },
+        { "fr": "Le compte de stockage", "en": "The storage account" },
+        { "fr": "Le conteneur de blobs", "en": "The blob container" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le conteneur (et ses blobs) est du plan de données → Azurite ; le compte de stockage et le groupe de ressources sont du plan de contrôle → miniblue.",
+      "explain_en": "The container (and its blobs) is data plane → Azurite; the storage account and resource group are control plane → miniblue."
+    }
+  ]
+}

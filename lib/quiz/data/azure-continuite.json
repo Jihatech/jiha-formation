@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Que mesurent respectivement le RTO et le RPO ?",
+      "q_en": "What do RTO and RPO respectively measure?",
+      "choices": [
+        { "fr": "RTO = le nombre de copies de données ; RPO = le nombre de régions", "en": "RTO = the number of data copies; RPO = the number of regions" },
+        { "fr": "RTO = le temps toléré sans service ; RPO = la quantité de données que l'on peut perdre", "en": "RTO = the tolerated downtime; RPO = the amount of data you can lose" },
+        { "fr": "RTO = le coût mensuel ; RPO = la latence réseau", "en": "RTO = the monthly cost; RPO = the network latency" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le RTO chiffre le temps toléré sans service, le RPO la quantité de données perdable : ces deux réponses métier pilotent tous les choix de continuité (et le budget).",
+      "explain_en": "RTO quantifies the tolerated downtime, RPO the amount of losable data: these two business answers drive all continuity choices (and the budget)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que déploie-t-on comme socle primaire avant de le rendre résilient ?",
+      "q_en": "What do you deploy as the primary base before making it resilient?",
+      "choices": [
+        { "fr": "Un réseau et un compte de stockage dans une région primaire", "en": "A network and a storage account in a primary region" },
+        { "fr": "Directement une région secondaire de secours", "en": "Directly a secondary failover region" },
+        { "fr": "Uniquement un coffre de sauvegarde", "en": "Only a backup vault" }
+      ],
+      "answer": 0,
+      "explain_fr": "On déploie d'abord la production (région primaire : réseau + stockage) : c'est le workload que l'on rendra résilient dans les étapes suivantes.",
+      "explain_en": "You first deploy production (primary region: network + storage): it's the workload you'll make resilient in the next steps."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Comment survivre à la panne d'un datacenter à l'intérieur d'une région ?",
+      "q_en": "How do you survive the failure of one datacenter within a region?",
+      "choices": [
+        { "fr": "En sauvegardant les données toutes les heures", "en": "By backing up data every hour" },
+        { "fr": "En basculant sur une autre région", "en": "By failing over to another region" },
+        { "fr": "En répartissant les ressources sur des zones de disponibilité (datacenters séparés)", "en": "By spreading resources across availability zones (separate datacenters)" }
+      ],
+      "answer": 2,
+      "explain_fr": "La haute disponibilité intra-région se joue entre zones de disponibilité (datacenters physiquement séparés) : si une zone tombe, les autres tiennent.",
+      "explain_en": "Intra-region high availability plays out across availability zones (physically separate datacenters): if one zone falls, the others hold."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Contre une suppression, une corruption ou un rançongiciel, quel mécanisme protège (et pas la haute disponibilité) ?",
+      "q_en": "Against deletion, corruption or ransomware, which mechanism protects (and not high availability)?",
+      "choices": [
+        { "fr": "La géo-réplication multi-région", "en": "Multi-region geo-replication" },
+        { "fr": "Les sauvegardes (coffre Recovery Services + politique)", "en": "Backups (Recovery Services vault + policy)" },
+        { "fr": "Un scale set avec autoscale", "en": "A scale set with autoscale" }
+      ],
+      "answer": 1,
+      "explain_fr": "La HA réplique l'erreur, elle ne protège pas d'une suppression/corruption. Il faut des sauvegardes : un coffre Recovery Services avec une politique (fréquence → RPO, rétention → jusqu'où revenir).",
+      "explain_en": "HA replicates the error, it doesn't protect against deletion/corruption. You need backups: a Recovery Services vault with a policy (frequency → RPO, retention → how far back)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pour survivre à la perte d'une région entière, quel levier de stockage utilise-t-on ?",
+      "q_en": "To survive the loss of an entire region, which storage lever do you use?",
+      "choices": [
+        { "fr": "Le stockage géo-redondant (GRS/RA-GRS), répliqué vers la région paire", "en": "Geo-redundant storage (GRS/RA-GRS), replicated to the paired region" },
+        { "fr": "Le stockage localement redondant (LRS), dans un seul datacenter", "en": "Locally redundant storage (LRS), in a single datacenter" },
+        { "fr": "Un cache Redis multi-nœud", "en": "A multi-node Redis cache" }
+      ],
+      "answer": 0,
+      "explain_fr": "La reprise après sinistre régionale s'appuie sur le stockage géo-redondant (GRS/RA-GRS vers la région paire), la géo-réplication des bases et Azure Site Recovery pour les VM.",
+      "explain_en": "Regional disaster recovery relies on geo-redundant storage (GRS/RA-GRS to the paired region), database geo-replication and Azure Site Recovery for VMs."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que donne l'examen AZ-305 et qu'attend-il sur la continuité ?",
+      "q_en": "What does the AZ-305 exam give and expect on continuity?",
+      "choices": [
+        { "fr": "Un budget seul, et attend le service le moins cher", "en": "A budget alone, and expects the cheapest service" },
+        { "fr": "Un RTO/RPO (et un budget), et attend le bon mécanisme correspondant", "en": "An RTO/RPO (and a budget), and expects the right matching mechanism" },
+        { "fr": "Une commande CLI, et attend sa sortie exacte", "en": "A CLI command, and expects its exact output" }
+      ],
+      "answer": 1,
+      "explain_fr": "L'examen fournit un RTO/RPO (et un budget) et attend le bon mécanisme : on mémorise la correspondance besoin → mécanisme (HA, sauvegarde, DR).",
+      "explain_en": "The exam provides an RTO/RPO (and a budget) and expects the right mechanism: you memorize the need → mechanism mapping (HA, backup, DR)."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que supprime-t-on au nettoyage de ce guide continuité ?",
+      "q_en": "What do you delete when cleaning up this continuity guide?",
+      "choices": [
+        { "fr": "La région paire de reprise après sinistre", "en": "The paired disaster-recovery region" },
+        { "fr": "Le coffre Recovery Services décrit en Bicep", "en": "The Recovery Services vault described in Bicep" },
+        { "fr": "Le socle primaire déployé en live", "en": "The primary base deployed live" }
+      ],
+      "answer": 2,
+      "explain_fr": "On supprime le socle primaire déployé en live (réseau + stockage) ; les mécanismes décrits en Bicep n'étaient qu'à valider, jamais déployés.",
+      "explain_en": "You delete the primary base deployed live (network + storage); the mechanisms described in Bicep were only to validate, never deployed."
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quelle propriété clé du peering explique que le hub centralise les services partagés ?",
+      "q_en": "Which key property of peering explains that the hub centralizes shared services ?",
+      "choices": [
+        { "fr": "Le peering chiffre le trafic", "en": "Peering encrypts traffic" },
+        { "fr": "Le peering exige la même plage d'adresses", "en": "Peering requires the same address range" },
+        { "fr": "Le peering est non transitif : `spoke-dev` ne joint pas `spoke-prod` directement, il passe par le hub relais", "en": "Peering is non-transitive: `spoke-dev` can't reach `spoke-prod` directly, it goes through the hub relay" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le peering relie deux VNets en privé (plages non chevauchantes), mais il est non transitif — d'où le hub qui centralise les services partagés (pare-feu, passerelle).",
+      "explain_en": "Peering links two VNets privately (non-overlapping ranges), but it's non-transitive — hence the hub centralizing shared services (firewall, gateway)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Qu'apporte le « gateway transit » dans une topologie hub-and-spoke ?",
+      "q_en": "What does \"gateway transit\" bring in a hub-and-spoke topology ?",
+      "choices": [
+        { "fr": "Les spokes empruntent la passerelle du hub pour atteindre l'on-prem — une seule passerelle sert tous les spokes", "en": "Spokes borrow the hub's gateway to reach on-prem — one gateway serves all spokes" },
+        { "fr": "Chaque spoke reçoit sa propre passerelle dédiée", "en": "Each spoke gets its own dedicated gateway" },
+        { "fr": "Il supprime le besoin de peering", "en": "It removes the need for peering" }
+      ],
+      "answer": 0,
+      "explain_fr": "Une passerelle est coûteuse et unique par VNet : le gateway transit la mutualise. C'est l'intérêt majeur du hub-and-spoke pour l'hybride.",
+      "explain_en": "A gateway is costly and one per VNet: gateway transit shares it. It's the major benefit of hub-and-spoke for hybrid."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que monte une passerelle VPN site-to-site, et où réside-t-elle ?",
+      "q_en": "What does a site-to-site VPN gateway set up, and where does it reside ?",
+      "choices": [
+        { "fr": "Un CDN mondial dans le sous-réseau web", "en": "A global CDN in the web subnet" },
+        { "fr": "Un tunnel IPsec vers le datacenter, avec une IP publique, dans le `GatewaySubnet`", "en": "An IPsec tunnel to the datacenter, with a public IP, in the `GatewaySubnet`" },
+        { "fr": "Un point de terminaison privé dans `snet-data`", "en": "A private endpoint in `snet-data`" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le pont vers l'on-prem : type `Vpn`, `RouteBased` (compatible BGP), une IP publique, dans le `GatewaySubnet`. Il manque côté config la passerelle de réseau local et la connexion.",
+      "explain_en": "The bridge to on-prem: type `Vpn`, `RouteBased` (BGP-compatible), a public IP, in the `GatewaySubnet`. Config-side, the local network gateway and the connection are still missing."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quel lien recommander pour relier un datacenter critique exigeant un gros débit garanti ?",
+      "q_en": "Which link should you recommend to connect a critical datacenter needing guaranteed high throughput ?",
+      "choices": [
+        { "fr": "Un VNet peering global", "en": "A global VNet peering" },
+        { "fr": "Un VPN site-to-site via Internet", "en": "A site-to-site VPN over the Internet" },
+        { "fr": "ExpressRoute (lien privé dédié, SLA élevé)", "en": "ExpressRoute (private dedicated link, high SLA)" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le bon lien pour le bon besoin : peering pour relier des VNets, VPN S2S pour un datacenter via Internet, ExpressRoute pour du critique/gros débit (privé dédié, SLA).",
+      "explain_en": "The right link for the right need: peering to link VNets, S2S VPN for a datacenter over the Internet, ExpressRoute for critical/high-throughput (dedicated private, SLA)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quelle est la différence majeure entre VPN site-to-site et ExpressRoute ?",
+      "q_en": "What is the major difference between site-to-site VPN and ExpressRoute ?",
+      "choices": [
+        { "fr": "Le VPN passe par Internet (débit/latence variables, coût faible, mise en place en heures) ; ExpressRoute est un lien privé dédié (garanti, SLA, cher, mise en place en semaines)", "en": "VPN goes over the Internet (variable throughput/latency, low cost, set up in hours); ExpressRoute is a private dedicated link (guaranteed, SLA, expensive, set up in weeks)" },
+        { "fr": "Le VPN est plus cher qu'ExpressRoute", "en": "VPN is more expensive than ExpressRoute" },
+        { "fr": "ExpressRoute passe par Internet public sans chiffrement", "en": "ExpressRoute goes over the public Internet without encryption" }
+      ],
+      "answer": 0,
+      "explain_fr": "Deux ponts, deux profils : VPN pour débuter ou du non-critique ; ExpressRoute pour le critique, le gros débit, la conformité. Beaucoup font les deux (ExpressRoute + VPN de secours).",
+      "explain_en": "Two bridges, two profiles: VPN to start or for non-critical; ExpressRoute for critical, high throughput, compliance. Many do both (ExpressRoute + backup VPN)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que fait BGP sur une connexion hybride ?",
+      "q_en": "What does BGP do over a hybrid connection ?",
+      "choices": [
+        { "fr": "Il chiffre le tunnel IPsec", "en": "It encrypts the IPsec tunnel" },
+        { "fr": "Il échange les routes automatiquement : chaque côté annonce ses plages, l'autre les apprend (routes effectives, source BGP)", "en": "It exchanges routes automatically: each side advertises its ranges, the other learns them (effective routes, BGP source)" },
+        { "fr": "Il bloque les routes non approuvées", "en": "It blocks unapproved routes" }
+      ],
+      "answer": 1,
+      "explain_fr": "Des routes dynamiques : aucune route statique à maintenir. Si l'on-prem ajoute un sous-réseau, Azure l'apprend automatiquement. C'est ce qui rend l'hybride dynamique et maintenable.",
+      "explain_en": "Dynamic routes: no static route to maintain. If on-prem adds a subnet, Azure learns it automatically. That's what makes hybrid dynamic and maintainable."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quelles briques composent la connectivité hybride AZ-700 ?",
+      "q_en": "Which building blocks make up AZ-700 hybrid connectivity ?",
+      "choices": [
+        { "fr": "Uniquement un WAF applicatif", "en": "Only an application WAF" },
+        { "fr": "Uniquement une zone DNS privée", "en": "Only a private DNS zone" },
+        { "fr": "Peering (régional/global, non transitif), gateway transit, VPN S2S ou ExpressRoute, propagation par BGP", "en": "Peering (regional/global, non-transitive), gateway transit, S2S VPN or ExpressRoute, BGP propagation" }
+      ],
+      "answer": 2,
+      "explain_fr": "Ton réseau n'est plus une île : il est hybride, connecté aux autres réseaux et au datacenter. La suite : la distribution applicative (équilibrage de charge).",
+      "explain_en": "Your network is no longer an island: it's hybrid, connected to other networks and to the datacenter. Next: application distribution (load balancing)."
+    }
+  ]
+}

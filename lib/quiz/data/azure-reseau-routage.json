@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Que sont les routes système qu'Azure crée par défaut ?",
+      "q_en": "What are the system routes Azure creates by default ?",
+      "choices": [
+        { "fr": "Des routes qu'il faut écrire manuellement", "en": "Routes you must write manually" },
+        { "fr": "Des routes automatiques (VNet local, VNets peerés, Internet `0.0.0.0/0`) qui fonctionnent mais qu'on ne contrôle pas", "en": "Automatic routes (local VNet, peered VNets, Internet `0.0.0.0/0`) that work but you don't control" },
+        { "fr": "Des routes qui bloquent tout le trafic par défaut", "en": "Routes that block all traffic by default" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le routage existe déjà : Azure crée ces routes seul. Elles fonctionnent, mais impossible de forcer une inspection ou un egress par pare-feu avec les seules routes système.",
+      "explain_en": "Routing already exists: Azure creates these routes on its own. They work, but you can't force inspection or firewall egress with system routes alone."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quand plusieurs routes matchent une destination, laquelle Azure choisit-il ?",
+      "q_en": "When several routes match a destination, which one does Azure pick ?",
+      "choices": [
+        { "fr": "La route ajoutée en dernier", "en": "The route added last" },
+        { "fr": "La route vers Internet (`0.0.0.0/0`) par défaut", "en": "The route to the Internet (`0.0.0.0/0`) by default" },
+        { "fr": "La route au préfixe le plus long (la plus spécifique) — ex. `/16` l'emporte sur `/0`", "en": "The route with the longest prefix (the most specific) — e.g. `/16` wins over `/0`" }
+      ],
+      "answer": 2,
+      "explain_fr": "La plus spécifique gagne : pour `10.0.5.10`, deux routes matchaient (`/16` et `/0`), le moteur choisit `/16`. C'est exactement la règle d'Azure.",
+      "explain_en": "The most specific wins: for `10.0.5.10`, two routes matched (`/16` and `/0`), the engine picks `/16`. That's exactly Azure's rule."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Qu'est-ce qu'une route définie par l'utilisateur (UDR) ?",
+      "q_en": "What is a user-defined route (UDR) ?",
+      "choices": [
+        { "fr": "Une route dans une table attachée à un sous-réseau, avec un préfixe et un type de prochain saut (Internet, VirtualAppliance, None…)", "en": "A route in a table attached to a subnet, with a prefix and a next-hop type (Internet, VirtualAppliance, None…)" },
+        { "fr": "Une route apprise automatiquement par BGP", "en": "A route learned automatically by BGP" },
+        { "fr": "Une route système non modifiable", "en": "An unmodifiable system route" }
+      ],
+      "answer": 0,
+      "explain_fr": "Tes propres routes : une table de routes contient des UDR (ex. `0.0.0.0/0` → appliance à `10.0.0.4`) attachées à un sous-réseau pour dévier le trafic.",
+      "explain_en": "Your own routes: a route table holds UDRs (e.g. `0.0.0.0/0` → appliance at `10.0.0.4`) attached to a subnet to divert traffic."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Comment le tunneling forcé redirige-t-il l'egress vers le pare-feu sans casser le trafic interne ?",
+      "q_en": "How does forced tunneling redirect egress to the firewall without breaking internal traffic ?",
+      "choices": [
+        { "fr": "En supprimant toutes les routes système", "en": "By deleting all system routes" },
+        { "fr": "Une UDR `0.0.0.0/0` → pare-feu écrase la route Internet système (UDR > système), mais la route `/16` interne, plus spécifique, reste inchangée", "en": "A UDR `0.0.0.0/0` → firewall overrides the system Internet route (UDR > system), but the internal `/16` route, more specific, stays unchanged" },
+        { "fr": "En bloquant tout le trafic sortant", "en": "By blocking all outbound traffic" }
+      ],
+      "answer": 1,
+      "explain_fr": "Priorité UDR > système à préfixe égal : l'egress Internet passe par le pare-feu, mais le trafic interne (`/16` plus spécifique que `/0`) n'est pas dérouté. Un contrôle de sécurité exprimé par le routage.",
+      "explain_en": "Priority UDR > system at equal prefix: Internet egress goes through the firewall, but internal traffic (`/16` more specific than `/0`) isn't rerouted. A security control expressed through routing."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Dans quel ordre de priorité les routes effectives combinent-elles leurs sources (à préfixe égal) ?",
+      "q_en": "In what priority order do effective routes combine their sources (at equal prefix) ?",
+      "choices": [
+        { "fr": "Système > BGP > UDR", "en": "System > BGP > UDR" },
+        { "fr": "BGP > UDR > Système", "en": "BGP > UDR > System" },
+        { "fr": "UDR > BGP > Système", "en": "UDR > BGP > System" }
+      ],
+      "answer": 2,
+      "explain_fr": "Les routes effectives combinent trois sources (système, BGP appris, UDR) : c'est ce que le paquet suit réellement — la vue à consulter pour diagnostiquer un chemin.",
+      "explain_en": "Effective routes combine three sources (system, learned BGP, UDR): it's what the packet actually follows — the view to check when diagnosing a path."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi une NVA (appliance réseau virtuelle) a-t-elle besoin de l'IP forwarding ?",
+      "q_en": "Why does an NVA (network virtual appliance) need IP forwarding ?",
+      "choices": [
+        { "fr": "Sans IP forwarding, la NVA jette le trafic qui ne lui est pas destiné ; il faut l'activer pour qu'elle route ce trafic", "en": "Without IP forwarding, the NVA drops traffic not addressed to it; you must enable it so it routes that traffic" },
+        { "fr": "Pour chiffrer le trafic au repos", "en": "To encrypt traffic at rest" },
+        { "fr": "Pour lui attribuer une IP publique", "en": "To assign it a public IP" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le chaînage de service combine deux choses : des UDR qui envoient le trafic vers la NVA, ET l'IP forwarding activé. L'oublier est l'erreur classique : le pare-feu reçoit le trafic mais le jette.",
+      "explain_en": "Service chaining combines two things: UDRs that send traffic to the NVA, AND IP forwarding enabled. Forgetting it is the classic mistake: the firewall receives traffic but drops it."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que permet le pilier routage AZ-700 ?",
+      "q_en": "What does the AZ-700 routing pillar enable ?",
+      "choices": [
+        { "fr": "Uniquement de vérifier si un paquet passe (NSG)", "en": "Only checking whether a packet passes (NSG)" },
+        { "fr": "De contrôler par où va chaque paquet : routes système, préfixe le plus long, UDR, tunneling forcé, routes effectives, chaînage de NVA", "en": "Controlling where each packet goes: system routes, longest prefix, UDR, forced tunneling, effective routes, NVA chaining" },
+        { "fr": "Uniquement de chiffrer les données", "en": "Only encrypting data" }
+      ],
+      "answer": 1,
+      "explain_fr": "Tu contrôles désormais non pas seulement si un paquet passe (NSG, AZ-500), mais par où. La suite : connectivité hybride puis distribution applicative.",
+      "explain_en": "You now control not just whether a packet passes (NSG, AZ-500), but where. Next: hybrid connectivity then application distribution."
+    }
+  ]
+}

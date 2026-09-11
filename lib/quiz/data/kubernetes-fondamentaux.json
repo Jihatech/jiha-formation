@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi créer le cluster avec `--disable=traefik` ?",
+      "q_en": "Why create the cluster with `--disable=traefik`?",
+      "choices": [
+        { "fr": "Parce que Traefik empêche `kubectl` de parler au cluster", "en": "Because Traefik prevents `kubectl` from talking to the cluster" },
+        { "fr": "Parce que l'Ingress Traefik par défaut occuperait le port 80 et entrerait en conflit avec notre Service à l'étape 5", "en": "Because the default Traefik Ingress would occupy port 80 and conflict with our Service in step 5" },
+        { "fr": "Parce que Traefik n'est pas compatible avec k3d", "en": "Because Traefik is not compatible with k3d" }
+      ],
+      "answer": 1,
+      "explain_fr": "k3s installe un Ingress Traefik par défaut qui occuperait le port 80. On le désactive pour laisser la place à notre Service, et `-p 8080:80@loadbalancer` mappe le port 8080 de la machine vers le load balancer du cluster.",
+      "explain_en": "k3s installs a default Traefik Ingress that would occupy port 80. We disable it to make room for our Service, and `-p 8080:80@loadbalancer` maps host port 8080 to the cluster load balancer."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi déployer avec un `Deployment` plutôt qu'un pod seul, et à quoi sert le `selector` ?",
+      "q_en": "Why deploy with a `Deployment` rather than a lone pod, and what is the `selector` for?",
+      "choices": [
+        { "fr": "Un pod seul suffit ; le `selector` sert seulement à nommer le deployment", "en": "A lone pod is enough; the `selector` only names the deployment" },
+        { "fr": "Le deployment est plus rapide à démarrer ; le `selector` choisit le nœud", "en": "The deployment starts faster; the `selector` picks the node" },
+        { "fr": "Un pod seul n'est pas résilient ; le deployment maintient l'état voulu et le `selector` relie le deployment à ses pods par le label `app: web`", "en": "A lone pod isn't resilient; the deployment maintains the desired state and the `selector` links it to its pods via the `app: web` label" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un pod qui meurt reste mort. Le deployment décrit l'état voulu (2 répliques) et le garantit ; le `selector` (matchLabels `app: web`) rattache le deployment à ses pods.",
+      "explain_en": "A pod that dies stays dead. The deployment describes the desired state (2 replicas) and guarantees it; the `selector` (matchLabels `app: web`) ties the deployment to its pods."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Tu supprimes manuellement un pod du deployment. Que se passe-t-il et pourquoi ?",
+      "q_en": "You manually delete a pod of the deployment. What happens and why?",
+      "choices": [
+        { "fr": "Un nouveau pod est recréé immédiatement : le replicaset réconcilie l'état réel avec l'état voulu (self-healing)", "en": "A new pod is recreated immediately: the replicaset reconciles actual state with desired state (self-healing)" },
+        { "fr": "Le deployment tombe à 1/2 jusqu'à ce que tu recrées le pod à la main", "en": "The deployment drops to 1/2 until you recreate the pod by hand" },
+        { "fr": "Tous les pods sont recréés pour rééquilibrer le cluster", "en": "All pods are recreated to rebalance the cluster" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le replicaset veille : il constate qu'il manque une réplique et en recrée une aussitôt. Le deployment reste à 2/2 sans intervention — c'est la réconciliation.",
+      "explain_en": "The replicaset watches: it notices a replica is missing and recreates one at once. The deployment stays 2/2 with no intervention — that's reconciliation."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quelle est la bonne pratique pour scaler durablement un deployment ?",
+      "q_en": "What is the best practice to scale a deployment durably?",
+      "choices": [
+        { "fr": "Toujours utiliser `kubectl scale`, qui est la source de vérité", "en": "Always use `kubectl scale`, which is the source of truth" },
+        { "fr": "Changer `replicas:` dans le manifeste puis refaire `apply` ; le fichier versionné reste la source de vérité", "en": "Change `replicas:` in the manifest then re-`apply`; the versioned file stays the source of truth" },
+        { "fr": "Supprimer et recréer le deployment avec le nouveau nombre", "en": "Delete and recreate the deployment with the new count" }
+      ],
+      "answer": 1,
+      "explain_fr": "`kubectl scale` est impératif, pratique pour tester. Mais la bonne pratique déclarative est de modifier `replicas:` dans le YAML et de réappliquer : le manifeste gagne toujours.",
+      "explain_en": "`kubectl scale` is imperative, handy for testing. But the declarative best practice is editing `replicas:` in the YAML and re-applying: the manifest always wins."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi exposer les pods via un `Service` plutôt que par leurs IP ?",
+      "q_en": "Why expose the pods via a `Service` rather than by their IPs?",
+      "choices": [
+        { "fr": "Parce que les pods sont éphémères (leurs IP changent) ; le Service donne une adresse stable et répartit le trafic entre les pods du label", "en": "Because pods are ephemeral (their IPs change); the Service gives a stable address and load-balances traffic across the labeled pods" },
+        { "fr": "Parce qu'un pod ne peut recevoir de trafic sans Service", "en": "Because a pod can't receive traffic without a Service" },
+        { "fr": "Parce que le Service accélère les pods", "en": "Because the Service speeds up the pods" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les IP des pods changent à chaque recréation. Le Service fournit une adresse stable et load-balance vers les pods portant `app: web` ; son `selector` est le lien.",
+      "explain_en": "Pod IPs change on every recreation. The Service provides a stable address and load-balances to pods carrying `app: web`; its `selector` is the link."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quelle est la différence entre un `ConfigMap` et un `Secret` ?",
+      "q_en": "What is the difference between a `ConfigMap` and a `Secret`?",
+      "choices": [
+        { "fr": "Le ConfigMap ne peut être monté que comme volume, le Secret que comme variable", "en": "A ConfigMap can only be mounted as a volume, a Secret only as a variable" },
+        { "fr": "Le ConfigMap stocke de la config non sensible ; le Secret fait pareil pour les données sensibles (mots de passe, clés), encodées et traitées à part", "en": "A ConfigMap stores non-sensitive config; a Secret does the same for sensitive data (passwords, keys), encoded and handled separately" },
+        { "fr": "Le Secret est chiffré de bout en bout, le ConfigMap est plus rapide", "en": "A Secret is end-to-end encrypted, a ConfigMap is faster" }
+      ],
+      "answer": 1,
+      "explain_fr": "Séparer la config du conteneur permet à une image de servir plusieurs environnements. Le ConfigMap porte la config non sensible ; les mots de passe/clés vont dans un Secret, jamais dans un ConfigMap.",
+      "explain_en": "Separating config from the container lets one image serve multiple environments. The ConfigMap carries non-sensitive config; passwords/keys go in a Secret, never a ConfigMap."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi un rolling update se fait-il sans coupure, et comment annuler une mauvaise mise à jour ?",
+      "q_en": "Why is a rolling update downtime-free, and how do you undo a bad update?",
+      "choices": [
+        { "fr": "Il coupe tous les pods puis les recrée ; on annule en réappliquant l'ancien YAML manuellement", "en": "It stops all pods then recreates them; you undo by re-applying the old YAML by hand" },
+        { "fr": "Il double le nombre de pods définitivement ; il n'y a pas de rollback", "en": "It doubles the pod count permanently; there is no rollback" },
+        { "fr": "Il remplace les pods progressivement (nouveau prêt avant suppression d'un ancien) ; `kubectl rollout undo` revient à la version précédente", "en": "It replaces pods progressively (new one ready before removing an old one); `kubectl rollout undo` returns to the previous version" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le deployment crée un nouveau pod, attend qu'il soit prêt, supprime un ancien, et recommence : jamais zéro pod. Kubernetes garde l'historique, donc `rollout undo` annule en une commande.",
+      "explain_en": "The deployment creates a new pod, waits for it to be ready, removes an old one, and repeats: never zero pods. Kubernetes keeps the history, so `rollout undo` reverts in one command."
+    }
+  ]
+}

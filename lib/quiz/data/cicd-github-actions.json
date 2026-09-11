@@ -1,0 +1,114 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi écrit-on `actions/checkout@v4` (avec `@v4`) plutôt que `actions/checkout@main` ?",
+      "q_en": "Why write `actions/checkout@v4` (with `@v4`) rather than `actions/checkout@main`?",
+      "choices": [
+        { "fr": "Parce que la branche main de l'action n'existe pas", "en": "Because the action's main branch doesn't exist" },
+        { "fr": "Pour pinner une version stable et éviter un changement surprise, comme un tag d'image Docker", "en": "To pin a stable version and avoid a surprise change, like a Docker image tag" },
+        { "fr": "Parce que @v4 s'exécute plus vite que @main", "en": "Because @v4 runs faster than @main" }
+      ],
+      "answer": 1,
+      "explain_fr": "Pinner une version (@v4) fige le comportement de l'action : @main pourrait changer sous tes pieds et casser ta CI. C'est le même réflexe qu'épingler un tag d'image Docker pour la reproductibilité.",
+      "explain_en": "Pinning a version (@v4) freezes the action's behavior: @main could change under your feet and break your CI. It's the same reflex as pinning a Docker image tag for reproducibility."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que se passe-t-il pour le workflow si la commande `pytest` échoue (un test au rouge) ?",
+      "q_en": "What happens to the workflow if the `pytest` command fails (a red test)?",
+      "choices": [
+        { "fr": "Le step échoue et tout le workflow passe au rouge", "en": "The step fails and the whole workflow turns red" },
+        { "fr": "Le workflow continue et reste vert malgré tout", "en": "The workflow continues and stays green anyway" },
+        { "fr": "Seul le test échoué est réexécuté en boucle", "en": "Only the failed test is re-run in a loop" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un code de sortie non nul de pytest fait échouer le step, et un step échoué fait échouer le job et donc le workflow — c'est précisément le but de la CI : signaler une régression par un statut rouge.",
+      "explain_en": "A non-zero exit code from pytest fails the step, and a failed step fails the job and thus the workflow — which is exactly CI's purpose: flagging a regression with a red status."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi ajouter le déclencheur `pull_request` en plus de `push` ?",
+      "q_en": "Why add the `pull_request` trigger on top of `push`?",
+      "choices": [
+        { "fr": "Pour exécuter les tests deux fois plus vite", "en": "To run the tests twice as fast" },
+        { "fr": "Pour désactiver la CI sur la branche main", "en": "To disable CI on the main branch" },
+        { "fr": "Pour attraper les régressions AVANT la fusion : un check vert/rouge sur chaque PR", "en": "To catch regressions BEFORE merge: a green/red check on each PR" }
+      ],
+      "answer": 2,
+      "explain_fr": "Avec pull_request, chaque PR affiche un check qui doit être vert : c'est le garde-fou qui empêche de fusionner du code qui casse les tests. On peut ensuite l'exiger via la branch protection de main.",
+      "explain_en": "With pull_request, each PR shows a check that must be green: it's the guardrail that prevents merging code that breaks tests. You can then require it via main's branch protection."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Que fait une `matrix` (strategy.matrix) dans un job de workflow ?",
+      "q_en": "What does a `matrix` (strategy.matrix) do in a workflow job?",
+      "choices": [
+        { "fr": "Elle exécute le job une seule fois avec la dernière valeur de la liste", "en": "It runs the job once with the last value in the list" },
+        { "fr": "Elle duplique le job pour chaque valeur, en parallèle, sans copier-coller", "en": "It duplicates the job for each value, in parallel, with no copy-paste" },
+        { "fr": "Elle met les dépendances en cache entre deux exécutions", "en": "It caches dependencies between runs" }
+      ],
+      "answer": 1,
+      "explain_fr": "La matrice génère une exécution du job par valeur (ici une par version de Python), lancées en parallèle. ${{ matrix.python }} injecte la valeur courante — un seul bloc YAML couvre toutes les versions.",
+      "explain_en": "The matrix generates one job run per value (here one per Python version), launched in parallel. ${{ matrix.python }} injects the current value — one YAML block covers all versions."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "De quoi dépend la clé du cache `cache: pip` de setup-python, qui détermine quand il est réutilisé ?",
+      "q_en": "What does setup-python's `cache: pip` key depend on, determining when it is reused?",
+      "choices": [
+        { "fr": "Du fichier de dépendances (requirements.txt) : réutilisé tant qu'il ne change pas", "en": "The dependencies file (requirements.txt): reused as long as it doesn't change" },
+        { "fr": "De la date et l'heure d'exécution du workflow", "en": "The workflow's run date and time" },
+        { "fr": "Du hash du dernier commit", "en": "The last commit's hash" }
+      ],
+      "answer": 0,
+      "explain_fr": "La clé de cache est calculée à partir du fichier de dépendances : tant que requirements.txt ne bouge pas, le cache pip est restauré (« Cache restored ») et l'installation est quasi instantanée. Le modifier invalide le cache et force une réinstallation.",
+      "explain_en": "The cache key is computed from the dependencies file: as long as requirements.txt is unchanged, the pip cache is restored (\"Cache restored\") and installation is near-instant. Changing it invalidates the cache and forces a reinstall."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "À quoi sert la clause `needs: test` déclarée sur le job `build` ?",
+      "q_en": "What is the `needs: test` clause on the `build` job for?",
+      "choices": [
+        { "fr": "À lancer build et test exactement en même temps", "en": "To launch build and test at exactly the same time" },
+        { "fr": "À relancer les tests une fois le build terminé", "en": "To re-run the tests once the build is done" },
+        { "fr": "À faire dépendre build de test : build ne se lance que si les tests passent", "en": "To make build depend on test: build only runs if the tests pass" }
+      ],
+      "answer": 2,
+      "explain_fr": "needs: test crée une dépendance : le job build attend test et ne s'exécute que si test a réussi. Construire l'image quand les tests sont rouges n'aurait aucun sens — d'où la séparation en deux jobs enchaînés.",
+      "explain_en": "needs: test creates a dependency: the build job waits for test and only runs if test succeeded. Building the image when tests are red would be pointless — hence the two chained jobs."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi déclarer explicitement `permissions: packages: write` sur le job qui pousse l'image sur GHCR ?",
+      "q_en": "Why explicitly declare `permissions: packages: write` on the job that pushes the image to GHCR?",
+      "choices": [
+        { "fr": "Pour devoir créer un secret personnel à la main", "en": "So you have to create a personal secret by hand" },
+        { "fr": "Le GITHUB_TOKEN est en lecture seule par défaut ; on lui accorde juste le droit d'écrire des paquets (moindre privilège)", "en": "The GITHUB_TOKEN is read-only by default; you grant it just the right to write packages (least privilege)" },
+        { "fr": "Pour rendre le GITHUB_TOKEN permanent après le workflow", "en": "To make the GITHUB_TOKEN permanent after the workflow" }
+      ],
+      "answer": 1,
+      "explain_fr": "GitHub fournit un GITHUB_TOKEN temporaire, en lecture seule par défaut. On lui accorde explicitement packages: write — et rien de plus — pour pousser sur GHCR : c'est le moindre privilège. Le secret ne passe que par ${{ secrets.* }}, jamais en clair.",
+      "explain_en": "GitHub provides a temporary GITHUB_TOKEN, read-only by default. You explicitly grant it packages: write — and nothing more — to push to GHCR: that's least privilege. The secret passes only through ${{ secrets.* }}, never in clear text."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Que permet l'outil `act` dans un projet GitHub Actions ?",
+      "q_en": "What does the `act` tool let you do in a GitHub Actions project?",
+      "choices": [
+        { "fr": "Exécuter tes workflows localement dans des conteneurs Docker, sans pousser", "en": "Run your workflows locally in Docker containers, without pushing" },
+        { "fr": "Publier l'image sur GHCR beaucoup plus vite", "en": "Publish the image to GHCR much faster" },
+        { "fr": "Protéger automatiquement la branche main", "en": "Automatically protect the main branch" }
+      ],
+      "answer": 0,
+      "explain_fr": "act rejoue tes workflows sur ta machine, dans des conteneurs Docker, sans aucun push : la boucle de feedback passe de minutes à secondes. Il sert surtout à valider tests et logique ; le job qui pousse sur GHCR n'est pas fait pour tourner en local.",
+      "explain_en": "act replays your workflows on your machine, in Docker containers, with no push: the feedback loop goes from minutes to seconds. It's mainly for validating tests and logic; the job that pushes to GHCR isn't meant to run locally."
+    }
+  ]
+}

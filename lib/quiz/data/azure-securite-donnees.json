@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi classer la donnée par sensibilité en premier ?",
+      "q_en": "Why classify data by sensitivity first ?",
+      "choices": [
+        { "fr": "La classe impose les contrôles : on n'empile CMK/PIM/point privé que là où c'est justifié", "en": "The class dictates the controls: you only stack CMK/PIM/private endpoint where it's justified" },
+        { "fr": "Pour réduire la taille des données", "en": "To reduce the data size" },
+        { "fr": "Parce que le chiffrement l'exige techniquement", "en": "Because encryption technically requires it" }
+      ],
+      "answer": 0,
+      "explain_fr": "La sensibilité pilote l'effort : un catalogue public n'a pas besoin de CMK ; des cartes bancaires (Secret), si. C'est la première décision, avant toute technologie.",
+      "explain_en": "Sensitivity drives the effort: a public catalog doesn't need CMK; bank cards (Secret) do. It's the first decision, before any technology."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que garantit le « chiffrement d'infrastructure » sur une ressource de données ?",
+      "q_en": "What does \"infrastructure encryption\" guarantee on a data resource ?",
+      "choices": [
+        { "fr": "Il désactive le chiffrement par défaut", "en": "It disables the default encryption" },
+        { "fr": "Une seconde couche de chiffrement au repos, au-delà du chiffrement par défaut (double couche)", "en": "A second layer of encryption at rest, beyond the default (double layer)" },
+        { "fr": "Le chiffrement du trafic en transit", "en": "Encryption of traffic in transit" }
+      ],
+      "answer": 1,
+      "explain_fr": "La hiérarchie : (1) par défaut clé plateforme ; (2) CMK (clé client, révocable) ; (3) chiffrement d'infrastructure = double couche. La classe Secret exige les trois.",
+      "explain_en": "The hierarchy: (1) default platform key; (2) CMK (customer key, revocable); (3) infrastructure encryption = double layer. The Secret class requires all three."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que vérifie le chiffrement en transit (checkov au vert) ?",
+      "q_en": "What does encryption in transit verify (checkov green) ?",
+      "choices": [
+        { "fr": "La géo-redondance des données", "en": "The data's geo-redundancy" },
+        { "fr": "La présence d'une CMK", "en": "The presence of a CMK" },
+        { "fr": "HTTPS obligatoire (`enable_https_traffic_only`) et TLS récent (`min_tls_version = TLS1_2`)", "en": "HTTPS mandatory (`enable_https_traffic_only`) and recent TLS (`min_tls_version = TLS1_2`)" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le réseau n'est pas de confiance : aucune donnée en clair, aucun vieux protocole. Un `TLS1_0` ou un `https_traffic_only = false` échouerait la porte de CI.",
+      "explain_en": "The network isn't trusted: no clear-text data, no old protocol. A `TLS1_0` or `https_traffic_only = false` would fail the CI gate."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Après rotation d'un secret Key Vault (v1 → v2), comment les apps obtiennent-elles la nouvelle valeur ?",
+      "q_en": "After rotating a Key Vault secret (v1 → v2), how do apps get the new value ?",
+      "choices": [
+        { "fr": "Elles lisent le secret par son nom et obtiennent automatiquement la version courante, sans redéploiement", "en": "They read the secret by its name and automatically get the current version, without redeployment" },
+        { "fr": "Il faut recompiler et redéployer chaque app", "en": "You must recompile and redeploy each app" },
+        { "fr": "Elles doivent supprimer l'ancienne version manuellement", "en": "They must delete the old version manually" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un secret ancien est un secret à risque : la rotation crée une nouvelle version, la valeur courante devient la dernière, et les apps qui lisent par nom la reçoivent sans redéploiement.",
+      "explain_en": "An old secret is a risky secret: rotation creates a new version, the current value becomes the latest, and apps reading by name receive it without redeployment."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi un compte de stockage a-t-il deux clés (`key1`, `key2`) ?",
+      "q_en": "Why does a storage account have two keys (`key1`, `key2`) ?",
+      "choices": [
+        { "fr": "Pour doubler le débit", "en": "To double the throughput" },
+        { "fr": "Pour rotationner sans interruption : basculer sur l'une, régénérer l'autre, alterner", "en": "To rotate without downtime: switch to one, regenerate the other, alternate" },
+        { "fr": "Pour chiffrer en double couche", "en": "To encrypt in a double layer" }
+      ],
+      "answer": 1,
+      "explain_fr": "Deux clés = rotation sans coupure. ⚠️ Ces clés Full restent un anti-pattern si distribuées ; préfère l'identité managée + RBAC, mais quand tu dois les utiliser, fais-les tourner ainsi.",
+      "explain_en": "Two keys = rotation without downtime. ⚠️ These Full keys remain an anti-pattern if distributed; prefer managed identity + RBAC, but when you must use them, rotate them this way."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que cumule une ressource de données entièrement durcie (scan au vert) ?",
+      "q_en": "What does a fully hardened data resource combine (scan green) ?",
+      "choices": [
+        { "fr": "Uniquement HTTPS", "en": "Only HTTPS" },
+        { "fr": "Uniquement la géo-redondance", "en": "Only geo-redundancy" },
+        { "fr": "Chiffrement (double couche), TLS 1.2, HTTPS only, accès public fermé, géo-redondance", "en": "Encryption (double layer), TLS 1.2, HTTPS only, public access closed, geo-redundancy" }
+      ],
+      "answer": 2,
+      "explain_fr": "La ressource cumule tous les contrôles : `enable_https_traffic_only`, `min_tls_version = TLS1_2`, `public_network_access_enabled = false`, `GRS`, `infrastructure_encryption_enabled`. C'est le livrable de la sécurité des données.",
+      "explain_en": "The resource combines all controls: `enable_https_traffic_only`, `min_tls_version = TLS1_2`, `public_network_access_enabled = false`, `GRS`, `infrastructure_encryption_enabled`. It's the data-security deliverable."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quels leviers composent la posture données AZ-500 ?",
+      "q_en": "Which levers make up the AZ-500 data posture ?",
+      "choices": [
+        { "fr": "Classer, chiffrer au repos (défaut → CMK → double couche), chiffrer en transit (TLS 1.2/HTTPS), coffrer, faire tourner", "en": "Classify, encrypt at rest (default → CMK → double layer), encrypt in transit (TLS 1.2/HTTPS), vault, rotate" },
+        { "fr": "Uniquement segmenter le réseau", "en": "Only segment the network" },
+        { "fr": "Uniquement une revue d'accès", "en": "Only an access review" }
+      ],
+      "answer": 0,
+      "explain_fr": "La donnée — la cible ultime — est protégée elle-même : classée, chiffrée au repos et en transit, coffrée, et ses secrets/clés tournent.",
+      "explain_en": "The data — the ultimate target — is protected itself: classified, encrypted at rest and in transit, vaulted, and its secrets/keys rotate."
+    }
+  ]
+}

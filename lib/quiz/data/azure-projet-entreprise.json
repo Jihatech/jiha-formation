@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi structurer le projet en séparant infra réseau (Terraform), gouvernance (Bicep) et doc ?",
+      "q_en": "Why structure the project by separating network infra (Terraform), governance (Bicep) and docs?",
+      "choices": [
+        { "fr": "Parce que cette organisation est un signal de maturité pour un recruteur", "en": "Because this organization is a maturity signal for a recruiter" },
+        { "fr": "Parce que Terraform et Bicep ne peuvent pas cohabiter dans un même dossier", "en": "Because Terraform and Bicep cannot coexist in the same folder" },
+        { "fr": "Parce que c'est obligatoire pour que miniblue démarre", "en": "Because it is required for miniblue to start" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un vrai projet a une structure claire (réseau / gouvernance / doc) : c'est un signal de maturité pour un recruteur, pas une contrainte technique.",
+      "explain_en": "A real project has a clear structure (network / governance / docs): it's a maturity signal for a recruiter, not a technical constraint."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Comment décrire les trois sous-réseaux de façon reproductible en Terraform ?",
+      "q_en": "How do you describe the three subnets reproducibly in Terraform?",
+      "choices": [
+        { "fr": "En copiant-collant trois fois le même bloc à la main", "en": "By copy-pasting the same block three times by hand" },
+        { "fr": "Avec des variables et une boucle `for_each`", "en": "With variables and a `for_each` loop" },
+        { "fr": "En créant un fichier .tf distinct par sous-réseau", "en": "By creating a separate .tf file per subnet" }
+      ],
+      "answer": 1,
+      "explain_fr": "On paramètre la fondation avec des variables (préfixe, tags communs) et une boucle `for_each` pour les trois sous-réseaux, puis on applique.",
+      "explain_en": "You parameterize the foundation with variables (prefix, common tags) and a `for_each` loop for the three subnets, then apply."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Où vivent les charges de travail (compte de stockage, identité managée, VM) déployées sur la fondation ?",
+      "q_en": "Where do the workloads (storage account, managed identity, VM) deployed on the foundation live?",
+      "choices": [
+        { "fr": "Dans un abonnement séparé, isolé de la fondation", "en": "In a separate subscription, isolated from the foundation" },
+        { "fr": "Directement sur Azurite, sans groupe de ressources", "en": "Directly on Azurite, with no resource group" },
+        { "fr": "Dans le groupe de ressources de la zone (rg-landing)", "en": "In the landing zone's resource group (rg-landing)" }
+      ],
+      "answer": 2,
+      "explain_fr": "Les ressources qui travaillent (stockage, identité, VM) se posent dans le groupe de ressources de la zone d'atterrissage (rg-landing), sur la fondation réseau.",
+      "explain_en": "The working resources (storage, identity, VM) sit in the landing zone's resource group (rg-landing), on the network foundation."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Parmi le durcissement gouvernance décrit en Bicep, quel rôle reçoit l'identité managée ?",
+      "q_en": "Among the governance hardening described in Bicep, which role does the managed identity receive?",
+      "choices": [
+        { "fr": "Le rôle Lecteur (moindre privilège), pas plus", "en": "The Reader role (least privilege), no more" },
+        { "fr": "Le rôle Propriétaire (Owner), pour tout gérer", "en": "The Owner role, to manage everything" },
+        { "fr": "Le rôle Contributeur sur l'abonnement entier", "en": "The Contributor role on the whole subscription" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'attribution RBAC applique le moindre privilège : l'identité managée reçoit un rôle Lecteur, pas davantage. S'y ajoutent une policy (tag env) et un verrou.",
+      "explain_en": "The RBAC assignment applies least privilege: the managed identity receives a Reader role, nothing more. A policy (env tag) and a lock complete it."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Comment prouver bout en bout que la zone est correctement déployée ?",
+      "q_en": "How do you prove end to end that the zone is correctly deployed?",
+      "choices": [
+        { "fr": "En lançant seulement `terraform apply` une seconde fois", "en": "By running only `terraform apply` a second time" },
+        { "fr": "En croisant les outputs Terraform, l'état Terraform et les ressources côté miniblue", "en": "By cross-checking the Terraform outputs, the Terraform state and the resources on miniblue" },
+        { "fr": "En vérifiant uniquement le README du projet", "en": "By checking only the project README" }
+      ],
+      "answer": 1,
+      "explain_fr": "On croise trois vues — outputs Terraform, état Terraform, ressources réelles côté miniblue : trois angles, une seule vérité.",
+      "explain_en": "You cross-check three views — Terraform outputs, Terraform state, real resources on miniblue: three angles, one truth."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi rédiger un README clair avec les compétences prouvées ?",
+      "q_en": "Why write a clear README with the demonstrated skills?",
+      "choices": [
+        { "fr": "Parce que Terraform l'exige pour appliquer", "en": "Because Terraform requires it to apply" },
+        { "fr": "Pour réduire le coût des ressources", "en": "To reduce the cost of resources" },
+        { "fr": "Parce qu'un projet non présenté n'existe pas : c'est ce qui en fait un atout d'embauche", "en": "Because an unpresented project doesn't exist: it's what turns it into a hiring asset" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un README clair et la liste des compétences prouvées transforment un dossier technique en atout d'embauche : un projet non présenté n'existe pas.",
+      "explain_en": "A clear README and the list of proven skills turn a technical folder into a hiring asset: an unpresented project doesn't exist."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Dans quel ordre démonter la zone ?",
+      "q_en": "In what order do you tear down the zone?",
+      "choices": [
+        { "fr": "Les charges de travail (azlocal) d'abord, puis la fondation réseau (terraform destroy)", "en": "The workloads (azlocal) first, then the network foundation (terraform destroy)" },
+        { "fr": "La fondation réseau d'abord, puis les charges de travail", "en": "The network foundation first, then the workloads" },
+        { "fr": "Tout en même temps, l'ordre est indifférent", "en": "Everything at once, order doesn't matter" }
+      ],
+      "answer": 0,
+      "explain_fr": "On retire d'abord les charges posées via azlocal, puis la fondation réseau avec `terraform destroy` : créer → utiliser → détruire, dans le bon ordre.",
+      "explain_en": "You remove the workloads placed via azlocal first, then the network foundation with `terraform destroy`: create → use → destroy, in the right order."
+    }
+  ]
+}

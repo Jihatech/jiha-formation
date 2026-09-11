@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi utiliser `ansible-galaxy init` plutôt que créer les dossiers d'un rôle à la main ?",
+      "q_en": "Why use `ansible-galaxy init` rather than creating a role's folders by hand?",
+      "choices": [
+        { "fr": "Parce que la structure est conventionnelle : Ansible cherche tasks/main.yml, handlers/main.yml à des chemins précis", "en": "Because the structure is conventional: Ansible looks for tasks/main.yml, handlers/main.yml at precise paths" },
+        { "fr": "Parce que init installe aussi les dépendances système du rôle", "en": "Because init also installs the role's system dependencies" },
+        { "fr": "Parce que sans init, un rôle ne peut pas être versionné avec git", "en": "Because without init, a role can't be versioned with git" }
+      ],
+      "answer": 0,
+      "explain_fr": "La structure d'un rôle est conventionnelle : Ansible charge tasks/main.yml, handlers/main.yml, etc. à des chemins précis. init donne la structure exacte et évite une faute de frappe qui ferait qu'un rôle « ne trouve pas ses tâches ». defaults/ (faible) et vars/ (fort) sont deux fichiers distincts.",
+      "explain_en": "A role's structure is conventional: Ansible loads tasks/main.yml, handlers/main.yml, etc. at precise paths. init gives the exact structure and avoids a typo that would make a role \"not find its tasks\". defaults/ (weak) and vars/ (strong) are two distinct files."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Dans un rôle bien structuré, où placer les réglages surchargeables, la logique, les gabarits et les réactions ?",
+      "q_en": "In a well-structured role, where do you place overridable settings, logic, templates and reactions?",
+      "choices": [
+        { "fr": "Tout dans tasks/main.yml pour rester simple", "en": "Everything in tasks/main.yml to stay simple" },
+        { "fr": "Réglages en defaults/, logique en tasks/, gabarits en templates/, réactions en handlers/", "en": "Settings in defaults/, logic in tasks/, templates in templates/, reactions in handlers/" },
+        { "fr": "Réglages en vars/, logique en meta/, gabarits en files/, réactions en defaults/", "en": "Settings in vars/, logic in meta/, templates in files/, reactions in defaults/" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un rôle expose ses réglages surchargeables en defaults/, met sa logique en tasks/, ses gabarits Jinja2 en templates/, et ses réactions en handlers/. À l'exécution, le préfixe « appli : » dans la sortie prouve que la tâche vient du rôle.",
+      "explain_en": "A role exposes its overridable settings in defaults/, puts its logic in tasks/, its Jinja2 templates in templates/, and its reactions in handlers/. At run time, the \"appli :\" prefix in the output proves the task comes from the role."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pour « paramétrer un rôle » proprement de l'extérieur, sur quoi faut-il agir ?",
+      "q_en": "To \"parameterize a role\" cleanly from outside, what should you act on?",
+      "choices": [
+        { "fr": "Modifier directement vars/main.yml du rôle", "en": "Directly modify the role's vars/main.yml" },
+        { "fr": "Surcharger un default (via vars du play ou -e), sans toucher au rôle", "en": "Override a default (via play vars or -e), without touching the role" },
+        { "fr": "Renommer le rôle pour chaque configuration", "en": "Rename the role for each configuration" }
+      ],
+      "answer": 1,
+      "explain_fr": "defaults/ est le niveau le plus faible : tout le surcharge (vars du play, host_vars, -e). C'est donc lui qu'on surcharge pour paramétrer un rôle sans le modifier. vars/ du rôle est fort et résiste à un simple vars: de play. -e bat toujours tout.",
+      "explain_en": "defaults/ is the weakest level: everything overrides it (play vars, host_vars, -e). So that's what you override to parameterize a role without modifying it. A role's vars/ is strong and resists a plain play vars:. -e always beats everything."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Où déclare-t-on qu'un rôle `appli` dépend d'un rôle `commun` qui doit tourner avant lui ?",
+      "q_en": "Where do you declare that an `appli` role depends on a `commun` role that must run before it?",
+      "choices": [
+        { "fr": "Dans meta/main.yml, sous la clé dependencies", "en": "In meta/main.yml, under the dependencies key" },
+        { "fr": "Dans tasks/main.yml, en tête de fichier", "en": "In tasks/main.yml, at the top of the file" },
+        { "fr": "Dans defaults/main.yml, avec une variable depends", "en": "In defaults/main.yml, with a depends variable" }
+      ],
+      "answer": 0,
+      "explain_fr": "La dépendance vit dans meta/main.yml sous dependencies : Ansible exécute alors le rôle commun avant appli, automatiquement, sans qu'on le liste dans roles:. Attention à remplacer la ligne dependencies: [] générée par init, pas à en ajouter une seconde.",
+      "explain_en": "The dependency lives in meta/main.yml under dependencies: Ansible then runs the commun role before appli, automatically, without listing it in roles:. Be sure to replace the dependencies: [] line generated by init, not add a second one."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quelle est la différence entre `import_role` (statique) et `include_role` (dynamique) ?",
+      "q_en": "What is the difference between `import_role` (static) and `include_role` (dynamic)?",
+      "choices": [
+        { "fr": "import_role est résolu à l'exécution, include_role au parsing", "en": "import_role is resolved at run time, include_role at parse time" },
+        { "fr": "import_role est résolu au parsing ; include_role à l'exécution, seul utilisable en boucle ou derrière un when runtime", "en": "import_role is resolved at parse time; include_role at run time, the only one usable in a loop or behind a runtime when" },
+        { "fr": "Les deux sont strictement équivalents", "en": "The two are strictly equivalent" }
+      ],
+      "answer": 1,
+      "explain_fr": "import_role (comme roles:) est statique, résolu au parsing avant l'exécution. include_role est dynamique, résolu à l'exécution : le seul qui marche dans une boucle ou derrière un when dépendant d'une variable calculée. Un when sur include_role conditionne l'inclusion entière du rôle.",
+      "explain_en": "import_role (like roles:) is static, resolved at parse time before execution. include_role is dynamic, resolved at run time: the only one that works in a loop or behind a when depending on a computed variable. A when on include_role conditions the whole role inclusion."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi écrire le nom complet d'un module (FQCN, ex. `ansible.builtin.copy`) plutôt que juste `copy` ?",
+      "q_en": "Why write a module's full name (FQCN, e.g. `ansible.builtin.copy`) rather than just `copy`?",
+      "choices": [
+        { "fr": "Parce que depuis Ansible 2.10 les modules vivent dans des collections ; le FQCN lève l'ambiguïté", "en": "Because since Ansible 2.10 modules live in collections; the FQCN removes ambiguity" },
+        { "fr": "Parce que le nom court est interdit et provoque une erreur", "en": "Because the short name is forbidden and causes an error" },
+        { "fr": "Parce que le FQCN chiffre le nom du module", "en": "Because the FQCN encrypts the module name" }
+      ],
+      "answer": 0,
+      "explain_fr": "Depuis Ansible 2.10, les modules vivent dans des collections. copy seul est ambigu (collisions possibles) ; ansible.builtin.copy ne l'est pas. Le FQCN est la règle moderne, plus lisible. ansible.builtin est le cœur, toujours présent (ansible-doc -l ansible.builtin le prouve).",
+      "explain_en": "Since Ansible 2.10, modules live in collections. copy alone is ambiguous (possible collisions); ansible.builtin.copy is not. The FQCN is the modern rule, more readable. ansible.builtin is the core, always present (ansible-doc -l ansible.builtin proves it)."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quel est le rôle d'un fichier `requirements.yml` dans un projet Ansible ?",
+      "q_en": "What is the role of a `requirements.yml` file in an Ansible project?",
+      "choices": [
+        { "fr": "Il liste les hôtes cibles du projet", "en": "It lists the project's target hosts" },
+        { "fr": "Il stocke les mots de passe chiffrés du projet", "en": "It stores the project's encrypted passwords" },
+        { "fr": "C'est le manifeste des dépendances (rôles et collections) installables de façon reproductible", "en": "It's the manifest of dependencies (roles and collections) installable reproducibly" }
+      ],
+      "answer": 2,
+      "explain_fr": "requirements.yml est le manifeste des dépendances : quiconque clone le repo lance une commande et obtient exactement les mêmes rôles/collections, de façon reproductible. Le fichier héberge deux clés distinctes : roles: et collections:.",
+      "explain_en": "requirements.yml is the dependency manifest: anyone who clones the repo runs one command and gets exactly the same roles/collections, reproducibly. The file hosts two distinct keys: roles: and collections:."
+    }
+  ]
+}

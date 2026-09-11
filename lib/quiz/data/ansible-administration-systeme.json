@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Sur le module `user`, que fait `groups: [atelier]` SANS `append: true` ?",
+      "q_en": "On the `user` module, what does `groups: [atelier]` WITHOUT `append: true` do?",
+      "choices": [
+        { "fr": "Il ajoute atelier aux groupes secondaires existants", "en": "It adds atelier to the existing secondary groups" },
+        { "fr": "Il écrase tous les autres groupes secondaires de l'utilisateur", "en": "It overwrites all the user's other secondary groups" },
+        { "fr": "Il ne change rien tant que le groupe n'existe pas", "en": "It changes nothing until the group exists" }
+      ],
+      "answer": 1,
+      "explain_fr": "groups: sans append: true écrase les groupes secondaires existants de l'utilisateur. Pour ajouter un groupe sans virer les autres, il faut append: true. C'est l'erreur qui casse des comptes en prod et coûte des points à l'examen.",
+      "explain_en": "groups: without append: true overwrites the user's existing secondary groups. To add a group without removing the others, you need append: true. It's the mistake that breaks accounts in prod and costs exam points."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi ajouter `update_password: on_create` quand on pose un mot de passe via `password_hash('sha512')` ?",
+      "q_en": "Why add `update_password: on_create` when setting a password via `password_hash('sha512')`?",
+      "choices": [
+        { "fr": "Sinon password_hash regénère un sel différent à chaque run, rendant la tâche toujours changed", "en": "Otherwise password_hash regenerates a different salt on each run, making the task always changed" },
+        { "fr": "Pour chiffrer le mot de passe en AES256 dans /etc/shadow", "en": "To encrypt the password in AES256 in /etc/shadow" },
+        { "fr": "Pour forcer l'utilisateur à changer son mot de passe au boot", "en": "To force the user to change their password at boot" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le module user écrit un hash dans /etc/shadow (préfixe $6$ = SHA512). Sans update_password: on_create, password_hash regénère un sel différent à chaque exécution, donc la tâche serait toujours changed. on_create pose le hash à la création et ne le rejoue jamais.",
+      "explain_en": "The user module writes a hash into /etc/shadow (prefix $6$ = SHA512). Without update_password: on_create, password_hash regenerates a different salt on each run, so the task would always be changed. on_create sets the hash at creation and never replays it."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quelle est la différence entre `state: present` et `state: latest` sur le module de gestion de paquets ?",
+      "q_en": "What is the difference between `state: present` and `state: latest` on the package module?",
+      "choices": [
+        { "fr": "present force toujours la dernière version, latest se contente de la présence", "en": "present always forces the latest version, latest just ensures presence" },
+        { "fr": "present installe si absent mais ne met pas à jour ; latest force la dernière version", "en": "present installs if absent but doesn't upgrade; latest forces the latest version" },
+        { "fr": "Les deux sont identiques, seul le nom change", "en": "The two are identical, only the name differs" }
+      ],
+      "answer": 1,
+      "explain_fr": "state: present installe le paquet s'il est absent mais ne met pas à jour un paquet déjà présent (« au moins présent »). state: latest force la dernière version (donc peut être changed si une mise à jour existe : « toujours à jour »). Le module générique package évite de préciser apt/dnf.",
+      "explain_en": "state: present installs the package if absent but doesn't upgrade an already-present package (\"at least present\"). state: latest forces the latest version (so may be changed if an update exists: \"always up to date\"). The generic package module avoids specifying apt/dnf."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Sur le module `service`, que garantissent respectivement `state: started` et `enabled: true` ?",
+      "q_en": "On the `service` module, what do `state: started` and `enabled: true` each guarantee?",
+      "choices": [
+        { "fr": "started = le service tourne maintenant ; enabled = il démarrera au prochain boot", "en": "started = the service runs now; enabled = it will start at next boot" },
+        { "fr": "started = démarrage au boot ; enabled = démarrage immédiat", "en": "started = start at boot; enabled = start immediately" },
+        { "fr": "Les deux garantissent uniquement que le service tourne maintenant", "en": "Both only guarantee the service runs now" }
+      ],
+      "answer": 0,
+      "explain_fr": "Ce sont deux axes indépendants : state: started fait tourner le service maintenant, enabled: true garantit qu'il démarrera au prochain boot. On veut presque toujours les deux pour un service de prod. Nécessite systemd (une VM, pas un conteneur). restarted/reloaded forcent l'action, souvent via un handler.",
+      "explain_en": "These are two independent axes: state: started makes the service run now, enabled: true ensures it starts at next boot. You almost always want both for a prod service. Requires systemd (a VM, not a container). restarted/reloaded force the action, often via a handler."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Sur le module `cron`, quel est le rôle du paramètre `name` ?",
+      "q_en": "On the `cron` module, what is the role of the `name` parameter?",
+      "choices": [
+        { "fr": "Il est purement décoratif, un simple libellé", "en": "It's purely decorative, a mere label" },
+        { "fr": "Il définit l'utilisateur qui exécute le job", "en": "It defines the user who runs the job" },
+        { "fr": "C'est l'identifiant unique du job ; rejouer avec le même name met à jour au lieu de dupliquer", "en": "It's the job's unique identifier; rerunning with the same name updates instead of duplicating" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le name n'est pas décoratif : c'est l'identifiant unique du job (écrit en commentaire #Ansible: <name> dans la crontab). Rejouer avec le même name met à jour le job existant au lieu d'en créer un doublon — c'est l'idempotence de cron. state: absent + le même name le retire.",
+      "explain_en": "The name isn't decorative: it's the job's unique identifier (written as a #Ansible: <name> comment in the crontab). Rerunning with the same name updates the existing job instead of duplicating it — that's cron idempotence. state: absent + the same name removes it."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Avec le module `ansible.posix.firewalld`, pourquoi combine-t-on `permanent: true` ET `immediate: true` ?",
+      "q_en": "With the `ansible.posix.firewalld` module, why combine `permanent: true` AND `immediate: true`?",
+      "choices": [
+        { "fr": "permanent persiste au reboot, immediate applique tout de suite (sans reload)", "en": "permanent persists across reboot, immediate applies right away (without reload)" },
+        { "fr": "permanent applique tout de suite, immediate persiste au reboot", "en": "permanent applies right away, immediate persists across reboot" },
+        { "fr": "Les deux sont redondants, un seul suffit toujours", "en": "The two are redundant, one always suffices" }
+      ],
+      "answer": 0,
+      "explain_fr": "permanent: true persiste la règle au reboot, immediate: true l'applique tout de suite. Oublier immediate = la règle n'est active qu'après un reload ; oublier permanent = elle disparaît au reboot. Le module vit dans la collection ansible.posix. Sur Ubuntu, l'équivalent est community.general.ufw.",
+      "explain_en": "permanent: true persists the rule across reboot, immediate: true applies it right away. Forgetting immediate = the rule is active only after a reload; forgetting permanent = it disappears at reboot. The module lives in the ansible.posix collection. On Ubuntu, the equivalent is community.general.ufw."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Dans la chaîne LVM (`lvg`, `lvol`, `filesystem`, `mount`), quel geste tombe le plus souvent à l'examen ?",
+      "q_en": "In the LVM chain (`lvg`, `lvol`, `filesystem`, `mount`), which move comes up most often on the exam?",
+      "choices": [
+        { "fr": "Créer le volume group avec lvg", "en": "Creating the volume group with lvg" },
+        { "fr": "Étendre le logical volume (lvol size: +100%FREE avec resizefs: true) sans perdre les données", "en": "Extending the logical volume (lvol size: +100%FREE with resizefs: true) without losing data" },
+        { "fr": "Formater le volume avec filesystem", "en": "Formatting the volume with filesystem" }
+      ],
+      "answer": 1,
+      "explain_fr": "LVM se fait en quatre modules : lvg (volume group sur un disque), lvol (créer/étendre le logical volume), filesystem (formater), mount (monter + fstab). L'étape la plus fréquente est l'extension : lvol avec size: +100%FREE (ou une taille cible) et resizefs: true, pour agrandir un volume sans perdre les données.",
+      "explain_en": "LVM is done in four modules: lvg (volume group on a disk), lvol (create/extend the logical volume), filesystem (format), mount (mount + fstab). The most frequent step is extending: lvol with size: +100%FREE (or a target size) and resizefs: true, to grow a volume without losing data."
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quelle est la bonne distinction entre un compte de facturation et un projet GCP ?",
+      "q_en": "What is the correct distinction between a billing account and a GCP project ?",
+      "choices": [
+        {
+          "fr": "Le compte de facturation est le moyen de paiement ; le projet est où vivent les ressources — un compte peut porter plusieurs projets",
+          "en": "The billing account is the payment method; the project is where resources live — one account can carry several projects"
+        },
+        {
+          "fr": "Ce sont deux noms pour la même chose",
+          "en": "They are two names for the same thing"
+        },
+        {
+          "fr": "Un projet peut porter plusieurs comptes de facturation actifs simultanément",
+          "en": "A project can carry several active billing accounts simultaneously"
+        }
+      ],
+      "answer": 0,
+      "explain_fr": "On crée un projet dédié (ID mondialement unique et définitif) et on y lie un compte de facturation. Le compte de facturation est le moyen de paiement ; le projet héberge les ressources. Un même compte de facturation peut porter plusieurs projets. On garde ce projet isolé pour le supprimer en bloc à la fin.",
+      "explain_en": "You create a dedicated project (globally unique, permanent ID) and link a billing account to it. The billing account is the payment method; the project hosts the resources. One billing account can carry several projects. Keep this project isolated to delete it wholesale at the end."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi lance-t-on `gcloud auth application-default login` en plus de `gcloud auth login` ?",
+      "q_en": "Why run `gcloud auth application-default login` in addition to `gcloud auth login` ?",
+      "choices": [
+        {
+          "fr": "Parce que la première commande ne fonctionne jamais",
+          "en": "Because the first command never works"
+        },
+        {
+          "fr": "Parce que Terraform et les bibliothèques clientes s'authentifient via les Application Default Credentials (ADC), distinctes de l'auth CLI",
+          "en": "Because Terraform and client libraries authenticate via Application Default Credentials (ADC), distinct from the CLI auth"
+        },
+        {
+          "fr": "Pour créer un second compte utilisateur",
+          "en": "To create a second user account"
+        }
+      ],
+      "answer": 1,
+      "explain_fr": "`gcloud auth login` authentifie la CLI (toi) ; `gcloud auth application-default login` écrit les ADC que Terraform et les bibliothèques utilisent — ce qui résout l'erreur « No credentials loaded » de `terraform plan`. Ces identifiants sont sensibles (jamais dans Git) ; en prod, on préfère un compte de service attaché au workload.",
+      "explain_en": "`gcloud auth login` authenticates the CLI (you); `gcloud auth application-default login` writes the ADC that Terraform and libraries use — resolving the \"No credentials loaded\" error of `terraform plan`. These credentials are sensitive (never in Git); in prod you prefer a service account attached to the workload."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Un budget Cloud Billing avec alertes bloque-t-il automatiquement la dépense au-delà du seuil ?",
+      "q_en": "Does a Cloud Billing budget with alerts automatically block spending beyond the threshold ?",
+      "choices": [
+        {
+          "fr": "Oui, il coupe la facturation dès le seuil atteint",
+          "en": "Yes, it cuts billing as soon as the threshold is reached"
+        },
+        {
+          "fr": "Non, mais il rembourse automatiquement les dépassements",
+          "en": "No, but it automatically refunds overruns"
+        },
+        {
+          "fr": "Non, il alerte par e-mail mais ne coupe pas la dépense ; la vraie garantie reste la discipline (Always Free + tout supprimer)",
+          "en": "No, it emails alerts but doesn't cut spend; the real guarantee stays discipline (Always Free + delete everything)"
+        }
+      ],
+      "answer": 2,
+      "explain_fr": "Point d'examen crucial : un budget n'est pas un plafond dur — il alerte (50/90/100 %) mais ne coupe pas la dépense. Pour vraiment couper, il faut un mécanisme actif (une Cloud Function qui désactive la facturation). La vraie garantie de ce guide reste la discipline : rester dans l'Always Free et tout supprimer à la fin. À poser avant toute ressource.",
+      "explain_en": "Crucial exam point: a budget is not a hard cap — it alerts (50/90/100%) but doesn't cut spend. To truly cut, you need an active mechanism (a Cloud Function disabling billing). This guide's real guarantee stays discipline: stay in Always Free and delete everything at the end. Set it before any resource."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Que faut-il savoir sur le mode (Datastore/Firestore) d'une base créée dans un projet réel ?",
+      "q_en": "What must you know about the mode (Datastore/Firestore) of a database created in a real project ?",
+      "choices": [
+        {
+          "fr": "Le mode est définitif une fois la base remplie de données (modifiable tant qu'elle est vide) et permanent par base",
+          "en": "The mode is permanent once the database holds data (changeable while empty) and permanent per database"
+        },
+        {
+          "fr": "Le mode se change librement à tout moment sans conséquence",
+          "en": "The mode can be freely changed at any time with no consequence"
+        },
+        {
+          "fr": "Toutes les bases d'un projet doivent partager le même mode",
+          "en": "All databases in a project must share the same mode"
+        }
+      ],
+      "answer": 0,
+      "explain_fr": "Chaque service a une API à activer par projet, et la base Datastore doit être créée avec son mode. Le mode est définitif une fois qu'elle contient des données (modifiable tant qu'elle est vide) et permanent par base — un projet peut héberger plusieurs bases. Le code du projet utilise l'API Datastore, d'où le mode Datastore. Activer une API ne coûte rien ; ce sont les ressources qui comptent.",
+      "explain_en": "Each service has an API to enable per project, and the Datastore database must be created with its mode. The mode is permanent once it holds data (changeable while empty) and permanent per database — a project can host several. The project's code uses the Datastore API, hence Datastore mode. Enabling an API costs nothing; resources do."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi le passage au réel de l'infra Terraform du projet d'entreprise est-il minimal ?",
+      "q_en": "Why is switching the enterprise project's Terraform infra to real GCP minimal ?",
+      "choices": [
+        {
+          "fr": "Parce qu'il faut réécrire tous les fichiers pour le vrai GCP",
+          "en": "Because you must rewrite all files for real GCP"
+        },
+        {
+          "fr": "Parce qu'elle visait déjà le vrai GCP (aucun endpoint d'émulateur) : il suffit du bon `project_id` et d'un `apply`",
+          "en": "Because it already targeted real GCP (no emulator endpoint): just the right `project_id` and an `apply`"
+        },
+        {
+          "fr": "Parce que Terraform ne fonctionne qu'en réel, jamais en local",
+          "en": "Because Terraform only works for real, never locally"
+        }
+      ],
+      "answer": 1,
+      "explain_fr": "L'infra Terraform visait déjà le vrai GCP (contrairement à l'app, qui utilisait des émulateurs) : on pointe le bon `project_id` et on fait `apply`. Côté app, on retire les variables d'émulateur et les options fake-gcs. `bootstrap.py` n'est plus nécessaire (Terraform a créé la topologie), le bucket doit être unique mondialement, et l'IAM est réellement appliqué.",
+      "explain_en": "The Terraform infra already targeted real GCP (unlike the app, which used emulators): point to the right `project_id` and `apply`. On the app side, remove the emulator variables and fake-gcs options. `bootstrap.py` is no longer needed (Terraform created the topology), the bucket must be globally unique, and IAM is really enforced."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Concernant la cohérence, quelle est la réponse à jour pour une base Firestore en mode Datastore créée aujourd'hui ?",
+      "q_en": "Regarding consistency, what is the up-to-date answer for a Firestore database in Datastore mode created today ?",
+      "choices": [
+        {
+          "fr": "Elle est toujours éventuellement cohérente, comme l'ancien Cloud Datastore",
+          "en": "It is always eventually consistent, like legacy Cloud Datastore"
+        },
+        {
+          "fr": "Elle n'offre aucune garantie de cohérence",
+          "en": "It offers no consistency guarantee at all"
+        },
+        {
+          "fr": "Elle est fortement cohérente par défaut : une entité juste écrite apparaît immédiatement",
+          "en": "It is strongly consistent by default: a just-written entity appears immediately"
+        }
+      ],
+      "answer": 2,
+      "explain_fr": "Piège d'examen classique : l'ancien Cloud Datastore avait des requêtes non-ancêtres éventuellement cohérentes, mais Firestore en mode Datastore — le seul créé aujourd'hui — est fortement cohérent par défaut. Les autres écarts du réel : IAM réellement appliqué, unicité mondiale des noms de bucket, dead-letter réel exigeant des droits IAM, quotas, et facturation au-delà de l'Always Free.",
+      "explain_en": "Classic exam trap: legacy Cloud Datastore had eventually-consistent non-ancestor queries, but Firestore in Datastore mode — the only kind created today — is strongly consistent by default. Other real-world gaps: IAM really enforced, global bucket-name uniqueness, real dead-letter requiring IAM rights, quotas, and billing beyond Always Free."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Après un `terraform destroy`, pourquoi supprimer en plus le projet GCP entier ?",
+      "q_en": "After a `terraform destroy`, why also delete the whole GCP project ?",
+      "choices": [
+        {
+          "fr": "Comme filet de sécurité : retirer tout résiduel non géré par le state et arrêter la facturation pour de bon",
+          "en": "As a safety net: remove any leftover not managed by the state and stop billing for good"
+        },
+        {
+          "fr": "Parce que `terraform destroy` ne supprime jamais aucune ressource",
+          "en": "Because `terraform destroy` never deletes any resource"
+        },
+        {
+          "fr": "Parce que le projet doit être recréé après chaque session",
+          "en": "Because the project must be recreated after each session"
+        }
+      ],
+      "answer": 0,
+      "explain_fr": "`terraform destroy` retire ce que le state gère ; supprimer le projet entier est le filet de sécurité qui retire tout résiduel facturable et arrête la facturation. Le projet passe en `DELETE_REQUESTED` (réversible ~30 jours puis définitif). C'est le cycle créer → utiliser → détruire, réflexe de l'ingénieur cloud, avant le cap sur la certification ACE.",
+      "explain_en": "`terraform destroy` removes what the state manages; deleting the whole project is the safety net that removes any billable leftover and stops billing. The project goes to `DELETE_REQUESTED` (reversible ~30 days then permanent). It's the create → use → destroy cycle, a cloud engineer's reflex, before aiming for the ACE certification."
+    }
+  ]
+}

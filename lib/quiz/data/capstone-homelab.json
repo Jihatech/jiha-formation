@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi choisir un VPS avec au moins 4 Go de RAM pour ce homelab ?",
+      "q_en": "Why pick a VPS with at least 4 GB of RAM for this homelab?",
+      "choices": [
+        { "fr": "Parce qu'Ubuntu LTS refuse de s'installer en dessous de 4 Go", "en": "Because Ubuntu LTS refuses to install below 4 GB" },
+        { "fr": "Parce que le pare-feu ufw a besoin de cette mémoire", "en": "Because the ufw firewall needs that much memory" },
+        { "fr": "Parce que les services (phase 5) plus le monitoring (phase 6) l'exigent ; un 2 Go partirait en OOM", "en": "Because the services (phase 5) plus the monitoring (phase 6) require it; a 2 GB box would OOM" }
+      ],
+      "answer": 2,
+      "explain_fr": "La stack de services de la phase 5 et le monitoring (Prometheus + Grafana) de la phase 6 consomment ensemble plus de 2 Go : un VPS trop petit se ferait tuer par l'OOM killer. Ubuntu LTS est choisi pour son support long et sa documentation, pas pour un seuil de RAM.",
+      "explain_en": "The phase 5 service stack and the phase 6 monitoring (Prometheus + Grafana) together use more than 2 GB: too small a VPS gets killed by the OOM killer. Ubuntu LTS is chosen for its long support and documentation, not a RAM threshold."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Avant de désactiver `PasswordAuthentication` et le login root, quelle précaution évite de te verrouiller dehors ?",
+      "q_en": "Before disabling `PasswordAuthentication` and root login, which precaution avoids locking yourself out?",
+      "choices": [
+        { "fr": "Tester `ssh <toi>@<IP>` par clé dans un AUTRE terminal, la session courante restant ouverte", "en": "Test `ssh <you>@<IP>` by key in ANOTHER terminal, keeping the current session open" },
+        { "fr": "Redémarrer le serveur avant d'appliquer les changements", "en": "Reboot the server before applying the changes" },
+        { "fr": "Désactiver d'abord le pare-feu ufw", "en": "First disable the ufw firewall" }
+      ],
+      "answer": 0,
+      "explain_fr": "On garde la session root ouverte et on vérifie, dans un second terminal, que la connexion par clé du nouvel utilisateur fonctionne AVANT de couper les mots de passe. C'est le moment classique où l'on se verrouille dehors. (Attention aussi au drop-in 50-cloud-init.conf qui peut réactiver les mots de passe.)",
+      "explain_en": "Keep the root session open and verify, in a second terminal, that the new user's key login works BEFORE cutting passwords. That's the classic lock-yourself-out moment. (Also watch the 50-cloud-init.conf drop-in that can re-enable passwords.)"
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi configurer le DNS (enregistrement A) AVANT de déployer le reverse proxy HTTPS ?",
+      "q_en": "Why configure DNS (the A record) BEFORE deploying the HTTPS reverse proxy?",
+      "choices": [
+        { "fr": "Parce que Docker refuse de démarrer sans domaine", "en": "Because Docker won't start without a domain" },
+        { "fr": "Parce que Let's Encrypt vérifie que le domaine résout vers ton IP avant de délivrer un certificat", "en": "Because Let's Encrypt verifies the domain resolves to your IP before issuing a certificate" },
+        { "fr": "Parce que le DNS ouvre automatiquement les ports 80 et 443", "en": "Because DNS automatically opens ports 80 and 443" }
+      ],
+      "answer": 1,
+      "explain_fr": "Let's Encrypt délivre un certificat seulement après avoir vérifié que tu contrôles le domaine, via un challenge qui suppose que le nom résout déjà vers ton serveur. Sans DNS pointant vers l'IP, le reverse proxy ne peut pas obtenir de certificat HTTPS.",
+      "explain_en": "Let's Encrypt issues a certificate only after verifying you control the domain, via a challenge that assumes the name already resolves to your server. Without DNS pointing at the IP, the reverse proxy can't obtain an HTTPS certificate."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi tester d'abord avec l'environnement de staging de Let's Encrypt pendant le debug du reverse proxy ?",
+      "q_en": "Why test first against the Let's Encrypt staging environment while debugging the reverse proxy?",
+      "choices": [
+        { "fr": "Parce que les certificats de staging sont valides dans le navigateur", "en": "Because staging certificates are valid in the browser" },
+        { "fr": "Parce que le staging chiffre plus fort que la production", "en": "Because staging encrypts more strongly than production" },
+        { "fr": "Parce que le staging n'a pas de rate-limit, alors que la prod plafonne à ~5 échecs/heure", "en": "Because staging has no rate limit, whereas production caps at ~5 failures/hour" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le staging délivre des certificats de test (non valides dans le navigateur) mais sans limite de débit : idéal pour tâtonner le routage et le DNS. La production plafonne à ~5 échecs par heure, vite épuisés en debug — on n'y bascule qu'une fois tout correct.",
+      "explain_en": "Staging issues test certificates (invalid in the browser) but with no rate limit: ideal for trial-and-error on routing and DNS. Production caps at ~5 failures per hour, quickly burned during debugging — you switch to it only once everything is correct."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Qu'est-ce qui garantit que les données d'un service survivent à un redémarrage ou à une recréation de son conteneur ?",
+      "q_en": "What guarantees a service's data survives a restart or a recreation of its container?",
+      "choices": [
+        { "fr": "Des volumes qui stockent les données hors du conteneur", "en": "Volumes that store the data outside the container" },
+        { "fr": "Le reverse proxy qui sert le HTTPS", "en": "The reverse proxy serving HTTPS" },
+        { "fr": "fail2ban qui bannit les IP suspectes", "en": "fail2ban banning suspicious IPs" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les volumes persistent les données en dehors du système de fichiers éphémère du conteneur : elles survivent à un restart ou à une recréation. Décrire tout le déploiement en Ansible ajoute la reproductibilité (recréer le VPS et rejouer le playbook).",
+      "explain_en": "Volumes persist data outside the container's ephemeral filesystem: it survives a restart or a recreation. Describing the whole deployment in Ansible adds reproducibility (recreate the VPS and replay the playbook)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quel composant fournit à Prometheus les métriques CPU / RAM / disque du VPS ?",
+      "q_en": "Which component provides Prometheus with the VPS's CPU / RAM / disk metrics?",
+      "choices": [
+        { "fr": "Grafana, qui les collecte lui-même", "en": "Grafana, which collects them itself" },
+        { "fr": "Un node exporter", "en": "A node exporter" },
+        { "fr": "fail2ban", "en": "fail2ban" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le node exporter expose les métriques système (CPU, RAM, disque) que Prometheus vient scraper ; Grafana ne fait que les visualiser en dashboards. On y ajoute une règle d'alerte utile (disque > 85 %, service down).",
+      "explain_en": "The node exporter exposes system metrics (CPU, RAM, disk) that Prometheus scrapes; Grafana only visualizes them as dashboards. You add a useful alert rule (disk > 85 %, service down)."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi le drill de restauration est-il LA phase qui compte, plus encore que le déploiement ?",
+      "q_en": "Why is the restore drill THE phase that matters, even more than the deployment?",
+      "choices": [
+        { "fr": "Parce qu'il est plus rapide à réaliser que le déploiement", "en": "Because it's faster to perform than deployment" },
+        { "fr": "Parce qu'une sauvegarde suffit du moment qu'elle existe, sans jamais la tester", "en": "Because a backup is enough as long as it exists, without ever testing it" },
+        { "fr": "Parce qu'une sauvegarde jamais testée échoue le jour où on en a besoin : savoir restaurer distingue le pro", "en": "Because a backup never tested fails the day you need it: knowing how to restore is what sets the pro apart" }
+      ],
+      "answer": 2,
+      "explain_fr": "N'importe qui sait déployer ; ce qui distingue un pro, c'est de prouver qu'il peut restaurer. Une sauvegarde jamais testée échoue au pire moment — d'où le drill chronométré (mesurer le RTO) et la vérification que les données d'avant sont bien revenues.",
+      "explain_en": "Anyone can deploy; what sets a pro apart is proving they can restore. A backup never tested fails at the worst moment — hence the timed drill (measuring the RTO) and verifying the prior data actually came back."
+    }
+  ]
+}
