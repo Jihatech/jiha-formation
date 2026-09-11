@@ -1,0 +1,86 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quel est le `volumeBindingMode` de la StorageClass `local-path` par défaut de k3d, et pourquoi le retenir ?",
+      "q_en": "What is the `volumeBindingMode` of k3d's default `local-path` StorageClass, and why remember it?",
+      "choices": [
+        { "fr": "`Immediate` : le PV est créé dès que le PVC existe", "en": "`Immediate`: the PV is created as soon as the PVC exists" },
+        { "fr": "`WaitForFirstConsumer` : rien n'est provisionné tant qu'un pod ne consomme pas le PVC", "en": "`WaitForFirstConsumer`: nothing is provisioned until a pod consumes the PVC" },
+        { "fr": "`Retain` : la donnée survit à la suppression du PVC", "en": "`Retain`: the data survives PVC deletion" }
+      ],
+      "answer": 1,
+      "explain_fr": "La classe `local-path` (provisioner `rancher.io/local-path`) utilise `WaitForFirstConsumer` : ce mode explique pourquoi un PVC reste `Pending` jusqu'à ce qu'un pod le monte.",
+      "explain_en": "The `local-path` class (provisioner `rancher.io/local-path`) uses `WaitForFirstConsumer`: this mode explains why a PVC stays `Pending` until a pod mounts it."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Un PVC dynamique (classe `local-path`) reste `Pending` sans qu'aucun pod ne l'utilise. Est-ce une erreur ?",
+      "q_en": "A dynamic PVC (`local-path` class) stays `Pending` with no pod using it. Is that an error?",
+      "choices": [
+        { "fr": "Non : avec `WaitForFirstConsumer`, aucun PV n'est créé tant qu'un pod ne monte pas le PVC", "en": "No: with `WaitForFirstConsumer`, no PV is created until a pod mounts the PVC" },
+        { "fr": "Oui : le `storageClassName` est manquant, il faut le préciser", "en": "Yes: the `storageClassName` is missing, it must be specified" },
+        { "fr": "Oui : la taille demandée dépasse la capacité du cluster", "en": "Yes: the requested size exceeds the cluster's capacity" }
+      ],
+      "answer": 0,
+      "explain_fr": "`describe` affiche « waiting for first consumer to be created before binding » : c'est le comportement normal de `WaitForFirstConsumer`. Le PVC se liera dès qu'un pod le consommera.",
+      "explain_en": "`describe` shows \"waiting for first consumer to be created before binding\": that's the normal `WaitForFirstConsumer` behavior. The PVC binds as soon as a pod consumes it."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que se passe-t-il quand un pod montant le PVC `Pending` est planifié ?",
+      "q_en": "What happens when a pod mounting the `Pending` PVC is scheduled?",
+      "choices": [
+        { "fr": "Le pod reste bloqué : il faut créer le PV à la main d'abord", "en": "The pod stays blocked: you must create the PV by hand first" },
+        { "fr": "Le PVC est supprimé et recréé vide", "en": "The PVC is deleted and recreated empty" },
+        { "fr": "Le provisioner crée automatiquement un PV, le PVC passe `Bound` et le volume est monté", "en": "The provisioner auto-creates a PV, the PVC goes `Bound` and the volume is mounted" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le pod est le déclencheur attendu par `WaitForFirstConsumer` : `local-path` provisionne un PV dynamiquement, le PVC devient `Bound`, et la donnée peut être écrite. C'est le provisionnement dynamique de bout en bout.",
+      "explain_en": "The pod is the trigger `WaitForFirstConsumer` awaited: `local-path` provisions a PV dynamically, the PVC becomes `Bound`, and data can be written. That's end-to-end dynamic provisioning."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Tu supprimes le pod `writer` puis montes un nouveau pod sur le même PVC. Que retrouves-tu ?",
+      "q_en": "You delete the `writer` pod then mount a new pod on the same PVC. What do you find?",
+      "choices": [
+        { "fr": "La donnée écrite précédemment : le PVC/PV est indépendant du pod, son cycle de vie est découplé", "en": "The previously written data: the PVC/PV is independent of the pod, its lifecycle is decoupled" },
+        { "fr": "Un volume vide : supprimer le pod efface toujours son stockage", "en": "An empty volume: deleting the pod always wipes its storage" },
+        { "fr": "Une erreur : un PVC ne peut être monté que par un seul pod dans toute sa vie", "en": "An error: a PVC can only ever be mounted by a single pod" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le PVC reste `Bound` et le PV intact après la suppression du pod. La donnée survit : le cycle de vie de la donnée est découplé de celui du pod — la promesse du stockage persistant.",
+      "explain_en": "The PVC stays `Bound` and the PV intact after the pod is deleted. The data survives: the data's lifecycle is decoupled from the pod's — the promise of persistent storage."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Un PV statique porte `persistentVolumeReclaimPolicy: Retain`. Que devient la donnée si on supprime le PVC lié ?",
+      "q_en": "A static PV has `persistentVolumeReclaimPolicy: Retain`. What happens to the data if the bound PVC is deleted?",
+      "choices": [
+        { "fr": "Le PV et sa donnée sont supprimés immédiatement, comme en `Delete`", "en": "The PV and its data are deleted immediately, like `Delete`" },
+        { "fr": "Le PV passe `Released` et conserve la donnée, contrairement à la policy `Delete` du dynamique", "en": "The PV goes `Released` and keeps the data, unlike the dynamic `Delete` policy" },
+        { "fr": "Le PVC est recréé automatiquement pour éviter la perte", "en": "The PVC is automatically recreated to avoid loss" }
+      ],
+      "answer": 1,
+      "explain_fr": "Avec `Retain`, supprimer le PVC fait passer le PV en `Released` sans effacer la donnée (l'admin la récupère). Ici la liaison est manuelle : PV et PVC partagent `storageClassName: manual`, sans provisioner.",
+      "explain_en": "With `Retain`, deleting the PVC moves the PV to `Released` without wiping the data (the admin reclaims it). Here binding is manual: PV and PVC share `storageClassName: manual`, no provisioner."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Qu'apporte un StatefulSet qu'un Deployment ne sait pas faire, et de quoi a-t-il besoin ?",
+      "q_en": "What does a StatefulSet provide that a Deployment can't, and what does it need?",
+      "choices": [
+        { "fr": "Une identité stable et un PVC propre par réplica, via un Service headless et un `volumeClaimTemplates`", "en": "A stable identity and its own PVC per replica, via a headless Service and a `volumeClaimTemplates`" },
+        { "fr": "Un seul PVC partagé par tous les réplicas, sans Service", "en": "A single PVC shared by all replicas, without a Service" },
+        { "fr": "Un démarrage plus rapide des pods, sans stockage", "en": "Faster pod startup, with no storage" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le StatefulSet donne à chaque pod une identité DNS stable (via un Service headless) et son propre PVC persistant (via `volumeClaimTemplates`) — indispensable aux bases de données répliquées.",
+      "explain_en": "The StatefulSet gives each pod a stable DNS identity (via a headless Service) and its own persistent PVC (via `volumeClaimTemplates`) — essential for replicated databases."
+    }
+  ]
+}

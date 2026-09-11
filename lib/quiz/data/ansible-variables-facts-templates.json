@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Comment lit-on un fact dans un playbook, et comment le filtre-t-on en commande ad-hoc ?",
+      "q_en": "How do you read a fact in a playbook, and how do you filter it in an ad-hoc command?",
+      "choices": [
+        { "fr": "Dans un playbook : ansible_facts['memtotal_mb'] ; en ad-hoc : filter=ansible_memtotal_mb (nom préfixé)", "en": "In a playbook: ansible_facts['memtotal_mb']; in ad-hoc: filter=ansible_memtotal_mb (prefixed name)" },
+        { "fr": "Toujours avec le préfixe ansible_ dans les deux cas", "en": "Always with the ansible_ prefix in both cases" },
+        { "fr": "Les facts ne sont accessibles qu'en ad-hoc, jamais dans un playbook", "en": "Facts are only accessible in ad-hoc, never in a playbook" }
+      ],
+      "answer": 0,
+      "explain_fr": "En playbook, on lit ansible_facts['memtotal_mb'] (sans préfixe). En ad-hoc avec le module setup, le filtre utilise le nom préfixé ansible_memtotal_mb. Les deux pointent la même donnée. Collecter les facts est lent : savoir n'en prendre qu'une partie est un réflexe.",
+      "explain_en": "In a playbook, you read ansible_facts['memtotal_mb'] (no prefix). In ad-hoc with the setup module, the filter uses the prefixed name ansible_memtotal_mb. Both point to the same data. Gathering facts is slow: knowing how to grab only some is a reflex."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quand utilise-t-on le module `set_fact` ?",
+      "q_en": "When do you use the `set_fact` module?",
+      "choices": [
+        { "fr": "Pour désactiver la collecte automatique des facts", "en": "To disable automatic fact gathering" },
+        { "fr": "Pour fabriquer une variable calculée à partir d'autres et la réutiliser dans le play", "en": "To build a variable computed from others and reuse it in the play" },
+        { "fr": "Pour envoyer une variable vers un serveur distant", "en": "To send a variable to a remote server" }
+      ],
+      "answer": 1,
+      "explain_fr": "set_fact sert à fixer sur l'hôte une valeur calculée à partir d'autres (ex. moitié de la RAM avec // pour une division entière, ou un nom composé) afin de la réutiliser sans recopier le calcul, pour tout le reste du play.",
+      "explain_en": "set_fact pins on the host a value computed from others (e.g. half the RAM with // for integer division, or a composed name) so you can reuse it without recopying the computation, for the rest of the play."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Une variable `app_port: 8080` est définie dans le play, mais on lance avec `-e app_port=9090`. Quelle valeur gagne ?",
+      "q_en": "A variable `app_port: 8080` is defined in the play, but you run with `-e app_port=9090`. Which value wins?",
+      "choices": [
+        { "fr": "9090 : les extra-vars (-e) sont au sommet de la hiérarchie de précédence", "en": "9090: extra-vars (-e) are at the top of the precedence hierarchy" },
+        { "fr": "8080 : ce qui est écrit dans le playbook l'emporte toujours", "en": "8080: what's written in the playbook always wins" },
+        { "fr": "Aucune : le conflit fait échouer le play", "en": "Neither: the conflict fails the play" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les extra-vars -e sont au sommet de la précédence : -e app_port=9090 écrase la valeur du play. Ordre : -e > vars du play > host_vars > group_vars > defaults. À noter : on évite le nom réservé port (variable de connexion).",
+      "explain_en": "Extra-vars -e sit at the top of precedence: -e app_port=9090 overrides the play value. Order: -e > play vars > host_vars > group_vars > defaults. Note: avoid the reserved name port (a connection variable)."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quelle est la différence entre les filtres Jinja2 `| default('x')` et `| mandatory` sur une variable ?",
+      "q_en": "What is the difference between the Jinja2 filters `| default('x')` and `| mandatory` on a variable?",
+      "choices": [
+        { "fr": "default fournit un repli si la variable manque ; mandatory exige la variable et échoue proprement sinon", "en": "default provides a fallback if the variable is missing; mandatory requires the variable and fails cleanly otherwise" },
+        { "fr": "Les deux fournissent une valeur par défaut, mandatory est juste plus verbeux", "en": "Both provide a default value, mandatory is just more verbose" },
+        { "fr": "default échoue si la variable manque ; mandatory fournit un repli", "en": "default fails if the variable is missing; mandatory provides a fallback" }
+      ],
+      "answer": 0,
+      "explain_fr": "| default('x') fournit un repli quand la variable est indéfinie (évite AnsibleUndefinedVariable). | mandatory fait l'inverse : il exige la variable et échoue explicitement (Mandatory variable ... not defined) si elle manque — un échec clair, bien mieux qu'un template cassé.",
+      "explain_en": "| default('x') provides a fallback when the variable is undefined (avoids AnsibleUndefinedVariable). | mandatory does the opposite: it requires the variable and fails explicitly (Mandatory variable ... not defined) if missing — a clear failure, far better than a broken template."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Dans le template, un élément `web2` sans clé `port` produit `:8080`. Grâce à quoi ?",
+      "q_en": "In the template, a `web2` element with no `port` key produces `:8080`. Thanks to what?",
+      "choices": [
+        { "fr": "Au filtre `default(8080)` appliqué à `s.port` dans la boucle", "en": "The `default(8080)` filter applied to `s.port` in the loop" },
+        { "fr": "À une valeur codée en dur dans le module template", "en": "A value hardcoded in the template module" },
+        { "fr": "À un fact collecté automatiquement sur la cible", "en": "A fact gathered automatically on the target" }
+      ],
+      "answer": 0,
+      "explain_fr": "La ligne server {{ s.ip }}:{{ s.port | default(8080) }} utilise default(8080) : quand s.port manque (cas de web2), le repli 8080 s'applique. Le template combine texte + variables + boucle for + condition if (ici listen 443 ssl car activer_tls: true).",
+      "explain_en": "The line server {{ s.ip }}:{{ s.port | default(8080) }} uses default(8080): when s.port is missing (web2's case), the 8080 fallback applies. The template combines text + variables + for loop + if condition (here listen 443 ssl because activer_tls: true)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Un custom fact écrit dans `/etc/ansible/facts.d/atelier.fact` est exposé sous quel nom, et quelle précaution d'ordre faut-il prendre ?",
+      "q_en": "A custom fact written to `/etc/ansible/facts.d/atelier.fact` is exposed under what name, and what ordering precaution is needed?",
+      "choices": [
+        { "fr": "Sous ansible_facts.atelier ; il est disponible dès le début du play", "en": "Under ansible_facts.atelier; it's available from the start of the play" },
+        { "fr": "Sous ansible_local.atelier ; il faut recollecter les facts après l'avoir écrit", "en": "Under ansible_local.atelier; you must re-gather facts after writing it" },
+        { "fr": "Sous custom_facts.atelier ; aucun ordre particulier n'est requis", "en": "Under custom_facts.atelier; no particular order is required" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un fichier .fact dans /etc/ansible/facts.d/ est exposé sous ansible_local.<nom_sans_.fact>. Comme les facts du début de play ont été collectés avant l'écriture, il faut une tâche setup: filter=ansible_local entre l'écriture et la lecture, sinon ansible_local.atelier n'existe pas encore.",
+      "explain_en": "A .fact file in /etc/ansible/facts.d/ is exposed under ansible_local.<name_without_.fact>. Since the start-of-play facts were gathered before the write, you need a setup: filter=ansible_local task between writing and reading, otherwise ansible_local.atelier doesn't exist yet."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Sur un load-balancer, comment génère-t-on la liste de tous les backends du groupe `web` avec leur IP ?",
+      "q_en": "On a load-balancer, how do you generate the list of all backends of the `web` group with their IP?",
+      "choices": [
+        { "fr": "Avec groups['web'] pour les hôtes et hostvars[h]['ansible_host'] pour l'IP de chacun", "en": "With groups['web'] for the hosts and hostvars[h]['ansible_host'] for each one's IP" },
+        { "fr": "Avec inventory_hostname répété pour chaque backend", "en": "With inventory_hostname repeated for each backend" },
+        { "fr": "Avec ansible_facts['all_hosts'] qui liste tout le parc", "en": "With ansible_facts['all_hosts'] listing the whole fleet" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les variables magiques permettent un template inter-hôtes : groups['web'] donne les hôtes du groupe, et hostvars[h]['ansible_host'] l'IP de chacun. Sans elles, impossible de générer une config qui parle des autres machines. inventory_hostname désigne l'hôte courant.",
+      "explain_en": "Magic variables enable a cross-host template: groups['web'] gives the group's hosts, and hostvars[h]['ansible_host'] each one's IP. Without them, you can't generate a config that talks about the other machines. inventory_hostname names the current host."
+    }
+  ]
+}
