@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Que déploie-t-on comme socle du workload sécurisé ?",
+      "q_en": "What do we deploy as the foundation of the secure workload ?",
+      "choices": [
+        { "fr": "Un pare-feu applicatif WAF public", "en": "A public WAF application firewall" },
+        { "fr": "Un coffre Key Vault ouvert à Internet", "en": "A Key Vault open to the Internet" },
+        { "fr": "Un NSG en refus par défaut n'autorisant que l'app sur HTTPS vers le tier data — surface minimale", "en": "A deny-by-default NSG allowing only the app over HTTPS to the data tier — minimal surface" }
+      ],
+      "answer": 2,
+      "explain_fr": "Surface minimale d'abord : le tier data n'accepte que l'app (10.0.2.0/24) sur HTTPS ; tout autre trafic est refusé implicitement. C'est le pilier réseau.",
+      "explain_en": "Minimal surface first: the data tier accepts only the app (10.0.2.0/24) over HTTPS; any other traffic is implicitly denied. It's the network pillar."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Comment l'app s'authentifie-t-elle et où vit sa chaîne de connexion ?",
+      "q_en": "How does the app authenticate and where does its connection string live ?",
+      "choices": [
+        { "fr": "Via une identité managée (sans mot de passe) ; la chaîne de connexion vit au Key Vault, hors du code", "en": "Via a managed identity (passwordless); the connection string lives in Key Vault, outside the code" },
+        { "fr": "Via une clé partagée codée en dur", "en": "Via a hardcoded shared key" },
+        { "fr": "Via un mot de passe en variable d'environnement en clair", "en": "Via a password in a clear-text environment variable" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sans secret pour accéder au secret : identité managée (qu'on autoriserait via RBAC Secrets User, moindre privilège) et chaîne de connexion au coffre, hors du code.",
+      "explain_en": "No secret to access the secret: managed identity (authorized via RBAC Secrets User, least privilege) and connection string in the vault, outside the code."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quels contrôles durcissent la ressource de données (checkov au vert) ?",
+      "q_en": "Which controls harden the data resource (checkov green) ?",
+      "choices": [
+        { "fr": "Uniquement la géo-redondance", "en": "Only geo-redundancy" },
+        { "fr": "Chiffrement au repos, TLS 1.2, HTTPS obligatoire, accès public fermé, géo-redondance", "en": "Encryption at rest, TLS 1.2, HTTPS mandatory, public access closed, geo-redundancy" },
+        { "fr": "Uniquement un NSG", "en": "Only an NSG" }
+      ],
+      "answer": 1,
+      "explain_fr": "La donnée — la cible ultime — est protégée elle-même : `CKV_AZURE_3` (HTTPS), `CKV_AZURE_44` (TLS 1.2) et `CKV_AZURE_59` (pas d'accès public) passent tous.",
+      "explain_en": "The data — the ultimate target — is protected itself: `CKV_AZURE_3` (HTTPS), `CKV_AZURE_44` (TLS 1.2) and `CKV_AZURE_59` (no public access) all pass."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Comment la porte de gouvernance empêche-t-elle le non-conforme à deux niveaux ?",
+      "q_en": "How does the governance gate prevent the non-compliant at two levels ?",
+      "choices": [
+        { "fr": "En chiffrant les données deux fois", "en": "By encrypting the data twice" },
+        { "fr": "En dupliquant le NSG", "en": "By duplicating the NSG" },
+        { "fr": "`checkov` bloque en CI (shift-left) et Azure Policy refuse à la création côté plateforme", "en": "`checkov` blocks in CI (shift-left) and Azure Policy refuses at creation on the platform" }
+      ],
+      "answer": 2,
+      "explain_fr": "Empêcher à deux niveaux : checkov arrête le non-conforme en CI (avant le déploiement), Azure Policy le refuse à la création. Shift-left ET garde-fou permanent.",
+      "explain_en": "Prevent at two levels: checkov stops the non-compliant in CI (before deployment), Azure Policy refuses it at creation. Shift-left AND permanent guardrail."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Qu'ajoute le pilier « opérations » (détection + playbook) à un workload durci ?",
+      "q_en": "What does the \"operations\" pillar (detection + playbook) add to a hardened workload ?",
+      "choices": [
+        { "fr": "La défense vivante : un incident est détecté et une réponse automatique part sans attendre un humain", "en": "Living defense: an incident is detected and an automatic response fires without waiting for a human" },
+        { "fr": "Il remplace le chiffrement des données", "en": "It replaces data encryption" },
+        { "fr": "Il ouvre le réseau pour faciliter l'audit", "en": "It opens the network to ease auditing" }
+      ],
+      "answer": 0,
+      "explain_fr": "Durcir ne suffit pas — opérer : une règle repère la force brute et un playbook répond (désactiver le compte, exiger MFA, bloquer l'IP, notifier le SOC). Durcir ET opérer.",
+      "explain_en": "Hardening isn't enough — operate: a rule spots the brute force and a playbook responds (disable the account, require MFA, block the IP, notify the SOC). Harden AND operate."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que mesure le secure score du workload ?",
+      "q_en": "What does the workload's secure score measure ?",
+      "choices": [
+        { "fr": "La latence réseau du workload", "en": "The workload's network latency" },
+        { "fr": "La couverture des cinq piliers (réseau, identité, données, gouvernance, opérations) en % avec recommandations", "en": "The coverage of the five pillars (network, identity, data, governance, operations) as a % with recommendations" },
+        { "fr": "Le coût mensuel du workload", "en": "The workload's monthly cost" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un pilier manquant devient une recommandation — exactement la logique de Defender for Cloud : un score, des recommandations, une amélioration continue.",
+      "explain_en": "A missing pillar becomes a recommendation — exactly Defender for Cloud's logic: a score, recommendations, continuous improvement."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que contient le livrable final du projet sécurité AZ-500 ?",
+      "q_en": "What does the final deliverable of the AZ-500 security project contain ?",
+      "choices": [
+        { "fr": "Uniquement le code Terraform, sans sécurité", "en": "Only the Terraform code, without security" },
+        { "fr": "Uniquement une fiche CV vide", "en": "Only an empty CV sheet" },
+        { "fr": "Un workload durci (réseau, identité, données, gouvernance) et opéré (détection, réponse, mesure), avec secure score et fiche CV", "en": "A hardened workload (network, identity, data, governance) and operated (detection, response, measurement), with a secure score and a CV sheet" }
+      ],
+      "answer": 2,
+      "explain_fr": "Preuves et pitch : un workload durci ET opéré, déployé pour de vrai sur l'émulateur, avec un secure score et une fiche CV à mettre en avant en entretien.",
+      "explain_en": "Evidence and pitch: a workload hardened AND operated, deployed for real on the emulator, with a secure score and a CV sheet to highlight in interviews."
+    }
+  ]
+}
