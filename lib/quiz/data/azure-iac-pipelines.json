@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi placer `terraform fmt -check` et `validate` en tout premiers jobs d'une pipeline IaC ?",
+      "q_en": "Why put `terraform fmt -check` and `validate` as the very first jobs of an IaC pipeline ?",
+      "choices": [
+        { "fr": "Rapides et sans risque, ils échouent tôt sur du code mal formaté ou invalide, avant tout déploiement", "en": "Fast and risk-free, they fail early on badly formatted or invalid code, before any deployment" },
+        { "fr": "Ils appliquent les changements d'infra en mode sécurisé", "en": "They apply the infra changes in a safe mode" },
+        { "fr": "Ils remplacent le besoin d'un `terraform plan`", "en": "They remove the need for a `terraform plan`" }
+      ],
+      "answer": 0,
+      "explain_fr": "Ces gates ne touchent à rien : ils bloquent un code sale avant de dépenser du temps de runner ou de risquer la prod (`validate` exige un `init`).",
+      "explain_en": "These gates touch nothing: they block dirty code before spending runner time or risking prod (`validate` needs an `init`)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que fait `terraform plan` ?",
+      "q_en": "What does `terraform plan` do ?",
+      "choices": [
+        { "fr": "Il applique les changements immédiatement", "en": "It applies the changes immediately" },
+        { "fr": "Il supprime les ressources non déclarées", "en": "It deletes resources not declared" },
+        { "fr": "Il compare l'état voulu au réel et montre le diff, sans rien changer", "en": "It compares desired state to reality and shows the diff, changing nothing" }
+      ],
+      "answer": 2,
+      "explain_fr": "`plan` est un dry-run : il annonce ce qui serait créé/modifié/détruit. C'est ce qu'un humain revoit avant d'approuver.",
+      "explain_en": "`plan` is a dry-run: it announces what would be created/changed/destroyed. It's what a human reviews before approving."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi le pattern `plan -out=tfplan` puis `apply tfplan` ?",
+      "q_en": "Why the pattern `plan -out=tfplan` then `apply tfplan` ?",
+      "choices": [
+        { "fr": "Pour paralléliser les phases plan et apply", "en": "To parallelize the plan and apply phases" },
+        { "fr": "Pour appliquer exactement le plan revu, figé dans un fichier (artefact)", "en": "To apply exactly the reviewed plan, frozen in a file (artifact)" },
+        { "fr": "Parce que `apply` exige toujours une nouvelle confirmation interactive", "en": "Because `apply` always requires a fresh interactive confirmation" }
+      ],
+      "answer": 1,
+      "explain_fr": "Refaire un `plan` au moment de l'apply pourrait différer ; figer `tfplan` garantit qu'on applique le plan approuvé, sans redemander.",
+      "explain_en": "Re-running a `plan` at apply time could differ; freezing `tfplan` ensures you apply the approved plan, without re-asking."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Après avoir ajouté un sous-réseau, pourquoi le nouveau `plan` n'affiche-t-il que « 1 to add » ?",
+      "q_en": "After adding a subnet, why does the new `plan` show only \"1 to add\" ?",
+      "choices": [
+        { "fr": "Terraform calcule le delta entre l'état voulu et l'existant — il ne recrée pas ce qui est déjà là (idempotence)", "en": "Terraform computes the delta between desired state and reality — it doesn't recreate what already exists (idempotence)" },
+        { "fr": "Terraform détruit et recrée toujours toute l'infra", "en": "Terraform always destroys and recreates the whole infra" },
+        { "fr": "Le sous-réseau précédent a été supprimé", "en": "The previous subnet was deleted" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le code décrit l'état voulu ; l'outil converge en n'appliquant que le delta. Ici, seul le nouveau `snet-app` manque.",
+      "explain_en": "The code describes desired state; the tool converges by applying only the delta. Here, only the new `snet-app` is missing."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Dans le flux Valider → Plan → Apply, comment le plan revu atteint-il le stage Apply ?",
+      "q_en": "In the Validate → Plan → Apply flow, how does the reviewed plan reach the Apply stage ?",
+      "choices": [
+        { "fr": "Il est recalculé à l'identique dans le stage Apply", "en": "It is recomputed identically in the Apply stage" },
+        { "fr": "Il est stocké dans une variable de pipeline", "en": "It is stored in a pipeline variable" },
+        { "fr": "Le stage Plan publie `tfplan` en artefact, que le stage Apply télécharge", "en": "The Plan stage publishes `tfplan` as an artifact, which the Apply stage downloads" }
+      ],
+      "answer": 2,
+      "explain_fr": "L'artefact `tfplan` voyage entre les stages ; Apply applique CE plan, derrière la porte d'environnement `production`.",
+      "explain_en": "The `tfplan` artifact travels between stages; Apply applies THAT plan, behind the `production` environment gate."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quel est l'équivalent Bicep du `terraform plan` (aperçu avant déploiement) ?",
+      "q_en": "What is the Bicep equivalent of `terraform plan` (preview before deployment) ?",
+      "choices": [
+        { "fr": "az bicep build", "en": "az bicep build" },
+        { "fr": "az deployment group what-if", "en": "az deployment group what-if" },
+        { "fr": "az deployment group create", "en": "az deployment group create" }
+      ],
+      "answer": 1,
+      "explain_fr": "`az bicep build` valide hors ligne (= `fmt`/`validate`), `what-if` est l'aperçu (= `plan`), `create` déploie (= `apply`).",
+      "explain_en": "`az bicep build` validates offline (= `fmt`/`validate`), `what-if` is the preview (= `plan`), `create` deploys (= `apply`)."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi un backend d'état distant (conteneur Blob) avec verrou en pipeline ?",
+      "q_en": "Why a remote state backend (Blob container) with a lock in a pipeline ?",
+      "choices": [
+        { "fr": "Pour chiffrer le code Terraform", "en": "To encrypt the Terraform code" },
+        { "fr": "Pour dupliquer le code par environnement", "en": "To duplicate the code per environment" },
+        { "fr": "Pour partager l'état et empêcher deux exécutions de s'écraser (verrou), une clé par environnement", "en": "To share the state and prevent two runs from overwriting each other (lock), one key per environment" }
+      ],
+      "answer": 2,
+      "explain_fr": "L'état distant partage l'état et le verrouille ; le même code piloté par `-var` sert `dev`/`prod` avec des clés d'état distinctes.",
+      "explain_en": "Remote state shares and locks the state; the same code driven by `-var` serves `dev`/`prod` with distinct state keys."
+    }
+  ]
+}

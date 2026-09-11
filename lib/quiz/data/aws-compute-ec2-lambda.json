@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "À quoi servent respectivement la paire de clés et l'AMI pour lancer une instance EC2 ?",
+      "q_en": "What are the key pair and the AMI respectively used for when launching an EC2 instance ?",
+      "choices": [
+        { "fr": "La paire de clés permet de se connecter en SSH ; l'AMI est le modèle de départ (OS + logiciels préinstallés)", "en": "The key pair lets you connect via SSH; the AMI is the starting template (OS + preinstalled software)" },
+        { "fr": "La paire de clés définit l'OS ; l'AMI ouvre l'accès SSH", "en": "The key pair defines the OS; the AMI opens SSH access" },
+        { "fr": "Les deux servent uniquement à facturer l'instance", "en": "Both are only used to bill the instance" }
+      ],
+      "answer": 0,
+      "explain_fr": "La paire de clés (AWS y installe ta clé publique) autorise la connexion SSH ; l'AMI est l'image de départ qui fixe l'OS et les logiciels préinstallés. En réel, la clé privée n'est renvoyée qu'une fois par `create-key-pair` — à sauver immédiatement.",
+      "explain_en": "The key pair (AWS installs your public key in the instance) enables SSH; the AMI is the starting image that sets the OS and preinstalled software. In real AWS, the private key is returned only once by `create-key-pair` — save it immediately."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quand s'exécute un script user-data fourni à `run-instances` ?",
+      "q_en": "When does a user-data script passed to `run-instances` run ?",
+      "choices": [
+        { "fr": "À chaque connexion SSH d'un administrateur", "en": "On every SSH connection by an administrator" },
+        { "fr": "Au premier démarrage de l'instance, pour l'installer/configurer automatiquement", "en": "At the instance's first boot, to install/configure it automatically" },
+        { "fr": "Uniquement lorsqu'on arrête l'instance", "en": "Only when the instance is stopped" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le user-data est un script exécuté au premier démarrage : installer nginx, configurer l'app… C'est la base de l'automatisation EC2, plutôt que de tout faire à la main en SSH. (En LocalStack, l'instance est émulée au niveau API et le user-data ne s'exécute pas réellement.)",
+      "explain_en": "User-data is a script run at first boot: install nginx, configure the app… It's the basis of EC2 automation, rather than doing everything by hand over SSH. (In LocalStack the instance is API-emulated and the user-data doesn't actually run.)"
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quelle est la différence de coût et de données entre une instance `stopped` et une instance `terminated` ?",
+      "q_en": "What is the cost and data difference between a `stopped` instance and a `terminated` one ?",
+      "choices": [
+        { "fr": "`stopped` : tu paies le stockage EBS mais pas le compute, le disque persiste ; `terminated` : plus rien facturé, tout est perdu", "en": "`stopped`: you pay for EBS storage but not compute, the disk persists; `terminated`: nothing more billed, everything is lost" },
+        { "fr": "`stopped` et `terminated` facturent exactement la même chose", "en": "`stopped` and `terminated` bill exactly the same" },
+        { "fr": "`terminated` conserve le disque EBS, `stopped` le supprime", "en": "`terminated` keeps the EBS disk, `stopped` deletes it" }
+      ],
+      "answer": 0,
+      "explain_fr": "Une instance `stopped` ne facture plus le compute mais conserve son volume EBS (le disque persiste à travers stop/start, tu paies son stockage). Une instance `terminated` est détruite définitivement : plus rien facturé, tout est perdu. Bien gérer ces états, c'est maîtriser le coût.",
+      "explain_en": "A `stopped` instance no longer bills compute but keeps its EBS volume (the disk persists across stop/start, you pay its storage). A `terminated` instance is destroyed permanently: nothing more billed, everything lost. Managing these states well is mastering cost."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi LocalStack a-t-il besoin d'accéder au socket Docker pour rendre une fonction Lambda exécutable ?",
+      "q_en": "Why does LocalStack need access to the Docker socket to make a Lambda function executable ?",
+      "choices": [
+        { "fr": "Pour stocker le code de la fonction sur le disque de l'hôte", "en": "To store the function's code on the host disk" },
+        { "fr": "Pour lancer un petit conteneur runtime (Python/Node) qui exécute la fonction", "en": "To spawn a small runtime container (Python/Node) that runs the function" },
+        { "fr": "Pour vérifier la licence Pro de LocalStack", "en": "To verify LocalStack's Pro license" }
+      ],
+      "answer": 1,
+      "explain_fr": "Pour exécuter une fonction, LocalStack démarre un conteneur runtime via le démon Docker (d'où le montage de `/var/run/docker.sock`). Sans ce socket, la fonction se crée mais reste en état `Failed` (« Docker not available »). Avec, elle passe à `Active`.",
+      "explain_en": "To run a function, LocalStack starts a runtime container via the Docker daemon (hence mounting `/var/run/docker.sock`). Without the socket, the function creates but stays `Failed` (\"Docker not available\"). With it, it becomes `Active`."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Comment déclenche-t-on l'exécution d'une fonction Lambda et son résultat ?",
+      "q_en": "How do you trigger a Lambda function's execution and get its result ?",
+      "choices": [
+        { "fr": "On la laisse tourner en continu comme un serveur, elle répond en permanence", "en": "You leave it running continuously like a server, always responding" },
+        { "fr": "On l'invoque avec un événement (un JSON) ; elle s'exécute, renvoie un résultat, puis s'éteint", "en": "You invoke it with an event (a JSON); it runs, returns a result, then shuts down" },
+        { "fr": "On modifie sa mémoire, ce qui la fait s'exécuter", "en": "You change its memory, which makes it run" }
+      ],
+      "answer": 1,
+      "explain_fr": "Une Lambda ne tourne pas en permanence : on l'invoque avec un événement JSON, elle s'exécute, renvoie un résultat puis s'éteint. Ici l'événement `{\"nom\": \"Jiha\"}` produit `{\"message\": \"Bonjour Jiha depuis Lambda\"}`. On ajuste séparément mémoire, timeout et variables d'environnement sans toucher au code.",
+      "explain_en": "A Lambda doesn't run continuously: you invoke it with a JSON event, it runs, returns a result, then shuts down. Here the event `{\"nom\": \"Jiha\"}` produces `{\"message\": \"Bonjour Jiha depuis Lambda\"}`. You separately tune memory, timeout and environment variables without touching the code."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pour qu'un dépôt de fichier dans S3 invoque automatiquement une fonction Lambda, qu'est-ce qui est indispensable en plus de la notification de bucket ?",
+      "q_en": "For a file drop in S3 to automatically invoke a Lambda function, what is indispensable besides the bucket notification ?",
+      "choices": [
+        { "fr": "Une permission (`add-permission`) autorisant le principal `s3.amazonaws.com` à invoquer la fonction", "en": "A permission (`add-permission`) allowing the `s3.amazonaws.com` principal to invoke the function" },
+        { "fr": "Rendre le bucket public via une bucket policy", "en": "Making the bucket public via a bucket policy" },
+        { "fr": "Démarrer une instance EC2 pour relayer l'événement", "en": "Starting an EC2 instance to relay the event" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sans la permission autorisant `s3.amazonaws.com` à invoquer la fonction, S3 n'a pas le droit de la déclencher et le motif reste muet. Avec `add-permission` + la notification sur `s3:ObjectCreated:*`, tout dépôt d'objet invoque automatiquement la Lambda : le motif serverless S3 → Lambda.",
+      "explain_en": "Without the permission allowing `s3.amazonaws.com` to invoke the function, S3 isn't allowed to trigger it and the pattern stays silent. With `add-permission` + the notification on `s3:ObjectCreated:*`, any object upload automatically invokes the Lambda: the S3 → Lambda serverless pattern."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quel compute privilégier pour une charge continue nécessitant un OS complet et un contrôle fin ?",
+      "q_en": "Which compute is preferable for a continuous workload needing a full OS and fine-grained control ?",
+      "choices": [
+        { "fr": "Lambda, car il gère automatiquement la mise à l'échelle", "en": "Lambda, because it auto-scales" },
+        { "fr": "EC2, adapté aux charges continues (24/7), à un OS complet et au contrôle fin", "en": "EC2, suited to continuous (24/7) workloads, a full OS and fine-grained control" },
+        { "fr": "Ni l'un ni l'autre : une bucket policy suffit", "en": "Neither: a bucket policy is enough" }
+      ],
+      "answer": 1,
+      "explain_fr": "La grille : charge continue / OS complet / contrôle → EC2 ; charge événementielle et intermittente / zéro admin → Lambda (mais durée et taille limitées). C'est la décision d'architecte que le SAA teste sans cesse.",
+      "explain_en": "The grid: continuous workload / full OS / control → EC2; event-driven, intermittent / zero admin → Lambda (but limited duration and size). It's the architect's decision the SAA tests constantly."
+    }
+  ]
+}

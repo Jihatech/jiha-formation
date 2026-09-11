@@ -1,0 +1,86 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi un sous-shell (`bash -c '…'`) ne voit-il pas MAVAR tant qu'on n'a pas fait `export MAVAR` ?",
+      "q_en": "Why does a subshell (`bash -c '…'`) not see MAVAR until you run `export MAVAR`?",
+      "choices": [
+        { "fr": "Parce que la variable est en lecture seule tant qu'on ne l'exporte pas", "en": "Because the variable is read-only until it's exported" },
+        { "fr": "Parce qu'une variable non exportée n'est pas héritée par les processus enfants", "en": "Because a non-exported variable is not inherited by child processes" },
+        { "fr": "Parce que bash -c efface toutes les variables du parent", "en": "Because bash -c wipes all the parent's variables" }
+      ],
+      "answer": 1,
+      "explain_fr": "Une variable locale reste dans le shell courant ; seule une variable exportée passe dans l'environnement hérité par les processus enfants. Ces réglages sont temporaires : on les met dans ~/.bashrc pour les rendre permanents.",
+      "explain_en": "A local variable stays in the current shell; only an exported variable enters the environment inherited by child processes. These settings are temporary: put them in ~/.bashrc to make them permanent."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Dans un script, quelle est la différence entre `\"bonjour $nom\"` et `'bonjour $nom'` ?",
+      "q_en": "In a script, what is the difference between `\"bonjour $nom\"` and `'bonjour $nom'`?",
+      "choices": [
+        { "fr": "Les guillemets doubles remplacent $nom par sa valeur ; les simples le laissent littéral", "en": "Double quotes substitute $nom with its value; single quotes leave it literal" },
+        { "fr": "Les guillemets simples remplacent $nom ; les doubles le laissent littéral", "en": "Single quotes substitute $nom; double quotes leave it literal" },
+        { "fr": "Aucune différence : les deux remplacent $nom", "en": "No difference: both substitute $nom" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les guillemets doubles interprètent les variables et substitutions ($nom, $(cmd)) ; les guillemets simples ne font rien (littéral brut). Règle d'or : doubles par défaut, simples pour du texte vraiment littéral.",
+      "explain_en": "Double quotes interpret variables and substitutions ($nom, $(cmd)); single quotes do nothing (raw literal). Golden rule: doubles by default, singles for truly literal text."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que représente `$?` juste après l'exécution d'une commande ou d'un script ?",
+      "q_en": "What does `$?` represent right after a command or script runs?",
+      "choices": [
+        { "fr": "Le nombre d'arguments reçus", "en": "The number of arguments received" },
+        { "fr": "Le premier argument passé", "en": "The first argument passed" },
+        { "fr": "Le code de sortie (0 = succès, non-zéro = erreur)", "en": "The exit code (0 = success, non-zero = error)" }
+      ],
+      "answer": 2,
+      "explain_fr": "$? contient le code de sortie de la dernière commande : 0 = succès, non-zéro = échec. C'est ce que fixe exit, et ce qui permet à &&, || ou un cron de réagir au résultat. ($# = nombre d'args, $1 = premier arg.)",
+      "explain_en": "$? holds the last command's exit code: 0 = success, non-zero = failure. It's what exit sets, and what lets &&, || or a cron react to the result. ($# = arg count, $1 = first arg.)"
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quel test `[[ ]]` vérifie qu'un chemin existe et est un fichier régulier ?",
+      "q_en": "Which `[[ ]]` test checks that a path exists and is a regular file?",
+      "choices": [
+        { "fr": "[[ -d \"$f\" ]]", "en": "[[ -d \"$f\" ]]" },
+        { "fr": "[[ -f \"$f\" ]]", "en": "[[ -f \"$f\" ]]" },
+        { "fr": "[[ -x \"$f\" ]]", "en": "[[ -x \"$f\" ]]" }
+      ],
+      "answer": 1,
+      "explain_fr": "-f teste un fichier régulier, -d un répertoire, -x un fichier exécutable. On préfère [[ ]] (bash) à [ ], plus sûr avec les variables vides ou contenant des espaces.",
+      "explain_en": "-f tests a regular file, -d a directory, -x an executable file. Prefer [[ ]] (bash) over [ ], which is safer with empty variables or ones containing spaces."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quel motif lit un flux (fichier ou sortie d'une commande) ligne par ligne ?",
+      "q_en": "Which pattern reads a stream (a file or a command's output) line by line?",
+      "choices": [
+        { "fr": "for i in 1 2 3; do … done", "en": "for i in 1 2 3; do … done" },
+        { "fr": "case \"$n\" in … esac", "en": "case \"$n\" in … esac" },
+        { "fr": "while read -r ligne; do … done", "en": "while read -r ligne; do … done" }
+      ],
+      "answer": 2,
+      "explain_fr": "while read -r lit un flux ligne par ligne — l'outil pour traiter un fichier ou la sortie d'une commande. Le -r empêche l'interprétation des antislashs (toujours l'utiliser). for itère sur une liste, case compare à des motifs.",
+      "explain_en": "while read -r reads a stream line by line — the tool to process a file or a command's output. The -r prevents backslash interpretation (always use it). for iterates over a list, case matches against patterns."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "À quoi sert `set -euo pipefail` placé en tête d'un script robuste ?",
+      "q_en": "What is `set -euo pipefail` at the top of a robust script for?",
+      "choices": [
+        { "fr": "Arrêter le script sur une erreur, une variable non définie, ou un échec dans un pipe", "en": "Stop the script on an error, an unset variable, or a failure in a pipe" },
+        { "fr": "Activer un mode d'affichage verbeux pour le débogage", "en": "Enable a verbose display mode for debugging" },
+        { "fr": "Exporter automatiquement toutes les variables du script", "en": "Automatically export all the script's variables" }
+      ],
+      "answer": 0,
+      "explain_fr": "set -e arrête sur toute commande en échec, -u sur l'usage d'une variable non définie, et pipefail fait échouer un pipe si l'un de ses maillons échoue. C'est la bonne pratique des scripts fiables, aux côtés d'un code de sortie exploitable.",
+      "explain_en": "set -e stops on any failing command, -u on use of an unset variable, and pipefail makes a pipe fail if any of its stages fails. It's the best practice for reliable scripts, alongside a usable exit code."
+    }
+  ]
+}
