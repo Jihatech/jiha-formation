@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Comment fait-on pour que le provider `azurerm` de Terraform vise miniblue plutôt que le vrai Azure ?",
+      "q_en": "How do you make Terraform's `azurerm` provider target miniblue instead of real Azure?",
+      "choices": [
+        { "fr": "On configure `metadata_host` local, des identifiants factices et `skip_provider_registration`, puis on fait confiance au certificat via `SSL_CERT_FILE`", "en": "Configure a local `metadata_host`, dummy credentials and `skip_provider_registration`, then trust the certificate via `SSL_CERT_FILE`" },
+        { "fr": "On installe un provider `miniblue` dédié depuis le registre Terraform", "en": "Install a dedicated `miniblue` provider from the Terraform registry" },
+        { "fr": "Rien à faire : le provider détecte miniblue automatiquement", "en": "Nothing to do: the provider detects miniblue automatically" }
+      ],
+      "answer": 0,
+      "explain_fr": "On réutilise le provider `azurerm` officiel en le pointant sur l'endpoint local (metadata_host), avec identifiants factices et skip_provider_registration, plus SSL_CERT_FILE pour le certificat.",
+      "explain_en": "You reuse the official `azurerm` provider aimed at the local endpoint (metadata_host), with dummy credentials and skip_provider_registration, plus SSL_CERT_FILE for the certificate."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi découper un VNet 10.0.0.0/16 en sous-réseaux web / app / data ?",
+      "q_en": "Why split a 10.0.0.0/16 VNet into web / app / data subnets?",
+      "choices": [
+        { "fr": "Pour obtenir automatiquement une adresse IP publique", "en": "To automatically get a public IP address" },
+        { "fr": "Pour pouvoir appliquer des règles de sécurité différentes par tier", "en": "To apply different security rules per tier" },
+        { "fr": "Parce qu'un VNet ne peut contenir qu'un seul sous-réseau", "en": "Because a VNet can hold only one subnet" }
+      ],
+      "answer": 1,
+      "explain_fr": "La segmentation par fonction (web exposé, app logique, data base) est la base pour appliquer ensuite des règles de sécurité (NSG) adaptées à chaque tier.",
+      "explain_en": "Segmentation by function (exposed web, app logic, data database) is the base for later applying security rules (NSG) tailored to each tier."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "À quoi sert le NSG associé au sous-réseau web ?",
+      "q_en": "What is the NSG associated with the web subnet for?",
+      "choices": [
+        { "fr": "Il filtre le trafic : on autorise HTTPS entrant (443), les règles par défaut refusant le reste", "en": "It filters traffic: allow inbound HTTPS (443), with default rules denying the rest" },
+        { "fr": "Il attribue des adresses IP publiques aux machines", "en": "It assigns public IP addresses to machines" },
+        { "fr": "Il compile les templates Bicep du réseau", "en": "It compiles the network's Bicep templates" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un NSG est un pare-feu de sous-réseau : la règle autorise HTTPS (443, priorité 100) et les règles par défaut refusent le reste depuis Internet.",
+      "explain_en": "An NSG is a subnet firewall: the rule allows HTTPS (443, priority 100) and the default rules deny the rest from the Internet."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi créer l'adresse IP publique en mode statique pour un point d'entrée ?",
+      "q_en": "Why create the public IP as static for an entry point?",
+      "choices": [
+        { "fr": "Parce que les IP dynamiques ne sont pas supportées sur Azure", "en": "Because dynamic IPs are not supported on Azure" },
+        { "fr": "Pour réduire le coût de l'adresse", "en": "To reduce the address cost" },
+        { "fr": "Pour que l'adresse ne change pas et reste un point d'entrée stable", "en": "So the address never changes and stays a stable entry point" }
+      ],
+      "answer": 2,
+      "explain_fr": "Une IP statique ne change pas : c'est ce que l'on veut pour un point d'entrée fiable (DNS, load balancer).",
+      "explain_en": "A static IP does not change: that's what you want for a reliable entry point (DNS, load balancer)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que permet un peering entre deux VNets (topologie hub-and-spoke) ?",
+      "q_en": "What does peering between two VNets (hub-and-spoke topology) enable?",
+      "choices": [
+        { "fr": "D'exposer les deux VNets sur Internet via une IP partagée", "en": "To expose both VNets on the Internet via a shared IP" },
+        { "fr": "Une connectivité privée entre les deux VNets, sans passer par Internet", "en": "Private connectivity between the two VNets, without going through the Internet" },
+        { "fr": "De fusionner les deux VNets en un seul espace d'adressage", "en": "To merge both VNets into a single address space" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le peering relie deux VNets isolés en privé (dans les deux sens) : c'est la base du hub-and-spoke, le trafic circule sans Internet.",
+      "explain_en": "Peering links two isolated VNets privately (in both directions): it's the base of hub-and-spoke, traffic flows without the Internet."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Comment vérifier que la topologie réseau déployée existe réellement ?",
+      "q_en": "How do you verify the deployed network topology really exists?",
+      "choices": [
+        { "fr": "En croisant l'état Terraform (ressources gérées) avec une interrogation directe de miniblue", "en": "By cross-checking the Terraform state (managed resources) with a direct query to miniblue" },
+        { "fr": "En relançant `terraform apply` jusqu'à absence d'erreur", "en": "By re-running `terraform apply` until there is no error" },
+        { "fr": "En supprimant puis recréant le VNet", "en": "By deleting then recreating the VNet" }
+      ],
+      "answer": 0,
+      "explain_fr": "Terraform garde l'état de ce qu'il gère ; on le confronte à miniblue (la réalité déployée) pour prouver l'existence du réseau.",
+      "explain_en": "Terraform keeps the state of what it manages; you confront it with miniblue (the deployed reality) to prove the network exists."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Dans quel ordre `terraform destroy` retire-t-il les ressources réseau ?",
+      "q_en": "In what order does `terraform destroy` remove the network resources?",
+      "choices": [
+        { "fr": "Le groupe de ressources d'abord, le reste ensuite", "en": "The resource group first, the rest afterward" },
+        { "fr": "Dans un ordre aléatoire, sans importance", "en": "In a random order, it doesn't matter" },
+        { "fr": "Les associations d'abord, le groupe de ressources en dernier, selon les dépendances", "en": "Associations first, the resource group last, following dependencies" }
+      ],
+      "answer": 2,
+      "explain_fr": "L'IaC détruit dans le bon ordre de dépendances : les associations (NSG-sous-réseau) avant, le groupe de ressources en dernier — d'une seule commande.",
+      "explain_en": "IaC destroys in the correct dependency order: associations (NSG-subnet) first, the resource group last — in a single command."
+    }
+  ]
+}
