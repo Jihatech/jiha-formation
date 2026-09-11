@@ -1,0 +1,114 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Dans ce projet, pourquoi committer `terraform.tfvars` tout en ignorant le `*.tfstate` ?",
+      "q_en": "In this project, why commit `terraform.tfvars` while gitignoring `*.tfstate`?",
+      "choices": [
+        { "fr": "Parce que le `.tfvars` est chiffré et le state ne l'est pas", "en": "Because the `.tfvars` is encrypted and the state is not" },
+        { "fr": "Parce qu'ici les `.tfvars` ne portent pas de secret (tailles, ports) et documentent chaque env, alors que le state contient des données sensibles en clair", "en": "Because here the `.tfvars` carry no secret (sizes, ports) and document each env, while the state holds sensitive data in cleartext" },
+        { "fr": "Parce que Terraform refuse de lire un `.tfvars` non versionné", "en": "Because Terraform refuses to read an unversioned `.tfvars`" }
+      ],
+      "answer": 1,
+      "explain_fr": "Les `.tfvars` du projet ne contiennent que des valeurs non sensibles : on les commite pour documenter les environnements. Le state, lui, contient des secrets en clair : jamais dans Git. Le `.terraform.lock.hcl` se commite aussi.",
+      "explain_en": "The project's `.tfvars` hold only non-sensitive values: they're committed to document environments. State holds cleartext secrets: never in Git. The `.terraform.lock.hcl` is also committed."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Le module `service` utilise `dynamic \"ports\"` avec `for_each = var.external_port > 0 ? [var.external_port] : []`. Que permet ce montage ?",
+      "q_en": "The `service` module uses `dynamic \"ports\"` with `for_each = var.external_port > 0 ? [var.external_port] : []`. What does this enable?",
+      "choices": [
+        { "fr": "Publier un port hôte seulement si demandé : la db n'expose rien, le reverse proxy expose un port — un seul module pour les deux", "en": "Publish a host port only when requested: the DB exposes nothing, the reverse proxy exposes one — a single module for both" },
+        { "fr": "Publier automatiquement tous les ports de 1 à 65535", "en": "Automatically publish all ports from 1 to 65535" },
+        { "fr": "Forcer chaque conteneur à exposer le port 80 sur l'hôte", "en": "Force every container to expose port 80 on the host" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le bloc `dynamic` conditionnel ne génère un `ports` que si `external_port > 0`. C'est ce qui rend le module réutilisable : la base de données n'expose aucun port, le proxy en expose un.",
+      "explain_en": "The conditional `dynamic` block generates a `ports` block only if `external_port > 0`. That's what makes the module reusable: the database exposes no port, the proxy exposes one."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Qu'est-ce qui caractérise le module `stack` qui appelle trois modules `service` (web, api, db) ?",
+      "q_en": "What characterizes the `stack` module that calls three `service` modules (web, api, db)?",
+      "choices": [
+        { "fr": "Il déclare son propre provider Docker distinct de la racine", "en": "It declares its own Docker provider, distinct from the root" },
+        { "fr": "Il expose toute la plomberie des trois conteneurs à l'environnement", "en": "It exposes all the plumbing of the three containers to the environment" },
+        { "fr": "Il compose plusieurs modules et n'expose qu'une interface métier de haut niveau (`web_replicas`, `expose_port`…)", "en": "It composes several modules and exposes only a high-level business interface (`web_replicas`, `expose_port`…)" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un module peut en appeler d'autres : `stack` orchestre trois `service` et cache la plomberie derrière une interface simple. `count` sur les réplicas web est légitime car ils sont interchangeables.",
+      "explain_en": "A module can call others: `stack` orchestrates three `service`s and hides the plumbing behind a simple interface. `count` on web replicas is legitimate because they're interchangeable."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quel est le rôle de la couche `platform` (le réseau partagé) dans cette architecture ?",
+      "q_en": "What is the role of the `platform` layer (the shared network) in this architecture?",
+      "choices": [
+        { "fr": "C'est le socle : elle s'applique une fois, avant tout environnement, et publie un output que les envs consommeront", "en": "It's the foundation: it applies once, before any environment, and publishes an output the envs will consume" },
+        { "fr": "Elle se réapplique à chaque `apply` d'un environnement", "en": "It re-applies on every `apply` of an environment" },
+        { "fr": "Elle contient la logique des conteneurs web/api/db", "en": "It contains the logic of the web/api/db containers" }
+      ],
+      "answer": 0,
+      "explain_fr": "La plateforme est le socle : appliquée une seule fois avant les envs, elle crée le réseau et expose `network_name`, le contrat que les environnements liront via remote state.",
+      "explain_en": "The platform is the foundation: applied once before the envs, it creates the network and exposes `network_name`, the contract the environments read via remote state."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Comment l'environnement `dev` obtient-il le nom du réseau partagé, et quel fichier le distingue des autres envs ?",
+      "q_en": "How does the `dev` environment obtain the shared network name, and which file makes it different from other envs?",
+      "choices": [
+        { "fr": "Il crée son propre réseau ; c'est son `main.tf` qui le distingue", "en": "It creates its own network; its `main.tf` makes it different" },
+        { "fr": "Il lit `data.terraform_remote_state.platform.outputs.network_name` ; seul `terraform.tfvars` distingue dev", "en": "It reads `data.terraform_remote_state.platform.outputs.network_name`; only `terraform.tfvars` makes dev different" },
+        { "fr": "Il reçoit le réseau en variable d'environnement du shell", "en": "It receives the network as a shell environment variable" }
+      ],
+      "answer": 1,
+      "explain_fr": "Dev lit le réseau via `terraform_remote_state` (il ne le recrée pas) et instancie le module `stack`. Le `main.tf` est identique à tous les envs ; seul `terraform.tfvars` change.",
+      "explain_en": "Dev reads the network via `terraform_remote_state` (it doesn't recreate it) and instantiates the `stack` module. The `main.tf` is identical across envs; only `terraform.tfvars` changes."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Comment `staging` et `prod` sont-ils créés à partir de `dev` ?",
+      "q_en": "How are `staging` and `prod` created from `dev`?",
+      "choices": [
+        { "fr": "En réécrivant une logique différente dans chaque `main.tf`", "en": "By rewriting different logic in each `main.tf`" },
+        { "fr": "En fusionnant les trois envs dans un seul state partagé", "en": "By merging the three envs into one shared state" },
+        { "fr": "En réutilisant exactement le `main.tf` de dev ; seuls les `.tfvars` changent (réplicas, port, image db), chaque env ayant son propre state", "en": "By reusing dev's exact `main.tf`; only the `.tfvars` change (replicas, port, db image), each env having its own state" }
+      ],
+      "answer": 2,
+      "explain_fr": "Trois environnements, un seul corpus de code, zéro copier-coller de logique : le `main.tf` est copié tel quel, seuls les `.tfvars` (valeurs) diffèrent. Chaque env a son `terraform.tfstate`.",
+      "explain_en": "Three environments, one codebase, zero logic copy-paste: the `main.tf` is copied as-is, only the `.tfvars` (values) differ. Each env has its own `terraform.tfstate`."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi le guide insiste-t-il sur le `README.md` et le schéma d'architecture ?",
+      "q_en": "Why does the guide insist on the `README.md` and the architecture diagram?",
+      "choices": [
+        { "fr": "Parce que Terraform exige un README pour lancer `apply`", "en": "Because Terraform requires a README to run `apply`" },
+        { "fr": "Parce que le recruteur passe deux minutes sur le repo : sans doc claire (quoi/pourquoi/comment + schéma), le code reste invisible", "en": "Because a recruiter spends two minutes on the repo: without clear docs (what/why/how + diagram), the code stays invisible" },
+        { "fr": "Parce que le README remplace le fichier `.gitignore`", "en": "Because the README replaces the `.gitignore` file" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le README fait la moitié de la valeur d'un livrable de CV : un recruteur lit la doc et le schéma en deux minutes. Sans documentation, le beau code est invisible.",
+      "explain_en": "The README is half the value of a CV deliverable: a recruiter reads the docs and diagram in two minutes. Without documentation, nice code is invisible."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Au nettoyage final, dans quel ordre détruire, et que prouve un `terraform plan` vide avant destruction ?",
+      "q_en": "At final teardown, in what order to destroy, and what does an empty `terraform plan` before teardown prove?",
+      "choices": [
+        { "fr": "Détruire les envs avant la plateforme (les envs en dépendent) ; un plan vide prouve la reproductibilité (aucune dérive)", "en": "Destroy the envs before the platform (the envs depend on it); an empty plan proves reproducibility (no drift)" },
+        { "fr": "Détruire la plateforme d'abord ; un plan vide signale une erreur de config", "en": "Destroy the platform first; an empty plan signals a config error" },
+        { "fr": "L'ordre est indifférent ; un plan vide veut dire que le state est corrompu", "en": "Order doesn't matter; an empty plan means the state is corrupted" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les environnements utilisent le réseau de la plateforme : on les détruit avant elle. Un `plan` vide (« No changes ») sur un env appliqué prouve qu'il n'y a aucune dérive — la reproductibilité.",
+      "explain_en": "The environments use the platform's network: destroy them before it. An empty `plan` (\"No changes\") on an applied env proves there's no drift — reproducibility."
+    }
+  ]
+}

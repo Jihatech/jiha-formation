@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Comment miniblue rend-il une VM créée en local réellement `running` ?",
+      "q_en": "How does miniblue make a locally created VM actually `running`?",
+      "choices": [
+        { "fr": "En l'adossant à un conteneur Docker", "en": "By backing it with a Docker container" },
+        { "fr": "En démarrant une vraie machine virtuelle sur ton CPU", "en": "By starting a real virtual machine on your CPU" },
+        { "fr": "En simulant uniquement l'objet ARM, sans rien exécuter", "en": "By simulating only the ARM object, running nothing" }
+      ],
+      "answer": 0,
+      "explain_fr": "miniblue adosse la VM à un conteneur Docker : elle est réellement en état running, ce qui permet de l'inspecter comme un vrai serveur.",
+      "explain_en": "miniblue backs the VM with a Docker container: it is genuinely running, letting you inspect it like a real server."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "De quoi une VM réelle a-t-elle besoin autour d'elle, décrit en Bicep ?",
+      "q_en": "What does a real VM need around it, described in Bicep?",
+      "choices": [
+        { "fr": "Rien d'autre : une VM se suffit à elle-même", "en": "Nothing else: a VM is self-sufficient" },
+        { "fr": "Un réseau virtuel, un sous-réseau, une carte réseau (NIC) et un disque OS", "en": "A virtual network, a subnet, a NIC and an OS disk" },
+        { "fr": "Uniquement une adresse IP publique", "en": "Only a public IP address" }
+      ],
+      "answer": 1,
+      "explain_fr": "La VM ne vit pas seule : elle a besoin d'un VNet, d'un sous-réseau, d'une NIC et d'un disque OS — tout se décrit en Bicep de façon reproductible.",
+      "explain_en": "The VM doesn't live alone: it needs a VNet, a subnet, a NIC and an OS disk — all described reproducibly in Bicep."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quels deux choix structurent le dimensionnement d'une VM ?",
+      "q_en": "Which two choices structure the sizing of a VM?",
+      "choices": [
+        { "fr": "La région et la zone de disponibilité", "en": "The region and the availability zone" },
+        { "fr": "Le nom de la VM et son groupe de ressources", "en": "The VM name and its resource group" },
+        { "fr": "La famille/taille de VM (CPU/RAM) et le type de disque managé", "en": "The VM family/size (CPU/RAM) and the managed disk type" }
+      ],
+      "answer": 2,
+      "explain_fr": "On équilibre perf et coût par la taille de VM (combien de CPU/RAM) et le type de disque (quelle vitesse) : trop petit = lenteur, trop grand = gaspillage.",
+      "explain_en": "You balance performance and cost via the VM size (how much CPU/RAM) and the disk type (what speed): too small = slow, too big = waste."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Comment absorber automatiquement une hausse de charge sur un service ?",
+      "q_en": "How do you automatically absorb a rise in load on a service?",
+      "choices": [
+        { "fr": "Répartir la VM sur plusieurs domaines de panne", "en": "Spread the VM across several fault domains" },
+        { "fr": "Utiliser un scale set avec autoscale qui ajoute/retire des VMs", "en": "Use a scale set with autoscale that adds/removes VMs" },
+        { "fr": "Augmenter manuellement la taille du disque OS", "en": "Manually increase the OS disk size" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un scale set avec autoscale ajoute ou retire des instances selon la charge (élasticité) ; availability sets/zones traitent la haute disponibilité, pas l'élasticité.",
+      "explain_en": "A scale set with autoscale adds or removes instances by load (elasticity); availability sets/zones handle high availability, not elasticity."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Comment arrêter le coût de calcul d'une VM inutilisée ?",
+      "q_en": "How do you stop the compute cost of an unused VM?",
+      "choices": [
+        { "fr": "La libérer (deallocate) pour qu'Azure rende le matériel réservé", "en": "Deallocate it so Azure releases the reserved hardware" },
+        { "fr": "L'arrêter depuis l'OS (shutdown)", "en": "Stop it from the OS (shutdown)" },
+        { "fr": "Supprimer son adresse IP publique", "en": "Delete its public IP address" }
+      ],
+      "answer": 0,
+      "explain_fr": "Une VM arrêtée depuis l'OS occupe encore son matériel réservé → toujours facturée. Seule la libération (deallocate) stoppe le coût de calcul ; les disques restent facturés.",
+      "explain_en": "A VM stopped from the OS still holds its reserved hardware → still billed. Only deallocation stops compute cost; disks remain billed."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pour une API web managée sans gérer l'OS, quelle option de calcul privilégier ?",
+      "q_en": "For a managed web API without managing the OS, which compute option is preferred?",
+      "choices": [
+        { "fr": "Une VM (IaaS), pour le contrôle total de l'OS", "en": "A VM (IaaS), for full OS control" },
+        { "fr": "Azure Container Instances, pour un conteneur ponctuel", "en": "Azure Container Instances, for a one-off container" },
+        { "fr": "App Service (PaaS)", "en": "App Service (PaaS)" }
+      ],
+      "answer": 2,
+      "explain_fr": "App Service (PaaS) héberge une appli web/API sans gérer l'OS ni le scaling ; la VM sert au contrôle total, ACI à un conteneur ponctuel.",
+      "explain_en": "App Service (PaaS) hosts a web app/API without managing the OS or scaling; the VM is for full control, ACI for a one-off container."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quel est le réflexe d'hygiène en fin de labo calcul ?",
+      "q_en": "What is the hygiene reflex at the end of the compute lab?",
+      "choices": [
+        { "fr": "Garder la VM allumée pour la réutiliser plus tard", "en": "Keep the VM on to reuse it later" },
+        { "fr": "Supprimer la VM et son groupe de ressources (créer → utiliser → nettoyer)", "en": "Delete the VM and its resource group (create → use → clean up)" },
+        { "fr": "Seulement arrêter la VM depuis l'OS", "en": "Only stop the VM from the OS" }
+      ],
+      "answer": 1,
+      "explain_fr": "On supprime la VM et son groupe de ressources : c'est le réflexe créer → utiliser → nettoyer, même en local.",
+      "explain_en": "You delete the VM and its resource group: the create → use → clean up reflex, even locally."
+    }
+  ]
+}
