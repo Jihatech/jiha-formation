@@ -1,0 +1,128 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quel chemin désigne le même fichier quel que soit ton répertoire courant ?",
+      "q_en": "Which path points to the same file no matter your current directory?",
+      "choices": [
+        { "fr": "Un chemin relatif comme ../projets/notes.txt", "en": "A relative path like ../projects/notes.txt" },
+        { "fr": "Un chemin absolu comme /etc/hosts, qui part de la racine", "en": "An absolute path like /etc/hosts, starting from the root" },
+        { "fr": "Les deux : ils sont interchangeables", "en": "Both: they are interchangeable" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un chemin absolu part de la racine / et est donc vrai partout ; un chemin relatif dépend de ton répertoire courant.",
+      "explain_en": "An absolute path starts from / and is therefore valid everywhere; a relative path depends on your current directory."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Tu ne sais plus où se trouve un fichier dans l'arborescence. Quelle commande le retrouve ?",
+      "q_en": "You no longer know where a file lives in the tree. Which command finds it?",
+      "choices": [
+        { "fr": "find, qui parcourt l'arborescence selon des critères", "en": "find, which walks the tree by criteria" },
+        { "fr": "ls -l, qui n'affiche que le répertoire courant", "en": "ls -l, which only lists the current directory" },
+        { "fr": "stat, qui suppose que tu connais déjà le chemin", "en": "stat, which assumes you already know the path" }
+      ],
+      "answer": 0,
+      "explain_fr": "find est ta boussole pour localiser un fichier ; ls et stat supposent que tu es déjà au bon endroit.",
+      "explain_en": "find is your compass to locate a file; ls and stat assume you are already in the right place."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "En notation octale, à quoi correspondent les permissions rw-r--r-- ?",
+      "q_en": "In octal notation, what do the permissions rw-r--r-- correspond to?",
+      "choices": [
+        { "fr": "755", "en": "755" },
+        { "fr": "644", "en": "644" },
+        { "fr": "664", "en": "664" }
+      ],
+      "answer": 1,
+      "explain_fr": "r=4, w=2, x=1 : rw-=6, r--=4, r--=4, soit 644 (propriétaire lit/écrit, groupe et autres lisent).",
+      "explain_en": "r=4, w=2, x=1: rw-=6, r--=4, r--=4, i.e. 644 (owner reads/writes, group and others read)."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi travailler en utilisateur normal et n'utiliser sudo qu'au besoin, plutôt qu'une session root permanente ?",
+      "q_en": "Why work as a normal user and use sudo only when needed, rather than a permanent root session?",
+      "choices": [
+        { "fr": "Par principe de moindre privilège : on limite les dégâts d'une erreur ou d'un script malveillant", "en": "For least privilege: it limits the damage from a mistake or a malicious script" },
+        { "fr": "Parce que root ne peut pas installer de paquets", "en": "Because root cannot install packages" },
+        { "fr": "Parce que sudo est plus rapide que root", "en": "Because sudo is faster than root" }
+      ],
+      "answer": 0,
+      "explain_fr": "root peut tout détruire d'une frappe ; le moindre privilège consiste à n'élever ses droits que pour la commande précise qui en a besoin.",
+      "explain_en": "root can destroy everything in one keystroke; least privilege means elevating rights only for the precise command that needs them."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quel signal envoies-tu en premier pour arrêter proprement un processus ?",
+      "q_en": "Which signal do you send first to stop a process cleanly?",
+      "choices": [
+        { "fr": "SIGKILL (kill -9), qui le tue net immédiatement", "en": "SIGKILL (kill -9), which kills it outright immediately" },
+        { "fr": "SIGTERM (kill par défaut), qui lui demande poliment de s'arrêter", "en": "SIGTERM (default kill), which politely asks it to stop" },
+        { "fr": "Peu importe, les deux font exactement la même chose", "en": "It doesn't matter, both do exactly the same thing" }
+      ],
+      "answer": 1,
+      "explain_fr": "SIGTERM laisse au programme le temps de sauvegarder et fermer ses fichiers ; on ne recourt à SIGKILL (-9) que s'il ne répond pas.",
+      "explain_en": "SIGTERM lets the program save and close its files; you only fall back to SIGKILL (-9) if it doesn't respond."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quelle commande consulte les journaux d'un service géré par systemd ?",
+      "q_en": "Which command reads the logs of a systemd-managed service?",
+      "choices": [
+        { "fr": "journalctl", "en": "journalctl" },
+        { "fr": "systemctl enable", "en": "systemctl enable" },
+        { "fr": "dmesg --service", "en": "dmesg --service" }
+      ],
+      "answer": 0,
+      "explain_fr": "systemd centralise les journaux ; journalctl (souvent avec -u <service>) les consulte. systemctl pilote le service, il ne lit pas ses logs.",
+      "explain_en": "systemd centralizes logs; journalctl (often with -u <service>) reads them. systemctl controls the service, it doesn't read its logs."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que fait apt update ?",
+      "q_en": "What does apt update do?",
+      "choices": [
+        { "fr": "Il applique les mises à jour de tous les paquets installés", "en": "It applies updates to all installed packages" },
+        { "fr": "Il rafraîchit la liste des paquets disponibles dans les dépôts", "en": "It refreshes the list of packages available from the repositories" },
+        { "fr": "Il met à jour le noyau Linux uniquement", "en": "It updates the Linux kernel only" }
+      ],
+      "answer": 1,
+      "explain_fr": "apt update rafraîchit d'abord la liste ; c'est apt upgrade qui applique ensuite les mises à jour.",
+      "explain_en": "apt update refreshes the list first; it's apt upgrade that then applies the updates."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Quelle commande liste les ports en écoute et les services qui les occupent ?",
+      "q_en": "Which command lists listening ports and the services occupying them?",
+      "choices": [
+        { "fr": "ip a", "en": "ip a" },
+        { "fr": "dig", "en": "dig" },
+        { "fr": "ss -tlnp", "en": "ss -tlnp" }
+      ],
+      "answer": 2,
+      "explain_fr": "ss -tlnp montre les sockets TCP en écoute et leur programme ; ip a donne les adresses, dig résout les noms DNS.",
+      "explain_en": "ss -tlnp shows listening TCP sockets and their program; ip a gives addresses, dig resolves DNS names."
+    }
+  ],
+  "step-09": [
+    {
+      "q_fr": "Que fait chmod +x sur un fichier de script ?",
+      "q_en": "What does chmod +x do to a script file?",
+      "choices": [
+        { "fr": "Il le rend exécutable, pour pouvoir le lancer avec ./script.sh", "en": "It makes it executable, so you can run it with ./script.sh" },
+        { "fr": "Il l'ouvre dans un éditeur de texte", "en": "It opens it in a text editor" },
+        { "fr": "Il ajoute automatiquement le shebang en première ligne", "en": "It automatically adds the shebang on the first line" }
+      ],
+      "answer": 0,
+      "explain_fr": "chmod +x ajoute le bit d'exécution ; le shebang (#!/usr/bin/env bash) doit, lui, être écrit à la main en première ligne.",
+      "explain_en": "chmod +x adds the execute bit; the shebang (#!/usr/bin/env bash) must be written by hand on the first line."
+    }
+  ]
+}

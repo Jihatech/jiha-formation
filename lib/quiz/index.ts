@@ -7,6 +7,7 @@ import traefik from "./data/traefik.json";
 import vaultwarden from "./data/vaultwarden.json";
 import immich from "./data/immich.json";
 import monitoring from "./data/monitoring.json";
+import linuxFondamentaux from "./data/linux-fondamentaux.json";
 
 // Registre des quiz par guide_id (id stable du manifeste). Les guides sans quiz
 // dégradent en « confirmation d'étape » séquentielle côté UI.
@@ -21,6 +22,7 @@ const registry: Record<string, GuideQuiz> = {
   vaultwarden: vaultwarden as GuideQuiz,
   immich: immich as GuideQuiz,
   monitoring: monitoring as GuideQuiz,
+  "linux-fondamentaux": linuxFondamentaux as GuideQuiz,
 };
 
 export function getGuideQuiz(guideId: string): GuideQuiz | null {
