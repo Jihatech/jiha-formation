@@ -4,9 +4,18 @@
       "q_fr": "Dans un fan-out Pub/Sub, que reçoit chaque abonnement d'un même sujet quand on publie un message ?",
       "q_en": "In a Pub/Sub fan-out, what does each subscription of the same topic receive when a message is published ?",
       "choices": [
-        { "fr": "Sa propre copie du message, indépendamment des autres abonnements", "en": "Its own copy of the message, independently of the other subscriptions" },
-        { "fr": "Le message une seule fois, distribué à un seul abonnement au hasard", "en": "The message once, delivered to a single random subscription" },
-        { "fr": "Rien tant que tous les abonnements n'ont pas acquitté", "en": "Nothing until all subscriptions have acknowledged" }
+        {
+          "fr": "Sa propre copie du message, indépendamment des autres abonnements",
+          "en": "Its own copy of the message, independently of the other subscriptions"
+        },
+        {
+          "fr": "Le message une seule fois, distribué à un seul abonnement au hasard",
+          "en": "The message once, delivered to a single random subscription"
+        },
+        {
+          "fr": "Rien tant que tous les abonnements n'ont pas acquitté",
+          "en": "Nothing until all subscriptions have acknowledged"
+        }
       ],
       "answer": 0,
       "explain_fr": "Chaque abonnement reçoit sa copie : un seul `publish` sert deux consommateurs (`facturation` et `email`). Si l'un est lent ou en panne, l'autre avance quand même. Attention : un abonnement ne reçoit que les messages publiés après sa création — crée-le avant de publier.",
@@ -18,11 +27,20 @@
       "q_fr": "Quelle est la différence entre un abonnement pull et un abonnement push ?",
       "q_en": "What is the difference between a pull and a push subscription ?",
       "choices": [
-        { "fr": "En pull, le consommateur appelle `pull()` quand il est prêt ; en push, Pub/Sub envoie un POST HTTPS vers ton endpoint", "en": "In pull, the consumer calls `pull()` when ready; in push, Pub/Sub sends an HTTPS POST to your endpoint" },
-        { "fr": "En pull, Pub/Sub pousse les messages ; en push, le consommateur les tire", "en": "In pull, Pub/Sub pushes messages; in push, the consumer pulls them" },
-        { "fr": "Pull et push livrent des messages différents pour un même sujet", "en": "Pull and push deliver different messages for the same topic" }
+        {
+          "fr": "En pull, Pub/Sub pousse les messages ; en push, le consommateur les tire",
+          "en": "In pull, Pub/Sub pushes messages; in push, the consumer pulls them"
+        },
+        {
+          "fr": "En pull, le consommateur appelle `pull()` quand il est prêt ; en push, Pub/Sub envoie un POST HTTPS vers ton endpoint",
+          "en": "In pull, the consumer calls `pull()` when ready; in push, Pub/Sub sends an HTTPS POST to your endpoint"
+        },
+        {
+          "fr": "Pull et push livrent des messages différents pour un même sujet",
+          "en": "Pull and push deliver different messages for the same topic"
+        }
       ],
-      "answer": 0,
+      "answer": 1,
       "explain_fr": "En pull, le consommateur déclenche la livraison (`pull()` quand prêt : worker qui maîtrise son débit, gros volumes). En push, Pub/Sub POST vers ton endpoint HTTPS (serverless réactif, sans worker). Même message, seule la mécanique de livraison change ; en push, l'endpoint doit répondre 2xx pour valoir ack.",
       "explain_en": "In pull, the consumer triggers delivery (`pull()` when ready: a worker controlling throughput, high volumes). In push, Pub/Sub POSTs to your HTTPS endpoint (reactive serverless, no worker). Same message, only the delivery mechanics change; in push, the endpoint must return 2xx to count as ack."
     }
@@ -32,11 +50,20 @@
       "q_fr": "Puisque Pub/Sub garantit une livraison « au moins une fois », quelle propriété le traitement d'un message doit-il avoir ?",
       "q_en": "Since Pub/Sub guarantees \"at-least-once\" delivery, what property must a message's processing have ?",
       "choices": [
-        { "fr": "Être le plus rapide possible pour éviter la redistribution", "en": "Be as fast as possible to avoid redelivery" },
-        { "fr": "Être idempotent : traiter deux fois le même message ne doit pas produire d'effet double", "en": "Be idempotent: processing the same message twice must not produce a double effect" },
-        { "fr": "Toujours renvoyer un nack après traitement", "en": "Always return a nack after processing" }
+        {
+          "fr": "Être le plus rapide possible pour éviter la redistribution",
+          "en": "Be as fast as possible to avoid redelivery"
+        },
+        {
+          "fr": "Toujours renvoyer un nack après traitement",
+          "en": "Always return a nack after processing"
+        },
+        {
+          "fr": "Être idempotent : traiter deux fois le même message ne doit pas produire d'effet double",
+          "en": "Be idempotent: processing the same message twice must not produce a double effect"
+        }
       ],
-      "answer": 1,
+      "answer": 2,
       "explain_fr": "Un message non acquitté (ou nacké) est redistribué : garantie at-least-once. Comme un message peut donc arriver plusieurs fois, le traitement doit être idempotent (traiter deux fois « paiement #42 » ne doit pas débiter deux fois). Le délai d'accusé règle le temps avant redistribution automatique.",
       "explain_en": "An unacked (or nacked) message is redelivered: the at-least-once guarantee. Since a message can therefore arrive several times, processing must be idempotent (handling \"payment #42\" twice must not debit twice). The ack deadline sets the time before automatic redelivery."
     }
@@ -46,11 +73,20 @@
       "q_fr": "Sur quoi porte un filtre d'abonnement Pub/Sub, et quand se déclare-t-il ?",
       "q_en": "What does a Pub/Sub subscription filter apply to, and when is it declared ?",
       "choices": [
-        { "fr": "Sur le corps du message (les octets), modifiable à tout moment", "en": "On the message body (the bytes), changeable at any time" },
-        { "fr": "Sur les attributs du message, déclaré à la création de l'abonnement (immuable ensuite)", "en": "On the message attributes, declared at subscription creation (immutable afterwards)" },
-        { "fr": "Sur la clé d'ordre uniquement", "en": "On the ordering key only" }
+        {
+          "fr": "Sur les attributs du message, déclaré à la création de l'abonnement (immuable ensuite)",
+          "en": "On the message attributes, declared at subscription creation (immutable afterwards)"
+        },
+        {
+          "fr": "Sur le corps du message (les octets), modifiable à tout moment",
+          "en": "On the message body (the bytes), changeable at any time"
+        },
+        {
+          "fr": "Sur la clé d'ordre uniquement",
+          "en": "On the ordering key only"
+        }
       ],
-      "answer": 1,
+      "answer": 0,
       "explain_fr": "Le filtre porte sur les attributs (ex. `attributes.prio = \"haute\"`), pas sur le corps en octets, et se déclare à la création de l'abonnement (immuable ensuite). L'abonnement ne reçoit que les messages correspondants — les autres sont écartés à la source, sans logique côté consommateur.",
       "explain_en": "The filter applies to attributes (e.g. `attributes.prio = \"haute\"`), not the byte body, and is declared at subscription creation (immutable afterwards). The subscription receives only matching messages — the rest are dropped at the source, with no consumer logic."
     }
@@ -60,11 +96,20 @@
       "q_fr": "Comment garantir que les événements d'un même compte soient livrés dans l'ordre de publication ?",
       "q_en": "How do you guarantee that events for the same account are delivered in publish order ?",
       "choices": [
-        { "fr": "En publiant avec une clé d'ordre (ordering key) et en activant l'ordre côté publisher et abonnement", "en": "By publishing with an ordering key and enabling ordering on the publisher and subscription" },
-        { "fr": "L'ordre est toujours garanti par défaut sur Pub/Sub", "en": "Order is always guaranteed by default on Pub/Sub" },
-        { "fr": "En augmentant le nombre d'abonnements", "en": "By increasing the number of subscriptions" }
+        {
+          "fr": "L'ordre est toujours garanti par défaut sur Pub/Sub",
+          "en": "Order is always guaranteed by default on Pub/Sub"
+        },
+        {
+          "fr": "En publiant avec une clé d'ordre (ordering key) et en activant l'ordre côté publisher et abonnement",
+          "en": "By publishing with an ordering key and enabling ordering on the publisher and subscription"
+        },
+        {
+          "fr": "En augmentant le nombre d'abonnements",
+          "en": "By increasing the number of subscriptions"
+        }
       ],
-      "answer": 0,
+      "answer": 1,
       "explain_fr": "Par défaut Pub/Sub privilégie le débit et ne garantit pas l'ordre. Avec une clé d'ordre (et `enable_message_ordering` côté publisher et abonnement), Pub/Sub livre par clé dans l'ordre de publication — la séquence est garantie par entité (ex. `compte-7`), pas globalement. L'ordre a un coût de débit : à n'activer que là où c'est nécessaire.",
       "explain_en": "By default Pub/Sub favors throughput and doesn't guarantee order. With an ordering key (and `enable_message_ordering` on publisher and subscription), Pub/Sub delivers per key in publish order — the sequence is guaranteed per entity (e.g. `compte-7`), not globally. Ordering has a throughput cost: enable it only where needed."
     }
@@ -74,11 +119,20 @@
       "q_fr": "À quoi sert une politique de dead-letter sur un abonnement, et quelle contrainte pèse sur le sujet de rebut ?",
       "q_en": "What is a dead-letter policy on a subscription for, and what constraint applies to the dead-letter topic ?",
       "choices": [
-        { "fr": "Après N tentatives de livraison échouées, router le message vers un sujet de rebut, qui doit être différent du sujet source", "en": "After N failed delivery attempts, route the message to a dead-letter topic, which must differ from the source topic" },
-        { "fr": "Accélérer la livraison en doublant le débit du sujet source", "en": "Speed up delivery by doubling the source topic's throughput" },
-        { "fr": "Garantir l'ordre des messages sur le sujet source", "en": "Guarantee message ordering on the source topic" }
+        {
+          "fr": "Accélérer la livraison en doublant le débit du sujet source",
+          "en": "Speed up delivery by doubling the source topic's throughput"
+        },
+        {
+          "fr": "Garantir l'ordre des messages sur le sujet source",
+          "en": "Guarantee message ordering on the source topic"
+        },
+        {
+          "fr": "Après N tentatives de livraison échouées, router le message vers un sujet de rebut, qui doit être différent du sujet source",
+          "en": "After N failed delivery attempts, route the message to a dead-letter topic, which must differ from the source topic"
+        }
       ],
-      "answer": 0,
+      "answer": 2,
       "explain_fr": "Un message empoisonné échouerait en boucle. La politique de dead-letter envoie le message vers un sujet de rebut après N tentatives (ici 5), où un abonnement de veille l'inspecte. Points ACE : le sujet de rebut doit être différent du source, et Pub/Sub a besoin des droits IAM pour y publier et acquitter la source.",
       "explain_en": "A poison message would fail in a loop. The dead-letter policy sends the message to a dead-letter topic after N attempts (here 5), where a watch subscription inspects it. ACE points: the dead-letter topic must differ from the source, and Pub/Sub needs IAM rights to publish there and ack the source."
     }
@@ -88,9 +142,18 @@
       "q_fr": "Dans une architecture événementielle Pub/Sub, comment ajoute-t-on un nouveau consommateur à un événement existant ?",
       "q_en": "In a Pub/Sub event-driven architecture, how do you add a new consumer to an existing event ?",
       "choices": [
-        { "fr": "En ajoutant un abonnement au sujet, sans toucher au producteur", "en": "By adding a subscription to the topic, without touching the producer" },
-        { "fr": "En modifiant le code du producteur pour qu'il appelle le nouveau consommateur", "en": "By modifying the producer's code to call the new consumer" },
-        { "fr": "En créant un nouveau sujet dédié à ce consommateur", "en": "By creating a new topic dedicated to that consumer" }
+        {
+          "fr": "En ajoutant un abonnement au sujet, sans toucher au producteur",
+          "en": "By adding a subscription to the topic, without touching the producer"
+        },
+        {
+          "fr": "En modifiant le code du producteur pour qu'il appelle le nouveau consommateur",
+          "en": "By modifying the producer's code to call the new consumer"
+        },
+        {
+          "fr": "En créant un nouveau sujet dédié à ce consommateur",
+          "en": "By creating a new topic dedicated to that consumer"
+        }
       ],
       "answer": 0,
       "explain_fr": "Pub/Sub est le système nerveux du cloud : un service émet un événement, plusieurs y réagissent sans se connaître. Ajouter un consommateur = ajouter un abonnement, sans toucher au producteur. Ce découplage rend les systèmes extensibles et résilients. Nettoyage : abonnements puis sujets.",

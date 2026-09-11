@@ -4,9 +4,18 @@
       "q_fr": "Comment Cloud Storage traite-t-il une clé comme `rapports/2026/q1.txt` ?",
       "q_en": "How does Cloud Storage handle a key like `rapports/2026/q1.txt` ?",
       "choices": [
-        { "fr": "Comme une seule clé plate ; le préfixe `rapports/` sert à filtrer un listing", "en": "As a single flat key; the prefix `rapports/` serves to filter a listing" },
-        { "fr": "Comme trois dossiers réels sur un système de fichiers", "en": "As three real folders on a filesystem" },
-        { "fr": "Comme une entité NoSQL indexée automatiquement", "en": "As an automatically indexed NoSQL entity" }
+        {
+          "fr": "Comme une seule clé plate ; le préfixe `rapports/` sert à filtrer un listing",
+          "en": "As a single flat key; the prefix `rapports/` serves to filter a listing"
+        },
+        {
+          "fr": "Comme trois dossiers réels sur un système de fichiers",
+          "en": "As three real folders on a filesystem"
+        },
+        {
+          "fr": "Comme une entité NoSQL indexée automatiquement",
+          "en": "As an automatically indexed NoSQL entity"
+        }
       ],
       "answer": 0,
       "explain_fr": "Comme S3, Cloud Storage n'a pas de dossiers : `rapports/2026/q1.txt` est une seule clé plate. Le préfixe sert à filtrer un listing ; `ls --recursive` liste chaque objet par sa clé complète. Le modèle est identique à S3.",
@@ -18,9 +27,18 @@
       "q_fr": "Pour une sauvegarde légale à conserver 7 ans et consultée environ une fois par an, quelle classe Cloud Storage choisir ?",
       "q_en": "For a legal backup to keep 7 years, accessed about once a year, which Cloud Storage class should you choose ?",
       "choices": [
-        { "fr": "Standard, pour un accès très fréquent", "en": "Standard, for very frequent access" },
-        { "fr": "Archive, très bon marché au stockage, récupération lente et payante acceptée", "en": "Archive, very cheap storage, slow and paid retrieval accepted" },
-        { "fr": "Nearline, pour un accès quotidien", "en": "Nearline, for daily access" }
+        {
+          "fr": "Standard, pour un accès très fréquent",
+          "en": "Standard, for very frequent access"
+        },
+        {
+          "fr": "Archive, très bon marché au stockage, récupération lente et payante acceptée",
+          "en": "Archive, very cheap storage, slow and paid retrieval accepted"
+        },
+        {
+          "fr": "Nearline, pour un accès quotidien",
+          "en": "Nearline, for daily access"
+        }
       ],
       "answer": 1,
       "explain_fr": "La logique : fréquent → Standard ; mensuel → Nearline ; trimestriel → Coldline ; annuel/archivage → Archive. Une sauvegarde légale annuelle relève d'Archive : compromis entre coût de stockage (baisse quand on refroidit) et coût/délai de récupération (monte). L'ACE teste ce compromis en permanence.",
@@ -32,11 +50,20 @@
       "q_fr": "Comment le versioning et les règles de cycle de vie se complètent-ils sur un bucket ?",
       "q_en": "How do versioning and lifecycle rules complement each other on a bucket ?",
       "choices": [
-        { "fr": "Le versioning garde les anciennes versions (filet de sécurité) ; le cycle de vie purge/refroidit automatiquement selon l'âge (maîtrise du coût)", "en": "Versioning keeps old versions (safety net); lifecycle auto-purges/cools by age (cost control)" },
-        { "fr": "Les deux font exactement la même chose", "en": "Both do exactly the same thing" },
-        { "fr": "Le versioning supprime les objets, le cycle de vie les restaure", "en": "Versioning deletes objects, lifecycle restores them" }
+        {
+          "fr": "Les deux font exactement la même chose",
+          "en": "Both do exactly the same thing"
+        },
+        {
+          "fr": "Le versioning supprime les objets, le cycle de vie les restaure",
+          "en": "Versioning deletes objects, lifecycle restores them"
+        },
+        {
+          "fr": "Le versioning garde les anciennes versions (filet de sécurité) ; le cycle de vie purge/refroidit automatiquement selon l'âge (maîtrise du coût)",
+          "en": "Versioning keeps old versions (safety net); lifecycle auto-purges/cools by age (cost control)"
+        }
       ],
-      "answer": 0,
+      "answer": 2,
       "explain_fr": "Le versioning conserve les versions d'un objet écrasé (parade à l'erreur humaine). Comme chaque version coûte, une règle de cycle de vie purge automatiquement : transition vers une classe froide, suppression après N jours, limitation du nombre de versions. Ensemble : sécurité et maîtrise du coût.",
       "explain_en": "Versioning keeps versions of an overwritten object (a fix for human error). Since each version costs, a lifecycle rule auto-purges: transition to a cold class, deletion after N days, version-count limit. Together: safety and cost control."
     }
@@ -46,9 +73,18 @@
       "q_fr": "Dans le modèle Firestore/Datastore, qu'est-ce qui identifie et type une entité ?",
       "q_en": "In the Firestore/Datastore model, what identifies and types an entity ?",
       "choices": [
-        { "fr": "Une entité a un kind (son type, ex. `Produit`) et une clé (son identifiant unique)", "en": "An entity has a kind (its type, e.g. `Produit`) and a key (its unique identifier)" },
-        { "fr": "Une entité a un bucket et une classe de stockage", "en": "An entity has a bucket and a storage class" },
-        { "fr": "Une entité a un schéma fixe déclaré à l'avance", "en": "An entity has a fixed schema declared in advance" }
+        {
+          "fr": "Une entité a un kind (son type, ex. `Produit`) et une clé (son identifiant unique)",
+          "en": "An entity has a kind (its type, e.g. `Produit`) and a key (its unique identifier)"
+        },
+        {
+          "fr": "Une entité a un bucket et une classe de stockage",
+          "en": "An entity has a bucket and a storage class"
+        },
+        {
+          "fr": "Une entité a un schéma fixe déclaré à l'avance",
+          "en": "An entity has a fixed schema declared in advance"
+        }
       ],
       "answer": 0,
       "explain_fr": "Une entité (un enregistrement) a un kind (son type, ex. `Produit`) et une clé (son identifiant). Pas de schéma : chaque entité porte ses propres propriétés typées. `get(clé)` la lit directement (l'accès le plus rapide) ; un `put` avec une clé existante remplace l'entité entière.",
@@ -60,11 +96,20 @@
       "q_fr": "Quel piège guette une requête Datastore qui combine un filtre d'inégalité et un tri sur une autre propriété, en réel ?",
       "q_en": "What trap awaits a Datastore query combining an inequality filter and a sort on another property, in real life ?",
       "choices": [
-        { "fr": "Elle exige un index composite déclaré, sinon elle échoue (l'émulateur est plus permissif)", "en": "It requires a declared composite index, otherwise it fails (the emulator is more permissive)" },
-        { "fr": "Elle est toujours interdite, même avec un index", "en": "It is always forbidden, even with an index" },
-        { "fr": "Elle renvoie systématiquement toutes les entités sans filtrer", "en": "It always returns all entities without filtering" }
+        {
+          "fr": "Elle est toujours interdite, même avec un index",
+          "en": "It is always forbidden, even with an index"
+        },
+        {
+          "fr": "Elle exige un index composite déclaré, sinon elle échoue (l'émulateur est plus permissif)",
+          "en": "It requires a declared composite index, otherwise it fails (the emulator is more permissive)"
+        },
+        {
+          "fr": "Elle renvoie systématiquement toutes les entités sans filtrer",
+          "en": "It always returns all entities without filtering"
+        }
       ],
-      "answer": 0,
+      "answer": 1,
       "explain_fr": "`get(clé)` lit une entité ; une requête (kind + filtres + tri) en lit plusieurs. En réel, combiner un filtre d'inégalité et un tri sur une autre propriété exige un index composite déclaré, sinon erreur. L'émulateur est plus permissif — un point d'examen ACE à ne pas oublier en prod.",
       "explain_en": "`get(key)` reads one entity; a query (kind + filters + sort) reads several. In real life, combining an inequality filter and a sort on another property requires a declared composite index, else an error. The emulator is more permissive — an ACE exam point not to forget in prod."
     }
@@ -74,11 +119,20 @@
       "q_fr": "Selon la grille de choix GCP, quel service convient à des données structurées interrogeables à grande échelle, sans jointures complexes ?",
       "q_en": "Per the GCP choice grid, which service fits queryable structured data at scale, without complex joins ?",
       "choices": [
-        { "fr": "Cloud Storage, le stockage d'objets non structurés", "en": "Cloud Storage, unstructured object storage" },
-        { "fr": "Firestore/Datastore, le NoSQL de GCP", "en": "Firestore/Datastore, GCP's NoSQL" },
-        { "fr": "BigQuery, uniquement pour les fichiers média", "en": "BigQuery, only for media files" }
+        {
+          "fr": "Cloud Storage, le stockage d'objets non structurés",
+          "en": "Cloud Storage, unstructured object storage"
+        },
+        {
+          "fr": "BigQuery, uniquement pour les fichiers média",
+          "en": "BigQuery, only for media files"
+        },
+        {
+          "fr": "Firestore/Datastore, le NoSQL de GCP",
+          "en": "Firestore/Datastore, GCP's NoSQL"
+        }
       ],
-      "answer": 1,
+      "answer": 2,
       "explain_fr": "La grille par forme de données : objets non structurés (fichiers, médias) → Cloud Storage ; données structurées interrogeables sans jointures complexes → Firestore/Datastore (NoSQL) ; relationnel (SQL, jointures, transactions) → Cloud SQL ; analytique massif → BigQuery. Choisir le mauvais service coûte cher.",
       "explain_en": "The grid by data shape: unstructured objects (files, media) → Cloud Storage; queryable structured data without complex joins → Firestore/Datastore (NoSQL); relational (SQL, joins, transactions) → Cloud SQL; massive analytics → BigQuery. Choosing the wrong service is expensive."
     }
@@ -88,9 +142,18 @@
       "q_fr": "Contre l'émulateur fake-gcs, une commande de suppression affiche une erreur `'NoneType'...` avec un code de sortie non nul. Que faut-il en conclure ?",
       "q_en": "Against the fake-gcs emulator, a delete command prints a `'NoneType'...` error with a non-zero exit code. What should you conclude ?",
       "choices": [
-        { "fr": "C'est un artefact du labo : la suppression a bien eu lieu, à vérifier avec `gcloud storage ls`", "en": "It's a lab artifact: the deletion actually happened, confirm with `gcloud storage ls`" },
-        { "fr": "La suppression a échoué et le bucket existe toujours à coup sûr", "en": "The deletion failed and the bucket definitely still exists" },
-        { "fr": "Il faut réinstaller le SDK gcloud", "en": "You must reinstall the gcloud SDK" }
+        {
+          "fr": "C'est un artefact du labo : la suppression a bien eu lieu, à vérifier avec `gcloud storage ls`",
+          "en": "It's a lab artifact: the deletion actually happened, confirm with `gcloud storage ls`"
+        },
+        {
+          "fr": "La suppression a échoué et le bucket existe toujours à coup sûr",
+          "en": "The deletion failed and the bucket definitely still exists"
+        },
+        {
+          "fr": "Il faut réinstaller le SDK gcloud",
+          "en": "You must reinstall the gcloud SDK"
+        }
       ],
       "answer": 0,
       "explain_fr": "Contre fake-gcs, `rm` et `buckets delete` peuvent afficher `'NoneType' object has no attribute 'items'` avec un code non nul alors même que la suppression a réussi — un artefact du labo, inexistant sur le vrai GCP. On ne se fie pas au code de sortie : on vérifie le résultat réel avec `gcloud storage ls`.",
