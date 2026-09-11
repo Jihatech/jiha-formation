@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Dans un projet Terraform ciblant LocalStack, à quoi sert le bloc `endpoints` du provider AWS ?",
+      "q_en": "In a Terraform project targeting LocalStack, what is the AWS provider's `endpoints` block for ?",
+      "choices": [
+        { "fr": "À rediriger chaque service AWS vers LocalStack (http://localhost:4566) au lieu du vrai AWS", "en": "To redirect each AWS service to LocalStack (http://localhost:4566) instead of real AWS" },
+        { "fr": "À définir la liste des utilisateurs IAM autorisés", "en": "To define the list of allowed IAM users" },
+        { "fr": "À activer la facturation à la demande", "en": "To enable on-demand billing" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le bloc `endpoints` redirige le provider service par service vers LocalStack, avec des credentials de labo (`test`/`test`) et des `skip_*` qui évitent les vérifications propres au vrai AWS. C'est la seule différence avec un projet Terraform de production.",
+      "explain_en": "The `endpoints` block redirects the provider service by service to LocalStack, with lab credentials (`test`/`test`) and `skip_*` flags avoiding real-AWS checks. It's the only difference from a production Terraform project."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Dans ce pipeline, quels rôles jouent le bucket S3 et la table DynamoDB ?",
+      "q_en": "In this pipeline, what roles do the S3 bucket and the DynamoDB table play ?",
+      "choices": [
+        { "fr": "Le bucket exécute le code ; la table déclenche les événements", "en": "The bucket runs the code; the table triggers events" },
+        { "fr": "Le bucket S3 est l'entrée (dépôt de fichiers) ; la table DynamoDB est la sortie d'état (une entrée par fichier traité)", "en": "The S3 bucket is the entry (file drops); the DynamoDB table is the state output (one entry per processed file)" },
+        { "fr": "Les deux ne servent qu'à stocker les logs Terraform", "en": "Both only store Terraform logs" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le bucket est l'entrée du pipeline (on y dépose des fichiers) et la table DynamoDB la sortie d'état (la Lambda y écrit une entrée par fichier traité). On les déclare en premier car la fonction en dépendra ; l'infra se construit progressivement, chaque `apply` ajoutant sans toucher au reste.",
+      "explain_en": "The bucket is the pipeline's entry (you drop files in it) and the DynamoDB table its state output (the Lambda writes one entry per processed file). They're declared first because the function will depend on them; the infra is built progressively, each `apply` adding without touching the rest."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi ne faut-il pas encore lancer `terraform validate` après avoir écrit `lambda.tf` ?",
+      "q_en": "Why should you not yet run `terraform validate` after writing `lambda.tf` ?",
+      "choices": [
+        { "fr": "Parce que `validate` supprimerait les ressources déjà créées", "en": "Because `validate` would delete already-created resources" },
+        { "fr": "Parce que `lambda.tf` référence `aws_sns_topic.notifs`, déclaré seulement à l'étape 5 : la validation échouerait sur une référence non déclarée", "en": "Because `lambda.tf` references `aws_sns_topic.notifs`, declared only in step 5: validation would fail on an undeclared reference" },
+        { "fr": "Parce que `validate` ne fonctionne pas avec LocalStack", "en": "Because `validate` does not work with LocalStack" }
+      ],
+      "answer": 1,
+      "explain_fr": "`lambda.tf` référence `aws_sns_topic.notifs`, qui n'est déclaré qu'à l'étape 5 : `validate` échouerait avec « Reference to undeclared resource ». On écrit d'abord tous les fichiers, on valide/déploie une fois tout en place. La politique du rôle reste au moindre privilège : `dynamodb:PutItem` sur notre table, `sns:Publish` sur notre sujet.",
+      "explain_en": "`lambda.tf` references `aws_sns_topic.notifs`, declared only in step 5: `validate` would fail with \"Reference to undeclared resource\". You write all files first, then validate/deploy once everything is in place. The role's policy stays least-privilege: `dynamodb:PutItem` on our table, `sns:Publish` on our topic."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi le `aws_s3_bucket_notification` déclare-t-il un `depends_on` vers la permission Lambda ?",
+      "q_en": "Why does the `aws_s3_bucket_notification` declare a `depends_on` toward the Lambda permission ?",
+      "choices": [
+        { "fr": "Pour que Terraform crée la permission avant la notification, sinon AWS refuse la configuration", "en": "So Terraform creates the permission before the notification, otherwise AWS refuses the configuration" },
+        { "fr": "Pour accélérer le déploiement en parallélisant les deux ressources", "en": "To speed up the deploy by parallelizing both resources" },
+        { "fr": "Pour rendre le bucket public automatiquement", "en": "To make the bucket public automatically" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sans `depends_on`, Terraform pourrait créer la notification avant la permission, et AWS refuserait (« Unable to validate the following destination configurations »). La permission autorise `s3.amazonaws.com` à invoquer la fonction ; l'ordre permission → notification est un piège classique que `depends_on` règle.",
+      "explain_en": "Without `depends_on`, Terraform might create the notification before the permission, and AWS would refuse (\"Unable to validate the following destination configurations\"). The permission lets `s3.amazonaws.com` invoke the function; the permission → notification order is a classic trap that `depends_on` solves."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi le fan-out SNS → SQS a-t-il besoin d'une queue policy autorisant SNS ?",
+      "q_en": "Why does the SNS → SQS fan-out need a queue policy allowing SNS ?",
+      "choices": [
+        { "fr": "Sans elle, SNS n'a pas le droit de déposer dans la file et la diffusion échoue silencieusement", "en": "Without it, SNS isn't allowed to deposit into the queue and the broadcast fails silently" },
+        { "fr": "Sans elle, la file SQS ne peut pas être créée", "en": "Without it, the SQS queue cannot be created" },
+        { "fr": "Sans elle, la Lambda ne peut pas démarrer", "en": "Without it, the Lambda cannot start" }
+      ],
+      "answer": 0,
+      "explain_fr": "La file est abonnée au sujet, mais il faut une queue policy autorisant `sns.amazonaws.com` à faire `sqs:SendMessage` — sinon la diffusion échoue silencieusement. La condition `ArnEquals` sur `aws:SourceArn` restreint l'accès à notre seul sujet : moindre privilège.",
+      "explain_en": "The queue is subscribed to the topic, but you need a queue policy allowing `sns.amazonaws.com` to `sqs:SendMessage` — otherwise the broadcast fails silently. The `ArnEquals` condition on `aws:SourceArn` restricts access to our topic only: least privilege."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Lors du test bout-en-bout, quels deux effets prouvent que le pipeline fonctionne après le dépôt d'un fichier dans S3 ?",
+      "q_en": "In the end-to-end test, which two effects prove the pipeline works after a file is dropped in S3 ?",
+      "choices": [
+        { "fr": "Une nouvelle instance EC2 démarre et un bucket est créé", "en": "A new EC2 instance starts and a bucket is created" },
+        { "fr": "Une entrée apparaît dans DynamoDB et un message arrive dans la file SQS (via SNS)", "en": "An entry appears in DynamoDB and a message lands in the SQS queue (via SNS)" },
+        { "fr": "Le fichier est supprimé et Terraform affiche une erreur", "en": "The file is deleted and Terraform shows an error" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le dépôt déclenche la Lambda, qui écrit dans DynamoDB (entrée `rapport.pdf traite`) et publie sur SNS, diffusé vers SQS (message `Fichier traite : rapport.pdf`). Les deux effets ensemble prouvent que le pipeline S3 → Lambda → (DynamoDB + SNS → SQS) est vivant.",
+      "explain_en": "The upload triggers the Lambda, which writes to DynamoDB (entry `rapport.pdf traite`) and publishes to SNS, fanned out to SQS (message `Fichier traite : rapport.pdf`). Both effects together prove the S3 → Lambda → (DynamoDB + SNS → SQS) pipeline is alive."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que signifie un second `terraform apply` qui affiche `No changes. Your infrastructure matches the configuration.` ?",
+      "q_en": "What does a second `terraform apply` showing `No changes. Your infrastructure matches the configuration.` mean ?",
+      "choices": [
+        { "fr": "Que le projet est idempotent : relancer apply sans rien changer ne produit aucune modification", "en": "That the project is idempotent: rerunning apply without changes produces no modification" },
+        { "fr": "Que le déploiement a échoué et doit être relancé", "en": "That the deploy failed and must be rerun" },
+        { "fr": "Que toutes les ressources ont été détruites", "en": "That all resources have been destroyed" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'idempotence est le critère de qualité IaC : Terraform compare l'état voulu à l'état réel et ne voit rien à faire. Le projet se détruit ensuite d'une commande (`terraform destroy`), `force_destroy = true` vidant le bucket au préalable — pas de ressource oubliée (ni de facture en réel).",
+      "explain_en": "Idempotence is the IaC quality criterion: Terraform compares desired to real state and sees nothing to do. The project then destroys in one command (`terraform destroy`), with `force_destroy = true` emptying the bucket first — no forgotten resource (nor bill in real AWS)."
+    }
+  ]
+}

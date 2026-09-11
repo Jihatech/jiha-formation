@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pour des données structurées avec relations et transactions (commandes, stocks), quel type de base s'impose ?",
+      "q_en": "For structured data with relations and transactions (orders, stock), which database type is the natural fit?",
+      "choices": [
+        { "fr": "Le relationnel : schéma fort, ACID, jointures, SQL", "en": "Relational: strong schema, ACID, joins, SQL" },
+        { "fr": "Un cache clé-valeur en mémoire", "en": "An in-memory key-value cache" },
+        { "fr": "Un stockage blob plat", "en": "Flat blob storage" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les données structurées avec relations et transactions appellent le relationnel (Azure SQL) : schéma fort, ACID, jointures, SQL. On crée un serveur puis une base.",
+      "explain_en": "Structured data with relations and transactions calls for relational (Azure SQL): strong schema, ACID, joins, SQL. You create a server then a database."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quand choisir Cosmos DB plutôt qu'une base relationnelle ?",
+      "q_en": "When do you choose Cosmos DB rather than a relational database?",
+      "choices": [
+        { "fr": "Pour des transactions bancaires strictement ACID sur un seul serveur", "en": "For strictly ACID banking transactions on a single server" },
+        { "fr": "Pour des données semi-structurées à grande échelle, faible latence mondiale, sans schéma fixe", "en": "For semi-structured data at scale, low global latency, with no fixed schema" },
+        { "fr": "Pour héberger des fichiers binaires volumineux", "en": "To host large binary files" }
+      ],
+      "answer": 1,
+      "explain_fr": "Cosmos DB vise les données semi-structurées (profils, catalogues, événements) à grande échelle, faible latence mondiale et distribution multi-région, sans schéma fixe.",
+      "explain_en": "Cosmos DB targets semi-structured data (profiles, catalogs, events) at scale, low global latency and multi-region distribution, with no fixed schema."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Une appli PostgreSQL existante que l'on migre sur Azure : quel service managé choisir ?",
+      "q_en": "An existing PostgreSQL app being migrated to Azure: which managed service to choose?",
+      "choices": [
+        { "fr": "Azure SQL (moteur Microsoft)", "en": "Azure SQL (Microsoft engine)" },
+        { "fr": "Cosmos DB", "en": "Cosmos DB" },
+        { "fr": "PostgreSQL managé (Flexible Server)", "en": "Managed PostgreSQL (Flexible Server)" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le choix du moteur relationnel dépend de l'écosystème : une appli PostgreSQL existante va vers PostgreSQL managé (Flexible Server), pas vers un autre moteur.",
+      "explain_en": "The relational engine choice depends on the ecosystem: an existing PostgreSQL app goes to managed PostgreSQL (Flexible Server), not another engine."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Comment fonctionne le pattern cache-aside avec un cache Redis devant la base ?",
+      "q_en": "How does the cache-aside pattern work with a Redis cache in front of the database?",
+      "choices": [
+        { "fr": "L'appli lit le cache ; s'il est absent, elle lit la base et remplit le cache", "en": "The app reads the cache; if absent, it reads the database and fills the cache" },
+        { "fr": "L'appli écrit toujours dans le cache et jamais dans la base", "en": "The app always writes to the cache and never to the database" },
+        { "fr": "Le cache remplace complètement la base de données", "en": "The cache fully replaces the database" }
+      ],
+      "answer": 0,
+      "explain_fr": "En cache-aside, l'appli lit d'abord le cache ; en cas d'absence, elle lit la base et remplit le cache — les lectures chaudes sont servies en mémoire, la base est déchargée.",
+      "explain_en": "In cache-aside, the app reads the cache first; on a miss, it reads the database and fills the cache — hot reads are served from memory, the database is offloaded."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quelles sont les trois décisions clés à la conception d'un compte Cosmos DB ?",
+      "q_en": "What are the three key decisions when designing a Cosmos DB account?",
+      "choices": [
+        { "fr": "Le nom du serveur, le port et le mot de passe", "en": "The server name, the port and the password" },
+        { "fr": "La taille du disque, la région et le fuseau horaire", "en": "The disk size, the region and the time zone" },
+        { "fr": "Le niveau de cohérence, la clé de partition et le débit autoscale (RU/s)", "en": "The consistency level, the partition key and the autoscale throughput (RU/s)" }
+      ],
+      "answer": 2,
+      "explain_fr": "Bien concevoir un compte Cosmos, c'est décider le niveau de cohérence (ex. Session), la clé de partition (ex. /clientId) et le débit autoscale (RU/s).",
+      "explain_en": "Designing a Cosmos account well means deciding the consistency level (e.g. Session), the partition key (e.g. /clientId) and the autoscale throughput (RU/s)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Sur quels sujets l'AZ-305 insiste-t-il côté données, à mémoriser via des grilles ?",
+      "q_en": "Which data topics does AZ-305 stress, to memorize via grids?",
+      "choices": [
+        { "fr": "Le choix de la base (« quelle base ? ») et les niveaux de cohérence", "en": "The database choice (\"which database?\") and the consistency levels" },
+        { "fr": "La syntaxe exacte des commandes az", "en": "The exact syntax of az commands" },
+        { "fr": "Le coût horaire précis de chaque service", "en": "The precise hourly cost of each service" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'examen enchaîne les « quelle base ? » et les questions sur la cohérence : on mémorise deux grilles pour décider vite et juste.",
+      "explain_en": "The exam chains \"which database?\" and consistency questions: you memorize two grids to decide fast and right."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que supprime-t-on au nettoyage de ce guide données ?",
+      "q_en": "What do you delete when cleaning up this data guide?",
+      "choices": [
+        { "fr": "Le groupe de ressources et tous les services de données", "en": "The resource group and all the data services" },
+        { "fr": "Seulement le cache Redis", "en": "Only the Redis cache" },
+        { "fr": "Seulement la base Cosmos DB", "en": "Only the Cosmos DB database" }
+      ],
+      "answer": 0,
+      "explain_fr": "On supprime le groupe de ressources et tous les services de données créés (SQL, Cosmos DB, PostgreSQL, Redis) d'un bloc.",
+      "explain_en": "You delete the resource group and all created data services (SQL, Cosmos DB, PostgreSQL, Redis) wholesale."
+    }
+  ]
+}
