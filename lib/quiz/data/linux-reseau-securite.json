@@ -1,0 +1,86 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Dans la sortie de `ip route`, comment reconnais-tu la passerelle (gateway) par défaut ?",
+      "q_en": "In the output of `ip route`, how do you recognize the default gateway?",
+      "choices": [
+        { "fr": "C'est la route avec le plus grand masque CIDR", "en": "It's the route with the largest CIDR mask" },
+        { "fr": "C'est la première interface affichée en UP", "en": "It's the first interface shown as UP" },
+        { "fr": "C'est la ligne « default via … »", "en": "It's the line \"default via …\"" }
+      ],
+      "answer": 2,
+      "explain_fr": "La ligne « default via <IP> » désigne la passerelle : par où sort le trafic qui ne correspond à aucune route plus spécifique (typiquement Internet). Les autres lignes sont des routes vers des réseaux directement joignables.",
+      "explain_en": "The \"default via <IP>\" line names the gateway: where traffic that matches no more specific route exits (typically the Internet). The other lines are routes to directly reachable networks."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quelle commande dresse l'inventaire des ports TCP en écoute, avec le processus derrière chacun ?",
+      "q_en": "Which command inventories the listening TCP ports, with the process behind each one?",
+      "choices": [
+        { "fr": "sudo ss -tlnp", "en": "sudo ss -tlnp" },
+        { "fr": "ping -c 3 1.1.1.1", "en": "ping -c 3 1.1.1.1" },
+        { "fr": "ip -br addr", "en": "ip -br addr" }
+      ],
+      "answer": 0,
+      "explain_fr": "ss -tlnp = TCP, Listening, Numérique, Processus ; le sudo est requis pour voir le nom des processus. C'est le réflexe d'audit « qu'est-ce qui est exposé ? ». netstat est obsolète, remplacé par ss.",
+      "explain_en": "ss -tlnp = TCP, Listening, Numeric, Process; sudo is required to see process names. It's the \"what's exposed?\" audit reflex. netstat is obsolete, replaced by ss."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quelle est la différence entre `getent hosts <nom>` et `dig <nom>` ?",
+      "q_en": "What is the difference between `getent hosts <name>` and `dig <name>`?",
+      "choices": [
+        { "fr": "getent parle directement au DNS, dig lit d'abord /etc/hosts", "en": "getent talks straight to DNS, dig reads /etc/hosts first" },
+        { "fr": "getent suit nsswitch (/etc/hosts PUIS DNS), dig interroge directement le DNS", "en": "getent follows nsswitch (/etc/hosts THEN DNS), dig queries DNS directly" },
+        { "fr": "Les deux ignorent /etc/hosts et n'utilisent que le DNS", "en": "Both ignore /etc/hosts and use only DNS" }
+      ],
+      "answer": 1,
+      "explain_fr": "getent suit l'ordre de nsswitch.conf (souvent files d'abord, donc /etc/hosts, puis dns) ; dig court-circuite tout et interroge le serveur DNS directement. Un nom résolu par getent mais pas dig révèle une entrée locale dans /etc/hosts.",
+      "explain_en": "getent follows the nsswitch.conf order (often files first, i.e. /etc/hosts, then dns); dig bypasses all that and queries the DNS server directly. A name resolved by getent but not dig reveals a local /etc/hosts entry."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Laquelle des deux clés de la paire SSH poses-tu dans `authorized_keys` sur le serveur ?",
+      "q_en": "Which of the two SSH keys in the pair do you place in `authorized_keys` on the server?",
+      "choices": [
+        { "fr": "La clé privée id_ed25519", "en": "The private key id_ed25519" },
+        { "fr": "Les deux clés, pour la redondance", "en": "Both keys, for redundancy" },
+        { "fr": "La clé publique id_ed25519.pub", "en": "The public key id_ed25519.pub" }
+      ],
+      "answer": 2,
+      "explain_fr": "Seule la clé PUBLIQUE (.pub) se pose sur le serveur (authorized_keys) ; la clé privée reste secrète chez toi. Le serveur vérifie que la privée correspond à la publique. Les permissions ~/.ssh en 700 et authorized_keys en 600 sont obligatoires, sinon SSH refuse la clé.",
+      "explain_en": "Only the PUBLIC key (.pub) goes on the server (authorized_keys); the private key stays secret on your side. The server checks the private matches the public. Permissions ~/.ssh at 700 and authorized_keys at 600 are mandatory, otherwise SSH rejects the key."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Avant de recharger sshd après avoir modifié sa configuration, quelle commande valide la syntaxe pour ne pas risquer de couper SSH ?",
+      "q_en": "Before reloading sshd after changing its config, which command validates the syntax so you don't risk cutting off SSH?",
+      "choices": [
+        { "fr": "sudo sshd -t", "en": "sudo sshd -t" },
+        { "fr": "sudo systemctl restart ssh", "en": "sudo systemctl restart ssh" },
+        { "fr": "ssh-keygen -t ed25519", "en": "ssh-keygen -t ed25519" }
+      ],
+      "answer": 0,
+      "explain_fr": "sshd -t teste la configuration : s'il ne renvoie rien, la syntaxe est correcte. C'est l'étape cruciale avant tout reload — une faute dans sshd_config empêcherait sshd de redémarrer et couperait l'accès distant.",
+      "explain_en": "sshd -t tests the configuration: if it returns nothing, the syntax is correct. It's the crucial step before any reload — a mistake in sshd_config would stop sshd from restarting and cut off remote access."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Dans quel ordre configurer `ufw` pour ne pas te couper toi-même l'accès distant ?",
+      "q_en": "In what order should you configure `ufw` so you don't cut off your own remote access?",
+      "choices": [
+        { "fr": "Activer le pare-feu, puis autoriser SSH ensuite", "en": "Enable the firewall, then allow SSH afterward" },
+        { "fr": "Autoriser SSH (ufw allow OpenSSH) AVANT d'activer le pare-feu", "en": "Allow SSH (ufw allow OpenSSH) BEFORE enabling the firewall" },
+        { "fr": "L'ordre n'a aucune importance", "en": "The order doesn't matter" }
+      ],
+      "answer": 1,
+      "explain_fr": "On autorise SSH d'abord, PUIS on active le pare-feu : sinon ufw enable avec « deny incoming » ferme le port 22 et te déconnecte. C'est le principe « deny par défaut, allow l'exception », appliqué sans se verrouiller dehors.",
+      "explain_en": "Allow SSH first, THEN enable the firewall: otherwise ufw enable with \"deny incoming\" closes port 22 and disconnects you. It's the \"default deny, allow the exception\" principle, applied without locking yourself out."
+    }
+  ]
+}

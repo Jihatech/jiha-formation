@@ -1,0 +1,114 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Dans l'image de l'API, pourquoi le Dockerfile ajoute-t-il `RUN adduser -D -u 1000 app` puis `USER app` avant le `COPY --from=build` ?",
+      "q_en": "In the API image, why does the Dockerfile add `RUN adduser -D -u 1000 app` then `USER app` before the `COPY --from=build`?",
+      "choices": [
+        { "fr": "Pour que le conteneur tourne en non-root, durcissant l'image de runtime", "en": "So the container runs as non-root, hardening the runtime image" },
+        { "fr": "Pour accélérer la compilation Go dans l'étape de build", "en": "To speed up the Go compilation in the build stage" },
+        { "fr": "Pour installer les dépendances système de l'API", "en": "To install the API's system dependencies" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'image finale est multi-stage (binaire seul dans Alpine) ET durcie : USER app la fait tourner en non-root (uid 1000), avec un HEALTHCHECK intégré. C'est transformer du code en image de production légère et sûre.",
+      "explain_en": "The final image is multi-stage (binary alone in Alpine) AND hardened: USER app makes it run as non-root (uid 1000), with a built-in HEALTHCHECK. That's turning code into a lightweight, safe production image."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi pousse-t-on l'image `atelier-api:1.0` vers un registre local (`registry:2`) avant de déployer la stack ?",
+      "q_en": "Why push the `atelier-api:1.0` image to a local registry (`registry:2`) before deploying the stack?",
+      "choices": [
+        { "fr": "Pour réduire la taille de l'image grâce à la compression du registre", "en": "To reduce the image size via the registry's compression" },
+        { "fr": "Parce que le registre est la source depuis laquelle Swarm tire l'image référencée dans le YAML", "en": "Because the registry is the source Swarm pulls the image referenced in the YAML from" },
+        { "fr": "Parce qu'une image doit être signée avant tout déploiement Swarm", "en": "Because an image must be signed before any Swarm deployment" }
+      ],
+      "answer": 1,
+      "explain_fr": "Swarm tire l'image d'un registre : le stack YAML référencera localhost:5001/atelier-api:1.0. Le registre est donc la source de distribution. Sur un cluster mono-nœud, le daemon y accède directement.",
+      "explain_en": "Swarm pulls the image from a registry: the stack YAML will reference localhost:5001/atelier-api:1.0. The registry is thus the distribution source. On a single-node cluster, the daemon accesses it directly."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Comment le secret `api_token` créé par `docker secret create` est-il stocké dans le cluster ?",
+      "q_en": "How is the `api_token` secret created by `docker secret create` stored in the cluster?",
+      "choices": [
+        { "fr": "En clair dans un fichier de config sur le nœud manager", "en": "In cleartext in a config file on the manager node" },
+        { "fr": "Dans une variable d'environnement partagée entre les nœuds", "en": "In an environment variable shared between nodes" },
+        { "fr": "Chiffré dans le cluster (raft), n'apparaissant nulle part en clair", "en": "Encrypted in the cluster (raft), appearing nowhere in cleartext" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le secret Swarm est stocké chiffré dans le raft du cluster : il n'apparaît nulle part en clair (ni dépôt, ni image, ni ENV). La stack le déclarera external: true et le montera en /run/secrets/api_token.",
+      "explain_en": "The Swarm secret is stored encrypted in the cluster raft: it appears nowhere in cleartext (not the repo, image, or ENV). The stack will declare it external: true and mount it at /run/secrets/api_token."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Dans le `stack.yml`, pourquoi le secret est-il déclaré `api_token: external: true` ?",
+      "q_en": "In the `stack.yml`, why is the secret declared `api_token: external: true` ?",
+      "choices": [
+        { "fr": "Parce qu'il a été créé hors du fichier, par docker secret create au step précédent", "en": "Because it was created outside the file, by docker secret create in the earlier step" },
+        { "fr": "Parce qu'il provient d'un service tiers sur Internet", "en": "Because it comes from a third-party service on the Internet" },
+        { "fr": "Parce qu'il doit être exposé publiquement à l'extérieur du cluster", "en": "Because it must be exposed publicly outside the cluster" }
+      ],
+      "answer": 0,
+      "explain_fr": "external: true indique que le secret existe déjà, créé hors du stack (docker secret create au step-03). La stack ne le crée pas, elle le référence et le monte en /run/secrets/api_token. Le stack.yml décrit toute l'architecture en un plan déclaratif.",
+      "explain_en": "external: true means the secret already exists, created outside the stack (docker secret create in step-03). The stack doesn't create it, it references and mounts it at /run/secrets/api_token. The stack.yml describes the whole architecture as a declarative plan."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Après déploiement, `curl localhost:8080` renvoie un nom d'hôte différent d'un appel à l'autre. Pourquoi ?",
+      "q_en": "After deployment, `curl localhost:8080` returns a different hostname between calls. Why?",
+      "choices": [
+        { "fr": "Parce que l'API redémarre entre chaque requête", "en": "Because the API restarts between each request" },
+        { "fr": "Parce que le routing mesh répartit les requêtes entre les 3 répliques du service", "en": "Because the routing mesh spreads requests across the service's 3 replicas" },
+        { "fr": "Parce que le secret change le nom d'hôte à chaque lecture", "en": "Because the secret changes the hostname on each read" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le nom d'hôte est l'ID court du conteneur qui répond ; il change car le routing mesh sert la requête via l'une des 3 répliques. L'API lit aussi le secret monté en /run/secrets/api_token (dont elle rapporte la taille, sans l'exposer).",
+      "explain_en": "The hostname is the short ID of the answering container; it changes because the routing mesh serves the request via one of the 3 replicas. The API also reads the secret mounted at /run/secrets/api_token (reporting its size, without exposing it)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Après une mise à jour vers la v2, quel filet de sécurité permet de revenir à la v1 en une seule commande ?",
+      "q_en": "After updating to v2, what safety net lets you revert to v1 in a single command?",
+      "choices": [
+        { "fr": "docker service rollback atelier_api", "en": "docker service rollback atelier_api" },
+        { "fr": "docker stack rm puis un redéploiement complet", "en": "docker stack rm then a full redeploy" },
+        { "fr": "docker swarm leave --force", "en": "docker swarm leave --force" }
+      ],
+      "answer": 0,
+      "explain_fr": "docker service update bascule les tâches progressivement (1 à la fois, 5 s, sans coupure) vers la v2. En cas de souci, docker service rollback atelier_api ramène l'API à la v1 en une commande : le cycle build → push → update → (rollback).",
+      "explain_en": "docker service update flips tasks progressively (1 at a time, 5s, no downtime) to v2. If a problem arises, docker service rollback atelier_api brings the API back to v1 in one command: the build → push → update → (rollback) cycle."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi le `README.md` (architecture, déploiement, exploitation, décisions) fait-il « la moitié de la valeur » du livrable ?",
+      "q_en": "Why does the `README.md` (architecture, deployment, operations, decisions) make \"half the value\" of the deliverable?",
+      "choices": [
+        { "fr": "Parce qu'il remplace le code source dans le dépôt", "en": "Because it replaces the source code in the repo" },
+        { "fr": "Parce qu'il permet à un recruteur de comprendre en deux minutes ce que fait l'appli et pourquoi les choix sont bons", "en": "Because it lets a recruiter understand in two minutes what the app does and why the choices are sound" },
+        { "fr": "Parce qu'il est requis par Docker pour déployer une stack", "en": "Because Docker requires it to deploy a stack" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le README transforme un tuto suivi en système décrit et reconstructible. Un recruteur doit comprendre en deux minutes ce que fait l'appli, comment la déployer/exploiter, et pourquoi les choix (multi-stage, non-root, secret, rolling update) sont bons.",
+      "explain_en": "The README turns a followed tutorial into a described, rebuildable system. A recruiter must grasp in two minutes what the app does, how to deploy/operate it, and why the choices (multi-stage, non-root, secret, rolling update) are sound."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Que prouve le fait qu'un second `docker stack deploy -c stack.yml atelier` ne recrée aucune tâche ?",
+      "q_en": "What does it prove that a second `docker stack deploy -c stack.yml atelier` recreates no task?",
+      "choices": [
+        { "fr": "Que la stack est vide et n'a rien déployé", "en": "That the stack is empty and deployed nothing" },
+        { "fr": "Que le déploiement a échoué silencieusement", "en": "That the deployment failed silently" },
+        { "fr": "Que le déploiement est idempotent : l'état voulu étant atteint, Swarm n'applique aucun changement", "en": "That the deployment is idempotent: the desired state being reached, Swarm applies no change" }
+      ],
+      "answer": 2,
+      "explain_fr": "docker stack deploy est idempotent : Swarm applique le diff entre l'état voulu et l'état courant. Le second déploiement ne change rien car l'état voulu est déjà atteint — la stack est reproductible et reconstructible depuis le dépôt.",
+      "explain_en": "docker stack deploy is idempotent: Swarm applies the diff between desired and current state. The second deploy changes nothing because the desired state is already reached — the stack is reproducible and rebuildable from the repo."
+    }
+  ]
+}
