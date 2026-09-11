@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quel est le rôle du SDK `gcloud` et des émulateurs Pub/Sub et Datastore ?",
+      "q_en": "What is the role of the `gcloud` SDK and the Pub/Sub and Datastore emulators ?",
+      "choices": [
+        { "fr": "`gcloud` est l'outil central ; les émulateurs sont des composants à ajouter pour travailler en local", "en": "`gcloud` is the central tool; the emulators are components to add for local work" },
+        { "fr": "Les émulateurs remplacent `gcloud` une fois installés", "en": "The emulators replace `gcloud` once installed" },
+        { "fr": "`gcloud` ne sert qu'à s'authentifier auprès du vrai GCP", "en": "`gcloud` only serves to authenticate against real GCP" }
+      ],
+      "answer": 0,
+      "explain_fr": "`gcloud` est l'outil central du SDK ; les émulateurs (Pub/Sub, Datastore) sont des composants qu'on installe en plus (`gcloud components install`). Ils sont en Java, d'où le besoin d'un JRE. En labo local, aucune authentification n'est nécessaire.",
+      "explain_en": "`gcloud` is the SDK's central tool; the emulators (Pub/Sub, Datastore) are components installed on top (`gcloud components install`). They are Java-based, hence the JRE requirement. In the local lab, no authentication is needed."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "À quoi servent les variables comme `PUBSUB_EMULATOR_HOST` et `CLOUDSDK_API_ENDPOINT_OVERRIDES_STORAGE` dans le montage local ?",
+      "q_en": "What are variables like `PUBSUB_EMULATOR_HOST` and `CLOUDSDK_API_ENDPOINT_OVERRIDES_STORAGE` for in the local setup ?",
+      "choices": [
+        { "fr": "À authentifier tes commandes auprès du vrai GCP", "en": "To authenticate your commands against real GCP" },
+        { "fr": "À dire aux clients et outils de viser les endpoints locaux (émulateurs, fake-gcs) au lieu du vrai GCP", "en": "To tell clients and tools to hit the local endpoints (emulators, fake-gcs) instead of real GCP" },
+        { "fr": "À chiffrer les objets stockés localement", "en": "To encrypt objects stored locally" }
+      ],
+      "answer": 1,
+      "explain_fr": "Ces variables redirigent les clients/outils vers les briques locales : Pub/Sub (8085), Datastore (8081), fake-gcs pour Cloud Storage (4443). Sans elles, ils viseraient le vrai GCP. Il faut garder le shell ouvert car variables et processus en arrière-plan y vivent.",
+      "explain_en": "These variables redirect clients/tools to the local blocks: Pub/Sub (8085), Datastore (8081), fake-gcs for Cloud Storage (4443). Without them they'd target real GCP. Keep the shell open since the variables and background processes live in it."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quelle est l'unité centrale du modèle GCP dans laquelle vivent facturation, quotas, IAM et APIs ?",
+      "q_en": "What is the central unit of the GCP model in which billing, quotas, IAM and APIs live ?",
+      "choices": [
+        { "fr": "La zone de disponibilité", "en": "The availability zone" },
+        { "fr": "Le bucket", "en": "The bucket" },
+        { "fr": "Le projet", "en": "The project" }
+      ],
+      "answer": 2,
+      "explain_fr": "Sur GCP, tout vit dans un projet : facturation, quotas, IAM, APIs. La hiérarchie est organisation → dossiers → projets → ressources. Chaque ressource appartient à un projet ; en réel l'ID de projet est unique mondialement et immuable.",
+      "explain_en": "On GCP, everything lives in a project: billing, quotas, IAM, APIs. The hierarchy is organization → folders → projects → resources. Every resource belongs to a project; in real life the project ID is globally unique and immutable."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Avec quel outil moderne pilote-t-on Cloud Storage, et quel schéma d'URI désigne un bucket ?",
+      "q_en": "Which modern tool drives Cloud Storage, and which URI scheme denotes a bucket ?",
+      "choices": [
+        { "fr": "`gcloud storage`, avec le schéma `gs://`", "en": "`gcloud storage`, with the `gs://` scheme" },
+        { "fr": "`awslocal s3`, avec le schéma `s3://`", "en": "`awslocal s3`, with the `s3://` scheme" },
+        { "fr": "`gcloud pubsub`, avec le schéma `pubsub://`", "en": "`gcloud pubsub`, with the `pubsub://` scheme" }
+      ],
+      "answer": 0,
+      "explain_fr": "Cloud Storage (GCS) stocke des objets dans des buckets, pilotés par `gcloud storage` (l'outil moderne, ex-`gsutil`), avec le schéma `gs://`. La variable d'override fait taper fake-gcs en local, mais la syntaxe est exactement celle du vrai GCP. En réel, le nom de bucket est unique mondialement.",
+      "explain_en": "Cloud Storage (GCS) stores objects in buckets, driven by `gcloud storage` (the modern tool, formerly `gsutil`), with the `gs://` scheme. The override variable makes it hit fake-gcs locally, but the syntax is exactly that of real GCP. In real life the bucket name is globally unique."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi pilote-t-on l'émulateur Pub/Sub via les bibliothèques clientes plutôt qu'avec `gcloud pubsub` ?",
+      "q_en": "Why is the Pub/Sub emulator driven via client libraries rather than with `gcloud pubsub` ?",
+      "choices": [
+        { "fr": "Parce que `gcloud pubsub` vise toujours le vrai GCP, alors que le client respecte `PUBSUB_EMULATOR_HOST`", "en": "Because `gcloud pubsub` always targets real GCP, whereas the client honors `PUBSUB_EMULATOR_HOST`" },
+        { "fr": "Parce que `gcloud pubsub` n'existe pas", "en": "Because `gcloud pubsub` does not exist" },
+        { "fr": "Parce que l'émulateur n'accepte que les requêtes HTTP brutes", "en": "Because the emulator only accepts raw HTTP requests" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'émulateur se pilote via les bibliothèques clientes (ici Python), qui respectent `PUBSUB_EMULATOR_HOST` et tapent donc l'émulateur local. `gcloud pubsub`, lui, vise toujours le vrai GCP. Un producteur publie sur un sujet, un abonnement délivre au consommateur qui acquitte (ack) le message.",
+      "explain_en": "The emulator is driven via client libraries (here Python), which honor `PUBSUB_EMULATOR_HOST` and thus hit the local emulator. `gcloud pubsub` always targets real GCP. A producer publishes to a topic, a subscription delivers to the consumer that acknowledges (ack) the message."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quelles sont les quatre façons d'interagir avec GCP, et lesquelles domine-t-on surtout en pro ?",
+      "q_en": "What are the four ways to interact with GCP, and which do you mostly live in professionally ?",
+      "choices": [
+        { "fr": "Console, CLI `gcloud`, API/SDK, IaC (Terraform) — en pro surtout `gcloud` et Terraform", "en": "Console, `gcloud` CLI, API/SDK, IaC (Terraform) — professionally mostly `gcloud` and Terraform" },
+        { "fr": "Uniquement la console web, qui suffit à tout", "en": "Only the web console, which is enough for everything" },
+        { "fr": "Uniquement les émulateurs locaux", "en": "Only the local emulators" }
+      ],
+      "answer": 0,
+      "explain_fr": "GCP se pilote de quatre façons : console (explorer), CLI `gcloud` (scripter), API/SDK (depuis le code), IaC/Terraform (reproductible versionné). En pro, on vit surtout en `gcloud` et Terraform. Le `--format=\"value(name)\"` est l'équivalent GCP des `--query`/`--output` d'AWS.",
+      "explain_en": "GCP is driven four ways: console (explore), `gcloud` CLI (script), API/SDK (from code), IaC/Terraform (versioned reproducibility). Professionally you mostly live in `gcloud` and Terraform. `--format=\"value(name)\"` is GCP's equivalent of AWS's `--query`/`--output`."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi prendre le réflexe créer → utiliser → nettoyer dès le labo local, alors que rien n'y facture ?",
+      "q_en": "Why build the create → use → clean up reflex from the local lab, when nothing bills there ?",
+      "choices": [
+        { "fr": "Parce que ce réflexe est crucial en réel, où une ressource oubliée génère une facture", "en": "Because the reflex is crucial in real life, where a forgotten resource generates a bill" },
+        { "fr": "Parce que l'émulateur refuse de démarrer si des ressources subsistent", "en": "Because the emulator refuses to start if resources remain" },
+        { "fr": "Parce que le nettoyage est obligatoire pour authentifier gcloud", "en": "Because cleanup is required to authenticate gcloud" }
+      ],
+      "answer": 0,
+      "explain_fr": "En local rien ne facture, mais l'habitude créer → utiliser → nettoyer est cruciale en réel : une ressource oubliée = une facture. On supprime le bucket, on arrête fake-gcs et les émulateurs. Contre fake-gcs, un avertissement inoffensif peut apparaître même quand la suppression réussit.",
+      "explain_en": "Locally nothing bills, but the create → use → clean up habit is crucial in real life: a forgotten resource = a bill. You delete the bucket, stop fake-gcs and the emulators. Against fake-gcs, a harmless warning may appear even when the deletion succeeds."
+    }
+  ]
+}

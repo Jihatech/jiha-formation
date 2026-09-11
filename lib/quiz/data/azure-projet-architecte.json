@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Comment traduit-on un brief (« web, données transactionnelles, disponible, sécurisé, budget maîtrisé ») en architecture ?",
+      "q_en": "How do you translate a brief (\"web, transactional data, available, secure, controlled budget\") into an architecture?",
+      "choices": [
+        { "fr": "En tiers (réseau, compute, données) + transverses (gouvernance, continuité)", "en": "Into tiers (network, compute, data) + cross-cutting concerns (governance, continuity)" },
+        { "fr": "En une seule VM qui héberge tout", "en": "Into a single VM that hosts everything" },
+        { "fr": "En choisissant d'abord la région la moins chère", "en": "By first choosing the cheapest region" }
+      ],
+      "answer": 0,
+      "explain_fr": "On traduit les besoins en tiers (réseau, compute, données) et en transverses (gouvernance, continuité), puis on structure le projet en conséquence.",
+      "explain_en": "You translate the needs into tiers (network, compute, data) and cross-cutting concerns (governance, continuity), then structure the project accordingly."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi l'épingle de version `azurerm = { version = \"~> 3.0\" }` est-elle indispensable dans providers.tf ?",
+      "q_en": "Why is the version pin `azurerm = { version = \"~> 3.0\" }` indispensable in providers.tf?",
+      "choices": [
+        { "fr": "Parce que Terraform refuse de démarrer sans numéro de version", "en": "Because Terraform refuses to start without a version number" },
+        { "fr": "Parce que le provider ne fonctionne que sur miniblue", "en": "Because the provider only works on miniblue" },
+        { "fr": "Parce que les arguments de ciblage miniblue (skip_provider_registration, metadata_host) ont été retirés du provider azurerm v4+", "en": "Because the miniblue targeting arguments (skip_provider_registration, metadata_host) were removed from the azurerm v4+ provider" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le ciblage miniblue (skip_provider_registration, metadata_host) n'existe plus en azurerm v4+ ; l'épingle `~> 3.0` garde une version compatible.",
+      "explain_en": "The miniblue targeting (skip_provider_registration, metadata_host) no longer exists in azurerm v4+; the `~> 3.0` pin keeps a compatible version."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quels services composent les tiers compute et données de la solution ?",
+      "q_en": "Which services make up the compute and data tiers of the solution?",
+      "choices": [
+        { "fr": "Une VM IaaS unique pour tout héberger", "en": "A single IaaS VM to host everything" },
+        { "fr": "Une Container App serverless + une base SQL + un cache Redis", "en": "A serverless Container App + a SQL database + a Redis cache" },
+        { "fr": "Un compte de stockage blob + une Function", "en": "A blob storage account + a Function" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le tier applicatif est une Container App serverless (élastique, payée à l'usage) ; le tier données une base SQL (transactionnel) + un cache Redis (lectures rapides), tous dans rg-solution.",
+      "explain_en": "The app tier is a serverless Container App (elastic, pay-per-use); the data tier a SQL database (transactional) + a Redis cache (fast reads), all in rg-solution."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quelles deux préoccupations transverses décrit-on en Bicep pour durcir la solution ?",
+      "q_en": "Which two cross-cutting concerns do you describe in Bicep to harden the solution?",
+      "choices": [
+        { "fr": "La gouvernance (identité au moindre privilège + verrou) et la continuité (coffre de sauvegarde + stockage géo-redondant)", "en": "Governance (least-privilege identity + lock) and continuity (backup vault + geo-redundant storage)" },
+        { "fr": "Le réseau et le compute", "en": "Network and compute" },
+        { "fr": "Le DNS et le CDN", "en": "DNS and CDN" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les deux transverses décrites en Bicep sont la gouvernance (identité au moindre privilège + verrou anti-suppression) et la continuité (coffre de sauvegarde + stockage géo-redondant).",
+      "explain_en": "The two cross-cutting concerns described in Bicep are governance (least-privilege identity + delete lock) and continuity (backup vault + geo-redundant storage)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "En quoi consiste la revue Well-Architected, livrable d'architecte ?",
+      "q_en": "What does the Well-Architected review, the architect's deliverable, consist of?",
+      "choices": [
+        { "fr": "Redéployer la solution dans une autre région", "en": "Redeploying the solution in another region" },
+        { "fr": "Supprimer les ressources les moins utilisées", "en": "Deleting the least-used resources" },
+        { "fr": "Auditer la solution pilier par pilier et noter forces et améliorations", "en": "Auditing the solution pillar by pillar and noting strengths and improvements" }
+      ],
+      "answer": 2,
+      "explain_fr": "L'architecte audite la solution pilier par pilier (les 5 piliers du WAF) et note forces et améliorations : c'est le document qui accompagne l'architecture.",
+      "explain_en": "The architect audits the solution pillar by pillar (the 5 WAF pillars) and notes strengths and improvements: it's the document that accompanies the architecture."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Qu'est-ce qui transforme le projet en atout d'embauche ?",
+      "q_en": "What turns the project into a hiring asset?",
+      "choices": [
+        { "fr": "Le nombre de ressources déployées", "en": "The number of deployed resources" },
+        { "fr": "Un README clair (architecture, piliers, stack) accompagné de la revue WAF", "en": "A clear README (architecture, pillars, stack) alongside the WAF review" },
+        { "fr": "Le fait de laisser la solution en ligne le plus longtemps possible", "en": "Keeping the solution online as long as possible" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un README clair (architecture, piliers, stack) plus la revue WAF racontent la solution : c'est ce qui transforme le projet en atout d'embauche.",
+      "explain_en": "A clear README (architecture, pillars, stack) plus the WAF review tell the story: that's what turns the project into a hiring asset."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Dans quel ordre démonter la solution ?",
+      "q_en": "In what order do you tear down the solution?",
+      "choices": [
+        { "fr": "Les charges (azlocal) d'abord, puis le socle réseau (Terraform)", "en": "The workloads (azlocal) first, then the network base (Terraform)" },
+        { "fr": "Le socle réseau d'abord, puis les charges", "en": "The network base first, then the workloads" },
+        { "fr": "Tout en même temps, l'ordre est indifférent", "en": "Everything at once, order doesn't matter" }
+      ],
+      "answer": 0,
+      "explain_fr": "On retire d'abord les charges posées via azlocal, puis le socle réseau avec Terraform : créer → utiliser → détruire, dans le bon ordre de dépendances.",
+      "explain_en": "You remove the workloads placed via azlocal first, then the network base with Terraform: create → use → destroy, in the right dependency order."
+    }
+  ]
+}
