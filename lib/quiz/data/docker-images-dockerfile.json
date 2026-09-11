@@ -1,0 +1,86 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Dans un Dockerfile, pourquoi placer l'installation des dépendances AVANT la copie du code applicatif ?",
+      "q_en": "In a Dockerfile, why place dependency installation BEFORE copying the application code?",
+      "choices": [
+        { "fr": "Parce que le code doit être présent pour installer les dépendances", "en": "Because the code must be present to install dependencies" },
+        { "fr": "Pour que modifier le code n'invalide pas le cache de la couche d'installation des dépendances", "en": "So that changing the code doesn't invalidate the cache of the dependency-install layer" },
+        { "fr": "Parce que Docker exige que RUN précède toujours COPY", "en": "Because Docker requires RUN to always come before COPY" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le cache de couches est invalidé à partir de la première instruction modifiée. Si le COPY du code (qui change souvent) est avant le RUN pip install (qui change rarement), chaque modif de code réexécute l'installation. Règle : dépendances en haut, code en bas.",
+      "explain_en": "The layer cache is invalidated from the first changed instruction onward. If the code COPY (changes often) comes before RUN pip install (changes rarely), every code edit re-runs the install. Rule: dependencies at the top, code at the bottom."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Avec une image définie par `ENTRYPOINT [\"echo\"]` et `CMD [\"défaut arg\"]`, que fait `docker run t-ep bonjour` ?",
+      "q_en": "With an image defined by `ENTRYPOINT [\"echo\"]` and `CMD [\"défaut arg\"]`, what does `docker run t-ep bonjour` do?",
+      "choices": [
+        { "fr": "Il exécute `echo bonjour` : seul l'argument par défaut est remplacé", "en": "It runs `echo bonjour`: only the default argument is replaced" },
+        { "fr": "Il exécute `bonjour` seul : la commande entière est remplacée", "en": "It runs `bonjour` alone: the whole command is replaced" },
+        { "fr": "Il ignore `bonjour` et exécute `echo défaut arg`", "en": "It ignores `bonjour` and runs `echo défaut arg`" }
+      ],
+      "answer": 0,
+      "explain_fr": "ENTRYPOINT fixe le programme (echo), CMD fournit les arguments par défaut. L'argument passé à docker run remplace seulement le CMD, pas l'ENTRYPOINT : on obtient `echo bonjour`.",
+      "explain_en": "ENTRYPOINT fixes the program (echo), CMD provides the default arguments. The argument passed to docker run replaces only the CMD, not the ENTRYPOINT: you get `echo bonjour`."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quelle est la différence essentielle entre `ARG` et `ENV` dans un Dockerfile ?",
+      "q_en": "What is the essential difference between `ARG` and `ENV` in a Dockerfile?",
+      "choices": [
+        { "fr": "ARG est persisté dans le conteneur, ENV n'existe qu'au build", "en": "ARG is persisted in the container, ENV only exists at build time" },
+        { "fr": "ARG et ENV sont interchangeables, seule la syntaxe change", "en": "ARG and ENV are interchangeable, only the syntax differs" },
+        { "fr": "ARG n'existe qu'au build, ENV est persisté dans l'image et le conteneur", "en": "ARG only exists at build time, ENV is persisted in the image and container" }
+      ],
+      "answer": 2,
+      "explain_fr": "ARG est une variable de build : elle disparaît de l'image finale. ENV est persistée dans l'image et reste disponible à l'exécution (visible via printenv dans le conteneur). HEALTHCHECK, lui, supervise la santé du conteneur.",
+      "explain_en": "ARG is a build-time variable: it disappears from the final image. ENV is persisted in the image and remains available at runtime (visible via printenv in the container). HEALTHCHECK, in turn, monitors container health."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quel est le principal bénéfice d'un build multi-stage qui compile un binaire Go puis fait `COPY --from=build /app /app` dans une image Alpine ?",
+      "q_en": "What is the main benefit of a multi-stage build that compiles a Go binary then does `COPY --from=build /app /app` into an Alpine image?",
+      "choices": [
+        { "fr": "L'image finale ne contient ni le compilateur Go ni les sources, elle est donc minimale", "en": "The final image contains neither the Go compiler nor the sources, so it is minimal" },
+        { "fr": "Le build est parallélisé sur plusieurs cœurs, donc plus rapide", "en": "The build is parallelized across cores, so it is faster" },
+        { "fr": "Le binaire est automatiquement signé et chiffré", "en": "The binary is automatically signed and encrypted" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le multi-stage compile dans une image lourde (golang) puis ne copie que le binaire dans une image minuscule (alpine). L'image finale ne contient ni Go ni les sources : quelques Mo au lieu de plusieurs centaines, avec une faible surface d'attaque.",
+      "explain_en": "Multi-stage compiles in a heavy image (golang) then copies only the binary into a tiny image (alpine). The final image contains neither Go nor the sources: a few MB instead of several hundred, with a low attack surface."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que supprime la commande `docker image prune` ?",
+      "q_en": "What does the `docker image prune` command remove?",
+      "choices": [
+        { "fr": "Toutes les images, y compris celles utilisées par des conteneurs actifs", "en": "All images, including those used by running containers" },
+        { "fr": "Les images « dangling » (sans tag, couches orphelines des rebuilds)", "en": "The \"dangling\" images (untagged, orphan layers from rebuilds)" },
+        { "fr": "Uniquement le cache de build de BuildKit", "en": "Only the BuildKit build cache" }
+      ],
+      "answer": 1,
+      "explain_fr": "docker image prune supprime les images dangling — les couches orphelines sans tag qui s'accumulent au fil des rebuilds. Le cache de build se vide avec docker builder prune, et docker system df montre l'espace occupé.",
+      "explain_en": "docker image prune removes dangling images — the untagged orphan layers that pile up over rebuilds. The build cache is cleared with docker builder prune, and docker system df shows the space used."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Comment `docker save`/`docker load` diffère-t-il d'un push/pull vers un registre ?",
+      "q_en": "How does `docker save`/`docker load` differ from a push/pull to a registry?",
+      "choices": [
+        { "fr": "Il transporte l'image dans une archive .tar, sans aucun réseau", "en": "It moves the image as a .tar archive, with no network at all" },
+        { "fr": "Il compresse davantage l'image que le registre", "en": "It compresses the image more than the registry does" },
+        { "fr": "Il ne fonctionne qu'avec Docker Hub public", "en": "It only works with the public Docker Hub" }
+      ],
+      "answer": 0,
+      "explain_fr": "docker save exporte une image en archive .tar et docker load la réimporte, sans réseau : idéal pour un environnement isolé. Le registre (Hub public ou registry:2 privé) utilise lui la boucle réseau push/pull.",
+      "explain_en": "docker save exports an image to a .tar archive and docker load re-imports it, with no network: ideal for an isolated environment. A registry (public Hub or private registry:2) instead uses the network push/pull loop."
+    }
+  ]
+}

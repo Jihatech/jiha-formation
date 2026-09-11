@@ -1,0 +1,86 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Dans le trio apt, quelle sous-commande décrit un paquet (version, dépendances, taille) sans l'installer ?",
+      "q_en": "In the apt trio, which subcommand describes a package (version, dependencies, size) without installing it?",
+      "choices": [
+        { "fr": "apt install tree", "en": "apt install tree" },
+        { "fr": "apt search tree", "en": "apt search tree" },
+        { "fr": "apt show tree", "en": "apt show tree" }
+      ],
+      "answer": 2,
+      "explain_fr": "Dans le trio, search trouve, show décrit (fiche du paquet avant installation), install pose. apt show affiche version, taille et dépendances sans rien modifier.",
+      "explain_en": "In the trio, search finds, show describes (the package sheet before installing), install lays it down. apt show prints version, size and dependencies without changing anything."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Après `sudo apt remove nano`, que devient le fichier de configuration /etc/nanorc ?",
+      "q_en": "After `sudo apt remove nano`, what happens to the config file /etc/nanorc?",
+      "choices": [
+        { "fr": "Il reste : remove retire le binaire mais garde la config (état « rc »)", "en": "It stays: remove drops the binary but keeps the config (state \"rc\")" },
+        { "fr": "Il est supprimé, exactement comme avec purge", "en": "It is deleted, exactly like with purge" },
+        { "fr": "Il est déplacé automatiquement par autoremove", "en": "It is moved automatically by autoremove" }
+      ],
+      "answer": 0,
+      "explain_fr": "remove garde la configuration (dpkg affiche l'état « rc »). Seul purge efface tout, /etc/nanorc compris ; autoremove ne touche qu'aux dépendances orphelines.",
+      "explain_en": "remove keeps the config (dpkg shows state \"rc\"). Only purge wipes everything, /etc/nanorc included; autoremove only clears orphaned dependencies."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quelle commande répond « QUEL paquet possède le fichier /usr/bin/tree ? »",
+      "q_en": "Which command answers \"WHICH package owns the file /usr/bin/tree?\"",
+      "choices": [
+        { "fr": "dpkg -L tree", "en": "dpkg -L tree" },
+        { "fr": "dpkg -S /usr/bin/tree", "en": "dpkg -S /usr/bin/tree" },
+        { "fr": "apt show tree", "en": "apt show tree" }
+      ],
+      "answer": 1,
+      "explain_fr": "dpkg -S remonte du fichier au paquet ; dpkg -L fait l'inverse (paquet → fichiers). Les deux sont symétriques, et dpkg travaille en local.",
+      "explain_en": "dpkg -S traces back from file to package; dpkg -L does the inverse (package → files). The two are symmetric, and dpkg works locally."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Comment empêcher qu'un `sudo apt upgrade` mette à jour un paquet critique dont tu veux figer la version ?",
+      "q_en": "How do you prevent a `sudo apt upgrade` from updating a critical package whose version you want to freeze?",
+      "choices": [
+        { "fr": "Le supprimer avec apt purge", "en": "Remove it with apt purge" },
+        { "fr": "Commenter son dépôt dans sources.list", "en": "Comment out its repository in sources.list" },
+        { "fr": "sudo apt-mark hold <paquet>", "en": "sudo apt-mark hold <package>" }
+      ],
+      "answer": 2,
+      "explain_fr": "apt-mark hold gèle un paquet : les upgrade le sautent tant qu'il est tenu. apt-mark unhold le libère. C'est le mécanisme pour verrouiller une version en production.",
+      "explain_en": "apt-mark hold freezes a package: upgrades skip it while it is held. apt-mark unhold releases it. This is the mechanism to lock a version in production."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Sur la famille RHEL, quel est l'équivalent de `dpkg -S /chemin` (trouver le paquet d'un fichier) ?",
+      "q_en": "On the RHEL family, what is the equivalent of `dpkg -S /path` (find a file's package)?",
+      "choices": [
+        { "fr": "rpm -qa", "en": "rpm -qa" },
+        { "fr": "rpm -qf /chemin", "en": "rpm -qf /path" },
+        { "fr": "dnf install /chemin", "en": "dnf install /path" }
+      ],
+      "answer": 1,
+      "explain_fr": "rpm -qf remonte du fichier au paquet, comme dpkg -S. rpm -qa liste tout l'installé (comme dpkg -l) et dnf install pose un paquet. La structure haut/bas niveau est identique entre familles.",
+      "explain_en": "rpm -qf traces from file to package, like dpkg -S. rpm -qa lists everything installed (like dpkg -l) and dnf install lays down a package. The high/low-level structure is identical across families."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quelle est la principale limite d'un logiciel installé via `./configure && make && sudo make install` ?",
+      "q_en": "What is the main limitation of software installed via `./configure && make && sudo make install`?",
+      "choices": [
+        { "fr": "Il n'est pas suivi par le gestionnaire de paquets : ni mises à jour, ni désinstallation propre", "en": "It is not tracked by the package manager: no updates, no clean uninstall" },
+        { "fr": "apt le met à jour automatiquement à chaque upgrade", "en": "apt updates it automatically on every upgrade" },
+        { "fr": "Il ne peut pas être compilé sans accès root au réseau", "en": "It cannot be compiled without root network access" }
+      ],
+      "answer": 0,
+      "explain_fr": "make install copie les binaires (souvent sous /usr/local) hors du contrôle d'apt : aucun suivi, pas de mise à jour ni de désinstallation propre. C'est le dernier recours, pas la norme.",
+      "explain_en": "make install copies binaries (often under /usr/local) outside apt's control: no tracking, no updates, no clean uninstall. It is the last resort, not the norm."
+    }
+  ]
+}

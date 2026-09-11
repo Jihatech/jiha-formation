@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi inspecter le state avec `terraform state list`/`show` plutôt qu'en ouvrant le fichier `.tfstate` ?",
+      "q_en": "Why inspect state with `terraform state list`/`show` rather than opening the `.tfstate` file?",
+      "choices": [
+        { "fr": "Parce que le fichier `.tfstate` est chiffré et illisible dans un éditeur", "en": "Because the `.tfstate` file is encrypted and unreadable in an editor" },
+        { "fr": "Parce que les sous-commandes `state` sont l'interface sûre ; éditer le JSON à la main risque de le désynchroniser du réel", "en": "Because the `state` subcommands are the safe interface; hand-editing the JSON risks desyncing it from reality" },
+        { "fr": "Parce que `state show` est la seule façon de créer une ressource", "en": "Because `state show` is the only way to create a resource" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le `.tfstate` est du JSON que Terraform met à jour de façon atomique ; l'éditer à la main est une des pires pannes. Les sous-commandes offrent un accès sûr.",
+      "explain_en": "The `.tfstate` is JSON Terraform updates atomically; hand-editing it is one of the worst failures. The subcommands provide safe access."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Tu veux renommer une ressource `docker_container.web` en `frontend` sans la recréer. Que fais-tu ?",
+      "q_en": "You want to rename a `docker_container.web` resource to `frontend` without recreating it. What do you do?",
+      "choices": [
+        { "fr": "`terraform state mv` (ou un bloc `moved`) d'abord, puis renommer dans le code", "en": "`terraform state mv` (or a `moved` block) first, then rename in the code" },
+        { "fr": "Renommer directement le bloc dans le code et lancer `apply`", "en": "Rename the block directly in the code and run `apply`" },
+        { "fr": "Supprimer `terraform.tfstate` pour repartir de zéro", "en": "Delete `terraform.tfstate` to start fresh" }
+      ],
+      "answer": 0,
+      "explain_fr": "Terraform identifie une ressource par son adresse. Renommer seulement dans le code produit un `destroy`/`create`. `state mv` (ou le bloc `moved`, versionnable) déplace l'entrée vers l'objet existant.",
+      "explain_en": "Terraform identifies a resource by its address. Renaming only in code yields a `destroy`/`create`. `state mv` (or the versionable `moved` block) moves the entry to the existing object."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que fait `terraform state rm docker_container.frontend` ?",
+      "q_en": "What does `terraform state rm docker_container.frontend` do?",
+      "choices": [
+        { "fr": "Il détruit le conteneur réel et vide le state", "en": "It destroys the real container and empties the state" },
+        { "fr": "Il retire l'entrée du state ; l'objet réel continue de tourner, Terraform ne le suit plus", "en": "It removes the state entry; the real object keeps running, Terraform no longer tracks it" },
+        { "fr": "Il recrée le conteneur à partir du code", "en": "It recreates the container from the code" }
+      ],
+      "answer": 1,
+      "explain_fr": "`state rm` fait *oublier* la ressource à Terraform sans la détruire — utile pour la confier à un autre projet. `docker ps` la liste encore.",
+      "explain_en": "`state rm` makes Terraform *forget* the resource without destroying it — useful to hand it to another project. `docker ps` still lists it."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Que faut-il avant de lancer `terraform import docker_container.frontend <ID>` ?",
+      "q_en": "What is required before running `terraform import docker_container.frontend <ID>`?",
+      "choices": [
+        { "fr": "Rien : `import` génère automatiquement le code HCL de la ressource", "en": "Nothing: `import` automatically generates the resource's HCL code" },
+        { "fr": "Détruire d'abord la ressource réelle pour éviter les conflits", "en": "First destroy the real resource to avoid conflicts" },
+        { "fr": "Le bloc de ressource doit déjà exister dans le code ; l'import remplit le state par l'ID", "en": "The resource block must already exist in code; import fills the state by ID" }
+      ],
+      "answer": 2,
+      "explain_fr": "`import` associe une ressource réelle (par son ID) à une adresse Terraform dont le code doit déjà décrire la ressource. Un petit diff après import est normal (attributs normalisés).",
+      "explain_en": "`import` binds a real resource (by ID) to a Terraform address whose block must already describe it. A small post-import diff is normal (normalized attributes)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Un collègue supprime un conteneur à la main. Qu'est-ce que le « drift » et comment Terraform réagit-il ?",
+      "q_en": "A colleague deletes a container by hand. What is \"drift\" and how does Terraform react?",
+      "choices": [
+        { "fr": "Le drift est l'écart entre state et réel ; `plan` le détecte en rafraîchissant, `apply` reconverge vers le code", "en": "Drift is the gap between state and reality; `plan` detects it by refreshing, `apply` reconverges to the code" },
+        { "fr": "Le drift est une erreur de syntaxe HCL corrigée par `terraform fmt`", "en": "Drift is an HCL syntax error fixed by `terraform fmt`" },
+        { "fr": "Le drift bloque définitivement Terraform jusqu'à réédition manuelle du state", "en": "Drift permanently blocks Terraform until the state is edited by hand" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le drift, c'est quand le réel diverge du state. Terraform rafraîchit l'état réel au `plan`, repère la suppression et propose de recréer la ressource (`1 to add`).",
+      "explain_en": "Drift is when reality diverges from state. Terraform refreshes real state at `plan`, spots the deletion and offers to recreate the resource (`1 to add`)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Qu'apporte un backend distant (S3, Terraform Cloud…) par rapport au state local ?",
+      "q_en": "What does a remote backend (S3, Terraform Cloud…) add compared to local state?",
+      "choices": [
+        { "fr": "Il supprime le besoin de lancer `terraform init`", "en": "It removes the need to run `terraform init`" },
+        { "fr": "Un state partagé, chiffré et verrouillé pendant chaque opération : deux `apply` concurrents ne peuvent plus se corrompre", "en": "A shared, encrypted state locked during each operation: two concurrent `apply`s can no longer corrupt it" },
+        { "fr": "Il rend le state lisible en clair dans le dépôt Git", "en": "It makes the state readable in clear text in the Git repository" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le backend distant héberge le state dans un stockage partagé, chiffré et verrouillé : le second `apply` attend le déverrouillage. On migre avec `init -migrate-state`.",
+      "explain_en": "The remote backend hosts state in shared, encrypted, locked storage: the second `apply` waits for the unlock. You migrate with `init -migrate-state`."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quels fichiers Terraform faut-il ignorer dans Git, et lequel faut-il au contraire committer ?",
+      "q_en": "Which Terraform files should be gitignored, and which one should be committed instead?",
+      "choices": [
+        { "fr": "Ignorer `.terraform.lock.hcl` ; committer `terraform.tfstate`", "en": "Ignore `.terraform.lock.hcl`; commit `terraform.tfstate`" },
+        { "fr": "Tout ignorer, y compris `.terraform.lock.hcl`", "en": "Ignore everything, including `.terraform.lock.hcl`" },
+        { "fr": "Ignorer `terraform.tfstate*` et `*.tfplan` (secrets en clair) ; committer `.terraform.lock.hcl`", "en": "Ignore `terraform.tfstate*` and `*.tfplan` (clear-text secrets); commit `.terraform.lock.hcl`" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le state (et les plans) stockent des secrets en clair : jamais dans Git. Le `.terraform.lock.hcl` fige les versions de providers et DOIT être versionné.",
+      "explain_en": "State (and plans) store secrets in clear text: never in Git. The `.terraform.lock.hcl` pins provider versions and MUST be committed."
+    }
+  ]
+}
