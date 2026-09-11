@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Où est stocké le mot de passe (haché) d'un compte utilisateur ?",
+      "q_en": "Where is a user account's (hashed) password stored?",
+      "choices": [
+        { "fr": "Dans le 2e champ de /etc/passwd, lisible par tous", "en": "In the 2nd field of /etc/passwd, world-readable" },
+        { "fr": "Dans /etc/shadow, lisible seulement par root", "en": "In /etc/shadow, readable only by root" },
+        { "fr": "Dans la sortie de la commande id", "en": "In the output of the id command" }
+      ],
+      "answer": 1,
+      "explain_fr": "/etc/passwd ne contient que l'identité publique (le champ mot de passe y vaut « x ») ; le haché et le vieillissement vivent dans /etc/shadow, lisible root seul. C'est la séparation identité publique / secret.",
+      "explain_en": "/etc/passwd holds only the public identity (its password field is \"x\"); the hash and aging live in /etc/shadow, readable by root only. That's the public-identity / secret split."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi ajouter un groupe secondaire avec `usermod -aG` plutôt qu'avec `-G` seul ?",
+      "q_en": "Why add a secondary group with `usermod -aG` rather than `-G` alone?",
+      "choices": [
+        { "fr": "-aG ajoute au lieu de remplacer ; -G écrase toute la liste secondaire (on peut se retirer du groupe sudo)", "en": "-aG appends instead of replacing; -G overwrites the whole secondary list (you can drop yourself from the sudo group)" },
+        { "fr": "-aG crée le groupe automatiquement s'il n'existe pas", "en": "-aG auto-creates the group if it doesn't exist" },
+        { "fr": "-G est réservé au groupe primaire uniquement", "en": "-G is reserved for the primary group only" }
+      ],
+      "answer": 0,
+      "explain_fr": "-aG (append) ajoute l'utilisateur au groupe ; -G sans -a remplace toute la liste des groupes secondaires — d'où le risque de perdre son accès sudo. Toujours -aG pour ajouter.",
+      "explain_en": "-aG (append) adds the user to the group; -G without -a replaces the entire secondary group list — hence the risk of losing sudo access. Always use -aG to add."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quelle commande impose qu'un mot de passe expire au plus tard 90 jours après son dernier changement ?",
+      "q_en": "Which command forces a password to expire at most 90 days after it was last changed?",
+      "choices": [
+        { "fr": "passwd -e alice", "en": "passwd -e alice" },
+        { "fr": "usermod -e 90 alice", "en": "usermod -e 90 alice" },
+        { "fr": "chage -M 90 alice", "en": "chage -M 90 alice" }
+      ],
+      "answer": 2,
+      "explain_fr": "chage gère le vieillissement : -M fixe le nombre maximal de jours entre deux changements (ici 90). Ces champs vivent dans /etc/shadow et permettent d'imposer une rotation des mots de passe.",
+      "explain_en": "chage manages aging: -M sets the maximum number of days between changes (here 90). These fields live in /etc/shadow and let you enforce password rotation."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quel est le rôle du `umask` lors de la création d'un fichier ?",
+      "q_en": "What is the role of the `umask` when a file is created?",
+      "choices": [
+        { "fr": "Il fixe la valeur octale absolue des droits du fichier", "en": "It sets the absolute octal value of the file's rights" },
+        { "fr": "Il retire par défaut certains droits aux nouveaux fichiers", "en": "It removes certain rights by default from new files" },
+        { "fr": "Il ajoute automatiquement le droit d'exécution", "en": "It automatically adds the execute right" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le umask est un masque de droits RETIRÉS par défaut : avec umask 027, un fichier naît en -rw-r----- (le masque enlève l'écriture au groupe et tout aux autres). chmod, lui, pose une valeur absolue (octal) ou relative (symbolique).",
+      "explain_en": "The umask is a mask of rights REMOVED by default: with umask 027, a file is born -rw-r----- (the mask strips group write and everything from others). chmod, by contrast, sets an absolute (octal) or relative (symbolic) value."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Sur un répertoire d'équipe partagé, quel bit fait que les fichiers créés héritent du groupe du dossier ?",
+      "q_en": "On a shared team directory, which bit makes files created inside inherit the directory's group?",
+      "choices": [
+        { "fr": "Le sticky bit (t), comme sur /tmp", "en": "The sticky bit (t), as on /tmp" },
+        { "fr": "Le SUID, comme sur /usr/bin/passwd", "en": "The SUID, as on /usr/bin/passwd" },
+        { "fr": "Le SGID (s sur le groupe), posé par chmod 2775", "en": "The SGID (s on the group), set by chmod 2775" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le SGID sur un répertoire (le 2 de chmod 2775, s sur le triplet groupe) fait que tout fichier créé dedans hérite du groupe du dossier — le motif du répertoire d'équipe. Le sticky protège la suppression, le SUID fait exécuter en tant que propriétaire.",
+      "explain_en": "SGID on a directory (the 2 in chmod 2775, s on the group triad) makes every file created inside inherit the directory's group — the team-directory pattern. Sticky protects deletion; SUID runs as the owner."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Tu veux que SEUL l'utilisateur alice puisse écrire dans un fichier, sans en changer le propriétaire ni le groupe. Quel outil ?",
+      "q_en": "You want ONLY user alice to be able to write to a file, without changing its owner or group. Which tool?",
+      "choices": [
+        { "fr": "setfacl -m u:alice:rw : une ACL pour un utilisateur nommé", "en": "setfacl -m u:alice:rw: an ACL for a named user" },
+        { "fr": "chmod o+w : ouvrir l'écriture aux autres", "en": "chmod o+w: open write to others" },
+        { "fr": "usermod -aG : ajouter alice à un groupe", "en": "usermod -aG: add alice to a group" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les ACL (setfacl / getfacl) donnent des droits chirurgicaux à un utilisateur ou groupe nommé, au-delà des trois niveaux u/g/o. Un « + » après les permissions dans ls -l signale une ACL. chmod o+w ouvrirait à TOUS, pas au seul alice.",
+      "explain_en": "ACLs (setfacl / getfacl) grant surgical rights to a named user or group, beyond the three u/g/o levels. A \"+\" after the permissions in ls -l signals an ACL. chmod o+w would open write to EVERYONE, not just alice."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi éditer les règles sudo via `visudo` (dans /etc/sudoers.d/) plutôt qu'avec un éditeur brut sur /etc/sudoers ?",
+      "q_en": "Why edit sudo rules via `visudo` (in /etc/sudoers.d/) rather than with a raw editor on /etc/sudoers?",
+      "choices": [
+        { "fr": "visudo est simplement plus rapide à ouvrir", "en": "visudo is simply faster to open" },
+        { "fr": "visudo valide la syntaxe avant d'enregistrer, évitant de casser tout sudo", "en": "visudo validates the syntax before saving, avoiding breaking all of sudo" },
+        { "fr": "visudo chiffre le fichier sudoers", "en": "visudo encrypts the sudoers file" }
+      ],
+      "answer": 1,
+      "explain_fr": "visudo édite ET vérifie la syntaxe (visudo -cf répond « parsed OK ») avant d'enregistrer : une faute dans sudoers peut sinon casser tout sudo. On délègue une commande précise (moindre privilège), pas les clés du royaume.",
+      "explain_en": "visudo edits AND checks syntax (visudo -cf answers \"parsed OK\") before saving: otherwise a mistake in sudoers can break all of sudo. You delegate a precise command (least privilege), not the keys to the kingdom."
+    }
+  ]
+}

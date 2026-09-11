@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quelle est la différence entre un `local` et une `variable` ?",
+      "q_en": "What is the difference between a `local` and a `variable`?",
+      "choices": [
+        { "fr": "Une variable est une entrée fournie de l'extérieur ; un local est une valeur calculée en interne, réutilisable", "en": "A variable is an input provided from outside; a local is a value computed internally, reusable" },
+        { "fr": "Un local est saisi dans un `.tfvars`, une variable est calculée par Terraform", "en": "A local is entered in a `.tfvars`, a variable is computed by Terraform" },
+        { "fr": "Les deux sont strictement équivalents et interchangeables", "en": "The two are strictly equivalent and interchangeable" }
+      ],
+      "answer": 0,
+      "explain_fr": "La variable vient de l'extérieur (`.tfvars`, CLI) ; le local factorise une expression calculée en interne pour ne pas la répéter.",
+      "explain_en": "The variable comes from outside (`.tfvars`, CLI); the local factors an internally computed expression so you don't repeat it."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Dans quel cas `count` est-il le bon choix pour créer N ressources ?",
+      "q_en": "In which case is `count` the right choice to create N resources?",
+      "choices": [
+        { "fr": "Quand chaque instance a une identité stable et un nom métier propre", "en": "When each instance has a stable identity and its own business name" },
+        { "fr": "Quand les instances sont interchangeables, sans identité propre (des répliques anonymes)", "en": "When the instances are interchangeable, with no identity of their own (anonymous replicas)" },
+        { "fr": "Uniquement pour lire des données existantes", "en": "Only to read existing data" }
+      ],
+      "answer": 1,
+      "explain_fr": "`count` convient aux répliques anonymes interchangeables ; `count.index` (0..N-1) différencie nom et port. Elles sont indexées par position dans le state.",
+      "explain_en": "`count` fits interchangeable anonymous replicas; `count.index` (0..N-1) differentiates name and port. They are indexed by position in state."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi `for_each` bat-il `count` pour des ressources ayant chacune une identité (des sites nommés) ?",
+      "q_en": "Why does `for_each` beat `count` for resources that each have an identity (named sites)?",
+      "choices": [
+        { "fr": "Parce que `for_each` est plus rapide à appliquer que `count`", "en": "Because `for_each` is faster to apply than `count`" },
+        { "fr": "Parce que `count` ne peut pas dépasser trois instances", "en": "Because `count` cannot exceed three instances" },
+        { "fr": "Parce que chaque instance a une clé stable : retirer une clé ne touche que son instance, sans réindexation destructrice", "en": "Because each instance has a stable key: removing a key touches only its instance, with no destructive reindexing" }
+      ],
+      "answer": 2,
+      "explain_fr": "Avec `count`, retirer un élément du milieu réindexe et recrée les suivants. `for_each` indexe par clé (`site[\"blog\"]`) : retirer `shop` ne détruit que `site[\"shop\"]`.",
+      "explain_en": "With `count`, removing a middle element reindexes and recreates the following ones. `for_each` indexes by key (`site[\"blog\"]`): removing `shop` destroys only `site[\"shop\"]`."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Que produit une boucle `for` comme `[for name, port in var.sites : \"${name}:${port}\"]` ?",
+      "q_en": "What does a `for` loop like `[for name, port in var.sites : \"${name}:${port}\"]` produce?",
+      "choices": [
+        { "fr": "Une nouvelle collection transformée à partir d'une autre, sans boucle impérative", "en": "A new collection transformed from another, without an imperative loop" },
+        { "fr": "Une ressource par élément de la map", "en": "One resource per element of the map" },
+        { "fr": "Une modification en place de `var.sites`", "en": "An in-place modification of `var.sites`" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les expressions `for` (et la condition `? :`) transforment des données en une nouvelle collection ; on les teste dans `terraform console` sans toucher à l'infra.",
+      "explain_en": "`for` expressions (and the `? :` conditional) transform data into a new collection; you test them in `terraform console` without touching infra."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que renvoie `lookup(var.sites, \"blog\", 0)` si la clé `blog` vaut 8081 ?",
+      "q_en": "What does `lookup(var.sites, \"blog\", 0)` return if the `blog` key is 8081?",
+      "choices": [
+        { "fr": "`0`, la valeur par défaut, car `lookup` ignore la map", "en": "`0`, the default value, because `lookup` ignores the map" },
+        { "fr": "`8081`, la valeur de la clé ; le troisième argument est le défaut si absente", "en": "`8081`, the key's value; the third argument is the default if missing" },
+        { "fr": "La liste complète des clés de la map", "en": "The full list of the map's keys" }
+      ],
+      "answer": 1,
+      "explain_fr": "`lookup(map, clé, défaut)` renvoie la valeur de la clé (ici 8081), ou le défaut si absente. Reconnaître ces fonctions (`merge`, `join`, `coalesce`…) évite de réinventer la roue.",
+      "explain_en": "`lookup(map, key, default)` returns the key's value (here 8081), or the default if missing. Recognizing these functions (`merge`, `join`, `coalesce`…) avoids reinventing the wheel."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quelle est la différence entre une `resource` et une `data` source ?",
+      "q_en": "What is the difference between a `resource` and a `data` source?",
+      "choices": [
+        { "fr": "Une `data` crée et gère un objet, une `resource` le supprime", "en": "A `data` creates and manages an object, a `resource` deletes it" },
+        { "fr": "Les deux créent des objets, mais `data` le fait plus vite", "en": "Both create objects, but `data` does it faster" },
+        { "fr": "Une `resource` crée et gère un objet ; une `data` lit un objet déjà existant pour le référencer", "en": "A `resource` creates and manages an object; a `data` reads an already existing object to reference it" }
+      ],
+      "answer": 2,
+      "explain_fr": "La data source lit sans créer : ex. récupérer le `sha256_digest` d'une image dans le registre pour l'épingler de façon immuable.",
+      "explain_en": "The data source reads without creating: e.g. fetch an image's `sha256_digest` from the registry to pin it immutably."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "À quoi sert un bloc `dynamic \"ports\"` avec `for_each` et `content { … }` ?",
+      "q_en": "What is a `dynamic \"ports\"` block with `for_each` and `content { … }` for?",
+      "choices": [
+        { "fr": "Générer des blocs imbriqués répétés à partir d'une collection, au lieu de les copier-coller", "en": "Generate repeated nested blocks from a collection, instead of copy-pasting them" },
+        { "fr": "Créer plusieurs ressources `docker_container` d'un coup", "en": "Create several `docker_container` resources at once" },
+        { "fr": "Rendre un bloc unique optionnel selon une condition", "en": "Make a single block optional based on a condition" }
+      ],
+      "answer": 0,
+      "explain_fr": "`dynamic` produit des blocs imbriqués répétés (plusieurs `ports`) : `for_each` itère la collection et `content` décrit chaque bloc généré.",
+      "explain_en": "`dynamic` produces repeated nested blocks (multiple `ports`): `for_each` iterates the collection and `content` describes each generated block."
+    }
+  ]
+}

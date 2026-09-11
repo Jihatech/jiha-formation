@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quel est l'intérêt principal d'un groupe IAM ?",
+      "q_en": "What is the main benefit of an IAM group ?",
+      "choices": [
+        { "fr": "Attacher les permissions une seule fois au groupe : les utilisateurs membres en héritent automatiquement", "en": "Attach permissions once to the group: member users inherit them automatically" },
+        { "fr": "Chiffrer les clés d'accès de tous ses membres", "en": "Encrypt the access keys of all its members" },
+        { "fr": "Donner à chaque membre des identifiants temporaires", "en": "Give each member temporary credentials" }
+      ],
+      "answer": 0,
+      "explain_fr": "On attache la politique au groupe une seule fois, on y ajoute les utilisateurs, et tous héritent de la permission. Ajouter ou retirer un droit à toute l'équipe devient une seule opération — c'est toute la valeur des groupes.",
+      "explain_en": "You attach the policy to the group once, add users to it, and all inherit the permission. Adding or removing a right for the whole team becomes one operation — that's the whole value of groups."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Dans une politique IAM, que cible l'ARN `arn:aws:s3:::donnees-app/*` par rapport à `arn:aws:s3:::donnees-app` ?",
+      "q_en": "In an IAM policy, what does the ARN `arn:aws:s3:::donnees-app/*` target compared to `arn:aws:s3:::donnees-app` ?",
+      "choices": [
+        { "fr": "Le `/*` cible tous les buckets du compte, sans le `/*` un seul bucket", "en": "The `/*` targets all buckets in the account, without `/*` a single bucket" },
+        { "fr": "Le `/*` cible les objets à l'intérieur du bucket, sans le `/*` le bucket lui-même", "en": "The `/*` targets the objects inside the bucket, without `/*` the bucket itself" },
+        { "fr": "Les deux formes sont strictement équivalentes", "en": "Both forms are strictly equivalent" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le suffixe `/*` désigne les objets contenus dans le bucket ; l'ARN sans `/*` désigne le bucket comme ressource. Cette distinction bucket vs objets est un piège classique d'examen, et le moindre privilège se joue là (`s3:GetObject`/`PutObject` plutôt que `s3:*`).",
+      "explain_en": "The `/*` suffix denotes the objects inside the bucket; the ARN without `/*` denotes the bucket itself. This bucket vs objects distinction is a classic exam trap, and least privilege plays out here (`s3:GetObject`/`PutObject` rather than `s3:*`)."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Dans la logique d'évaluation IAM, que se passe-t-il quand une politique contient un `Allow` sur `s3:*` et un `Deny` explicite sur `s3:DeleteBucket` ?",
+      "q_en": "In IAM's evaluation logic, what happens when a policy has an `Allow` on `s3:*` and an explicit `Deny` on `s3:DeleteBucket` ?",
+      "choices": [
+        { "fr": "Le dernier statement écrit l'emporte, donc l'action dépend de l'ordre", "en": "The last written statement wins, so the outcome depends on order" },
+        { "fr": "Le `Allow` large l'emporte : `s3:DeleteBucket` reste autorisé", "en": "The broad `Allow` wins: `s3:DeleteBucket` stays allowed" },
+        { "fr": "Le `Deny` explicite l'emporte : tout est permis sur S3 sauf `s3:DeleteBucket`", "en": "The explicit `Deny` wins: everything is allowed on S3 except `s3:DeleteBucket`" }
+      ],
+      "answer": 2,
+      "explain_fr": "AWS refuse tout par défaut ; un `Allow` explicite autorise ; un `Deny` explicite l'emporte sur tout. Même une autre politique autorisant `s3:DeleteBucket` ne changerait rien : le `Deny` gagne toujours. C'est le motif « garde-fou » : autoriser large, interdire le dangereux.",
+      "explain_en": "AWS denies everything by default; an explicit `Allow` allows; an explicit `Deny` overrides everything. Even another policy allowing `s3:DeleteBucket` would change nothing: the `Deny` always wins. It's the \"guardrail\" pattern: allow broad, forbid the dangerous."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi une instance EC2 devant lire S3 utilise-t-elle un rôle qu'elle endosse (`assume-role`) plutôt que des clés d'accès stockées ?",
+      "q_en": "Why does an EC2 instance that must read S3 use a role it assumes (`assume-role`) rather than stored access keys ?",
+      "choices": [
+        { "fr": "Parce que l'endossement délivre des identifiants temporaires renouvelés automatiquement, sans clé long terme à faire fuir", "en": "Because assuming a role issues temporary, auto-renewed credentials, with no long-term key to leak" },
+        { "fr": "Parce qu'un rôle coûte moins cher qu'un utilisateur", "en": "Because a role costs less than a user" },
+        { "fr": "Parce qu'un rôle ne nécessite aucune permission pour accéder à S3", "en": "Because a role needs no permission to access S3" }
+      ],
+      "answer": 0,
+      "explain_fr": "`assume-role` renvoie des identifiants temporaires (avec une date d'expiration), à durée limitée et jetables. La politique de confiance (`Principal: ec2.amazonaws.com`) autorise le service EC2 à endosser le rôle — l'instance obtient ses droits sans stocker de clé qui pourrait fuiter.",
+      "explain_en": "`assume-role` returns temporary credentials (with an expiration), time-limited and disposable. The trust policy (`Principal: ec2.amazonaws.com`) lets the EC2 service assume the role — the instance gets its rights without storing a key that could leak."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Qu'est-ce qui caractérise une bucket policy S3 par rapport à une politique basée sur l'identité ?",
+      "q_en": "What characterizes an S3 bucket policy compared to an identity-based policy ?",
+      "choices": [
+        { "fr": "Elle est attachée à la ressource et déclare quelles identités peuvent y accéder", "en": "It is attached to the resource and declares which identities may access it" },
+        { "fr": "Elle est attachée à un utilisateur et déclare ce qu'il peut faire", "en": "It is attached to a user and declares what they can do" },
+        { "fr": "Elle remplace la nécessité de configurer le Block Public Access", "en": "It removes the need to configure Block Public Access" }
+      ],
+      "answer": 0,
+      "explain_fr": "Une politique basée sur la ressource (comme la bucket policy) vit sur la ressource et dit « ces identités peuvent m'accéder ». Un `Principal: \"*\"` autorise n'importe qui — utile pour un site statique public, jamais pour des données sensibles. En réel, il faut aussi désactiver le Block Public Access.",
+      "explain_en": "A resource-based policy (like a bucket policy) lives on the resource and says \"these identities can access me\". A `Principal: \"*\"` allows anyone — fine for a public static site, never for sensitive data. In real AWS you also need to disable Block Public Access."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quel type de politique est recommandé par défaut en production, et pourquoi ?",
+      "q_en": "Which policy type is the recommended default in production, and why ?",
+      "choices": [
+        { "fr": "Les politiques inline, car elles disparaissent avec l'identité", "en": "Inline policies, because they vanish with the identity" },
+        { "fr": "Les politiques gérées par le client, car réutilisables sur plusieurs identités et versionnées", "en": "Customer-managed policies, because reusable across identities and versioned" },
+        { "fr": "Les politiques gérées par AWS, car ce sont les plus précises", "en": "AWS-managed policies, because they are the most precise" }
+      ],
+      "answer": 1,
+      "explain_fr": "Les politiques gérées par le client sont réutilisables et versionnées : le choix par défaut. Les gérées par AWS sont pratiques mais larges ; l'inline, collée sur une seule identité et non réutilisable, se réserve aux permissions vraiment uniques.",
+      "explain_en": "Customer-managed policies are reusable and versioned: the default choice. AWS-managed ones are handy but broad; inline, stuck on a single identity and not reusable, is reserved for truly unique permissions."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Selon le modèle de responsabilité partagée, qui est responsable d'une fuite de données due à un bucket S3 rendu public ?",
+      "q_en": "Under the shared responsibility model, who is responsible for a data leak caused by a publicly exposed S3 bucket ?",
+      "choices": [
+        { "fr": "AWS, car il héberge le matériel et le réseau physique", "en": "AWS, because it hosts the hardware and physical network" },
+        { "fr": "Personne : LocalStack rend l'incident impossible", "en": "Nobody: LocalStack makes the incident impossible" },
+        { "fr": "Le client, car il est responsable de ses données et de ses permissions IAM", "en": "The customer, because they are responsible for their data and IAM permissions" }
+      ],
+      "answer": 2,
+      "explain_fr": "AWS sécurise le cloud lui-même (matériel, réseau, hyperviseur) ; le client sécurise ce qu'il y met : données, permissions IAM, chiffrement. Une fuite par bucket public relève de la responsabilité du client — d'où le moindre privilège, la MFA, les rôles et la rotation des clés.",
+      "explain_en": "AWS secures the cloud itself (hardware, network, hypervisor); the customer secures what they put in it: data, IAM permissions, encryption. A public-bucket leak is the customer's responsibility — hence least privilege, MFA, roles and key rotation."
+    }
+  ]
+}

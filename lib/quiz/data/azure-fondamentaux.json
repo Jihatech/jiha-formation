@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Dans le labo local, quel rôle joue miniblue ?",
+      "q_en": "In the local lab, what role does miniblue play?",
+      "choices": [
+        { "fr": "Azurite, l'émulateur de stockage (plan de données)", "en": "Azurite, the storage emulator (data plane)" },
+        { "fr": "L'émulateur du plan de contrôle Azure (API ARM)", "en": "The Azure control-plane emulator (ARM API)" },
+        { "fr": "Le compilateur de templates Bicep", "en": "The Bicep template compiler" }
+      ],
+      "answer": 1,
+      "explain_fr": "miniblue émule Azure en local côté plan de contrôle (API ARM) ; Azurite émule le stockage (plan de données) et Bicep décrit l'infrastructure.",
+      "explain_en": "miniblue emulates Azure locally on the control plane (ARM API); Azurite emulates storage (data plane) and Bicep describes infrastructure."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "La chaîne de connexion Azurite utilisée dans le labo est...",
+      "q_en": "The Azurite connection string used in the lab is...",
+      "choices": [
+        { "fr": "Publique et bien connue : le compte de développement de l'émulateur, jamais un vrai secret", "en": "Public and well-known: the emulator's development account, never a real secret" },
+        { "fr": "Un secret à protéger comme une clé de production", "en": "A secret to protect like a production key" },
+        { "fr": "Générée aléatoirement à chaque démarrage d'Azurite", "en": "Randomly generated each time Azurite starts" }
+      ],
+      "answer": 0,
+      "explain_fr": "La chaîne (compte devstoreaccount1) est publique et identique pour tous : jamais à utiliser pour un vrai compte de stockage.",
+      "explain_en": "The string (devstoreaccount1 account) is public and identical for everyone: never use it for a real storage account."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quel est le conteneur du quotidien qu'on crée, remplit puis supprime en bloc ?",
+      "q_en": "Which everyday container do you create, fill, then delete wholesale?",
+      "choices": [
+        { "fr": "L'abonnement (subscription)", "en": "The subscription" },
+        { "fr": "Le groupe de ressources (resource group)", "en": "The resource group" },
+        { "fr": "Le groupe d'administration (management group)", "en": "The management group" }
+      ],
+      "answer": 1,
+      "explain_fr": "Hiérarchie : groupe d'administration → abonnement → groupe de ressources → ressource. Le groupe de ressources est l'unité que l'on crée puis supprime en bloc.",
+      "explain_en": "Hierarchy: management group → subscription → resource group → resource. The resource group is the unit you create then delete wholesale."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Dans le blob nommé rapports/2026/q1.txt, que représentent les / ?",
+      "q_en": "In the blob named rapports/2026/q1.txt, what do the / represent?",
+      "choices": [
+        { "fr": "Une simple convention de nommage : la clé est plate, ce n'est pas une arborescence de dossiers", "en": "A mere naming convention: the key is flat, not a folder tree" },
+        { "fr": "De vrais dossiers imbriqués créés sur le disque", "en": "Real nested folders created on disk" },
+        { "fr": "Des conteneurs de stockage distincts", "en": "Separate storage containers" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le stockage blob est plat : rapports/2026/q1.txt est une seule clé, le / n'est qu'une convention, pas une arborescence réelle.",
+      "explain_en": "Blob storage is flat: rapports/2026/q1.txt is a single key, the / is only a convention, not a real tree."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que fait `bicep build stockage.bicep` ?",
+      "q_en": "What does `bicep build stockage.bicep` do?",
+      "choices": [
+        { "fr": "Il déploie le compte de stockage sur Azure", "en": "It deploys the storage account to Azure" },
+        { "fr": "Il compile le template en ARM JSON et valide sa forme, hors-ligne", "en": "It compiles the template to ARM JSON and validates its shape, offline" },
+        { "fr": "Il téléverse un blob dans Azurite", "en": "It uploads a blob to Azurite" }
+      ],
+      "answer": 1,
+      "explain_fr": "`bicep build` compile et valide la forme du template (ARM JSON) sans compte ; le déploiement live viendra plus tard (az deployment ou Terraform).",
+      "explain_en": "`bicep build` compiles and validates the template shape (ARM JSON) with no account; live deployment comes later (az deployment or Terraform)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quel langage la CLI Azure utilise-t-elle pour l'option `--query` ?",
+      "q_en": "Which language does the Azure CLI use for the `--query` option?",
+      "choices": [
+        { "fr": "JSONPath", "en": "JSONPath" },
+        { "fr": "GraphQL", "en": "GraphQL" },
+        { "fr": "JMESPath", "en": "JMESPath" }
+      ],
+      "answer": 2,
+      "explain_fr": "Azure, comme AWS, filtre les sorties JSON avec JMESPath via `--query`.",
+      "explain_en": "Azure, like AWS, filters JSON output with JMESPath via `--query`."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que supprime `azlocal group delete --name rg-labo` ?",
+      "q_en": "What does `azlocal group delete --name rg-labo` delete?",
+      "choices": [
+        { "fr": "Le groupe de ressources et toutes les ressources qu'il contient", "en": "The resource group and every resource it contains" },
+        { "fr": "Uniquement le groupe, en laissant ses ressources orphelines", "en": "Only the group, leaving its resources orphaned" },
+        { "fr": "Rien : la suppression n'existe que sur le vrai Azure", "en": "Nothing: deletion only exists on real Azure" }
+      ],
+      "answer": 0,
+      "explain_fr": "Supprimer le groupe de ressources retire d'un coup tout ce qu'il contient : c'est le réflexe créer → utiliser → nettoyer.",
+      "explain_en": "Deleting the resource group removes everything it holds at once: the create → use → clean up reflex."
+    }
+  ]
+}
