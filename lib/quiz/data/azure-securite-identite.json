@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Qu'est-ce que le `principalId` d'une identité managée, et quels droits a-t-elle par défaut ?",
+      "q_en": "What is a managed identity's `principalId`, and what rights does it have by default ?",
+      "choices": [
+        { "fr": "C'est un mot de passe ; elle a tous les droits", "en": "It's a password; it has all rights" },
+        { "fr": "C'est une clé d'API ; elle est Owner", "en": "It's an API key; it is Owner" },
+        { "fr": "C'est le sujet des attributions RBAC ; par défaut l'identité n'a aucun droit", "en": "It's the subject of RBAC assignments; by default the identity has no rights" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le principalId est nommé dans chaque attribution RBAC. L'identité ne peut rien par défaut : on lui accorde le strict nécessaire ensuite.",
+      "explain_en": "The principalId is named in every RBAC assignment. The identity can do nothing by default: you grant it exactly what's needed next."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pour une app qui doit seulement lire des secrets, quel rôle RBAC attribuer ?",
+      "q_en": "For an app that must only read secrets, which RBAC role should you assign ?",
+      "choices": [
+        { "fr": "Le rôle intégré étroit Key Vault Secrets User, à la portée du groupe de ressources (moindre privilège)", "en": "The narrow built-in role Key Vault Secrets User, scoped to the resource group (least privilege)" },
+        { "fr": "Contributor sur l'abonnement", "en": "Contributor on the subscription" },
+        { "fr": "Owner sur le groupe de ressources", "en": "Owner on the resource group" }
+      ],
+      "answer": 0,
+      "explain_fr": "Rôle étroit, portée étroite : les trois pièces sont le principal (qui), le roleDefinitionId (quoi) et la portée (où). C'est le cœur de l'AZ-500.",
+      "explain_en": "Narrow role, narrow scope: the three pieces are the principal (who), the roleDefinitionId (what) and the scope (where). It's the core of AZ-500."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que fait l'accès conditionnel (« vérifier explicitement ») ?",
+      "q_en": "What does conditional access (\"verify explicitly\") do ?",
+      "choices": [
+        { "fr": "Il stocke les mots de passe au coffre", "en": "It stores passwords in the vault" },
+        { "fr": "Il évalue chaque connexion selon des signaux (MFA, emplacement, appareil) et peut bloquer même avec le bon mot de passe", "en": "It evaluates each sign-in against signals (MFA, location, device) and can block even with the right password" },
+        { "fr": "Il chiffre le trafic réseau", "en": "It encrypts network traffic" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le mot de passe ne suffit pas : un rôle privilégié sans MFA, un emplacement risqué ou un appareil non conforme sont bloqués. Ce sont les politiques d'accès conditionnel Entra ID.",
+      "explain_en": "The password isn't enough: a privileged role without MFA, a risky location or a non-compliant device get blocked. These are Entra ID conditional access policies."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Dans le PIM, que signifie « éligible ≠ actif » ?",
+      "q_en": "In PIM, what does \"eligible ≠ active\" mean ?",
+      "choices": [
+        { "fr": "L'admin a le rôle actif en permanence", "en": "The admin has the role active permanently" },
+        { "fr": "Le rôle n'est actif que la nuit", "en": "The role is only active at night" },
+        { "fr": "L'admin est éligible mais doit activer le rôle (MFA + justification) pour une durée limitée, puis il expire", "en": "The admin is eligible but must activate the role (MFA + justification) for a limited time, then it expires" }
+      ],
+      "answer": 2,
+      "explain_fr": "C'est le moindre privilège dans le temps : un compte compromis n'a pas de droits Owner actifs en attente. Le rôle s'active au besoin et expire.",
+      "explain_en": "It's least privilege over time: a compromised account has no active Owner rights waiting. The role is activated on demand and expires."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Comment l'app lit-elle le secret Key Vault sans mot de passe ?",
+      "q_en": "How does the app read the Key Vault secret without a password ?",
+      "choices": [
+        { "fr": "Elle présente son identité managée ; l'accès conditionnel vérifie, le RBAC (Secrets User) confirme, elle lit — aucun secret en dur", "en": "It presents its managed identity; conditional access verifies, RBAC (Secrets User) confirms, it reads — no hardcoded secret" },
+        { "fr": "Elle utilise la clé d'accès partagée du coffre", "en": "It uses the vault's shared access key" },
+        { "fr": "Elle stocke le mot de passe du coffre en variable d'environnement", "en": "It stores the vault password in an environment variable" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le flux complet, de bout en bout : identité (sans mot de passe) + accès conditionnel + RBAC = lecture du secret. Aucun mot de passe n'a circulé.",
+      "explain_en": "The full flow, end to end: identity (passwordless) + conditional access + RBAC = reading the secret. No password ever traveled."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que traque une revue d'accès ?",
+      "q_en": "What does an access review track down ?",
+      "choices": [
+        { "fr": "La latence réseau", "en": "Network latency" },
+        { "fr": "Le sur-privilège (Owner trop large) et les droits dormants/inutilisés à retirer", "en": "Over-privilege (too-broad Owner) and dormant/unused rights to remove" },
+        { "fr": "Le chiffrement des données", "en": "Data encryption" }
+      ],
+      "answer": 1,
+      "explain_fr": "Les droits s'accumulent : la revue signale l'Owner trop large (rôle ciblé + PIM suffirait) et les droits dormants. Le moindre privilège se maintient.",
+      "explain_en": "Rights accumulate: the review flags too-broad Owner (a targeted role + PIM would suffice) and dormant rights. Least privilege is maintained, not declared once."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quels leviers composent la posture d'identité sécurisée AZ-500 ?",
+      "q_en": "Which levers make up the AZ-500 secure identity posture ?",
+      "choices": [
+        { "fr": "Uniquement le chiffrement des données", "en": "Only data encryption" },
+        { "fr": "Uniquement un pare-feu réseau", "en": "Only a network firewall" },
+        { "fr": "Identité managée (sans mot de passe), RBAC moindre privilège, accès conditionnel, PIM (juste-à-temps), revue d'accès", "en": "Managed identity (passwordless), least-privilege RBAC, conditional access, PIM (just-in-time), access review" }
+      ],
+      "answer": 2,
+      "explain_fr": "Chaque levier réduit la surface d'attaque avant l'incident : identité managée, RBAC, accès conditionnel, PIM, revue d'accès.",
+      "explain_en": "Each lever shrinks the attack surface before an incident: managed identity, RBAC, conditional access, PIM, access review."
+    }
+  ]
+}

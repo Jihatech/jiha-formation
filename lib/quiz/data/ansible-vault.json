@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Après `ansible-vault encrypt secrets.yml`, comment lire le contenu sans laisser de trace en clair sur le disque ?",
+      "q_en": "After `ansible-vault encrypt secrets.yml`, how do you read the content without leaving a clear-text trace on disk?",
+      "choices": [
+        { "fr": "Avec cat, qui déchiffre automatiquement", "en": "With cat, which decrypts automatically" },
+        { "fr": "Avec ansible-vault view, qui l'affiche sans modifier le fichier chiffré", "en": "With ansible-vault view, which displays it without modifying the encrypted file" },
+        { "fr": "En supprimant l'en-tête $ANSIBLE_VAULT du fichier", "en": "By deleting the $ANSIBLE_VAULT header from the file" }
+      ],
+      "answer": 1,
+      "explain_fr": "Après chiffrement, cat ne montre qu'un blob avec l'en-tête $ANSIBLE_VAULT;1.1;AES256. ansible-vault view (avec le bon mot de passe) réaffiche les secrets, et le fichier sur disque reste chiffré : view ne le modifie pas.",
+      "explain_en": "After encryption, cat shows only a blob with the $ANSIBLE_VAULT;1.1;AES256 header. ansible-vault view (with the right password) re-displays the secrets, and the on-disk file stays encrypted: view doesn't modify it."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quelle est la différence entre `ansible-vault create` et `ansible-vault encrypt` ?",
+      "q_en": "What is the difference between `ansible-vault create` and `ansible-vault encrypt`?",
+      "choices": [
+        { "fr": "create ouvre un nouveau fichier dans l'éditeur et le chiffre à la sauvegarde ; encrypt chiffre un fichier existant", "en": "create opens a new file in the editor and encrypts it on save; encrypt encrypts an existing file" },
+        { "fr": "create chiffre plus fort que encrypt", "en": "create encrypts more strongly than encrypt" },
+        { "fr": "create ne demande jamais de mot de passe, encrypt oui", "en": "create never asks for a password, encrypt does" }
+      ],
+      "answer": 0,
+      "explain_fr": "encrypt chiffre un fichier existant (qui a donc existé en clair). create ouvre un nouveau fichier directement dans l'éditeur et le chiffre à la sauvegarde : le contenu n'existe jamais en clair sur le disque. edit fait pareil pour modifier un fichier déjà chiffré.",
+      "explain_en": "encrypt encrypts an existing file (which therefore existed in clear). create opens a new file directly in the editor and encrypts it on save: the content never exists in clear on disk. edit does the same to modify an already-encrypted file."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Comment un fichier chiffré par Vault est-il utilisé dans un playbook sans repasser `--vault-password-file` à chaque fois ?",
+      "q_en": "How is a Vault-encrypted file used in a playbook without re-passing `--vault-password-file` each time?",
+      "choices": [
+        { "fr": "En le déchiffrant manuellement avant chaque exécution", "en": "By manually decrypting it before each run" },
+        { "fr": "En le déclarant en vars_files: et en posant vault_password_file dans ansible.cfg", "en": "By declaring it in vars_files: and setting vault_password_file in ansible.cfg" },
+        { "fr": "En collant le mot de passe directement dans le playbook", "en": "By pasting the password directly into the playbook" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un fichier chiffré se déclare en vars_files: comme un fichier clair ; Ansible le déchiffre à l'exécution. En posant vault_password_file = .vault_pass dans ansible.cfg, plus besoin de répéter le flag. Le fichier .vault_pass ne doit jamais être committé (.gitignore).",
+      "explain_en": "An encrypted file is declared in vars_files: like a clear file; Ansible decrypts it at run time. By setting vault_password_file = .vault_pass in ansible.cfg, no need to repeat the flag. The .vault_pass file must never be committed (.gitignore)."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quand privilégier `ansible-vault encrypt_string` (chiffrer une variable inline) plutôt que chiffrer tout le fichier ?",
+      "q_en": "When should you prefer `ansible-vault encrypt_string` (encrypt a single inline variable) over encrypting the whole file?",
+      "choices": [
+        { "fr": "Quand un fichier mélange du public (ports, chemins) et un ou deux secrets, pour garder le reste lisible en revue", "en": "When a file mixes public data (ports, paths) and one or two secrets, to keep the rest readable in review" },
+        { "fr": "Quand le fichier ne contient que des secrets", "en": "When the file contains only secrets" },
+        { "fr": "Quand on veut un chiffrement plus rapide", "en": "When you want faster encryption" }
+      ],
+      "answer": 0,
+      "explain_fr": "encrypt_string chiffre juste une valeur (bloc nom: !vault |). C'est le pattern « fichier mixte » : dans un group_vars/all.yml, app_name et app_port restent en clair et lisibles en revue, seul redis_password est un blob. L'indentation du bloc !vault | est critique.",
+      "explain_en": "encrypt_string encrypts just a value (name: !vault | block). It's the \"mixed file\" pattern: in a group_vars/all.yml, app_name and app_port stay clear and readable in review, only redis_password is a blob. The !vault | block indentation is critical."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que fait la commande `ansible-vault rekey` sur un fichier chiffré ?",
+      "q_en": "What does the `ansible-vault rekey` command do to an encrypted file?",
+      "choices": [
+        { "fr": "Elle déchiffre le fichier en clair pour changer la clé", "en": "It decrypts the file to clear to change the key" },
+        { "fr": "Elle rechiffre le fichier avec un nouveau mot de passe, sans jamais l'exposer en clair", "en": "It re-encrypts the file with a new password, without ever exposing it in clear" },
+        { "fr": "Elle supprime le mot de passe pour un accès libre", "en": "It removes the password for open access" }
+      ],
+      "answer": 1,
+      "explain_fr": "rekey rechiffre le fichier avec un nouveau mot de passe : le fichier reste chiffré du début à la fin, seule la clé change. Après rotation, l'ancienne clé donne ERROR! Decryption failed, la nouvelle fonctionne. Utile quand un secret partagé fuit (départ, compromission).",
+      "explain_en": "rekey re-encrypts the file with a new password: the file stays encrypted throughout, only the key changes. After rotation, the old key gives ERROR! Decryption failed, the new one works. Useful when a shared secret leaks (departure, compromise)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "À quoi servent les vault-id (étiquettes `dev`, `prod`) quand on gère plusieurs coffres ?",
+      "q_en": "What are vault-ids (labels `dev`, `prod`) for when managing multiple vaults?",
+      "choices": [
+        { "fr": "À attacher une étiquette à chaque mot de passe pour qu'Ansible choisisse le bon coffre selon l'étiquette du fichier", "en": "To attach a label to each password so Ansible picks the right vault based on the file's label" },
+        { "fr": "À accélérer le déchiffrement en cache", "en": "To speed up decryption via caching" },
+        { "fr": "À fusionner les secrets dev et prod en un seul fichier", "en": "To merge dev and prod secrets into a single file" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les vault-id attachent une étiquette (dev, prod) à chaque mot de passe. On chiffre chaque secret avec sa clé, et en fournissant les deux coffres Ansible choisit le bon selon l'étiquette du fichier — la clé prod ne déchiffre pas les secrets dev. Au chiffrement, --encrypt-vault-id lève l'ambiguïté.",
+      "explain_en": "vault-ids attach a label (dev, prod) to each password. You encrypt each secret with its key, and by supplying both vaults Ansible picks the right one based on the file's label — the prod key won't decrypt dev secrets. On encryption, --encrypt-vault-id disambiguates."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi `ansible-vault decrypt` est-il rarement utilisé en production ?",
+      "q_en": "Why is `ansible-vault decrypt` rarely used in production?",
+      "choices": [
+        { "fr": "Parce qu'il est plus lent que view", "en": "Because it is slower than view" },
+        { "fr": "Parce qu'il écrit le fichier en clair sur le disque, réexposant le secret", "en": "Because it writes the file in clear on disk, re-exposing the secret" },
+        { "fr": "Parce qu'il supprime définitivement le fichier après lecture", "en": "Because it permanently deletes the file after reading" }
+      ],
+      "answer": 1,
+      "explain_fr": "decrypt transforme le fichier chiffré en fichier en clair sur le disque : c'est réexposer le secret. En prod on préfère view/edit (qui gardent le fichier chiffré au repos) ou le déchiffrement à la volée par Ansible. decrypt sert surtout à migrer/déboguer hors production.",
+      "explain_en": "decrypt turns the encrypted file into a clear file on disk: it re-exposes the secret. In prod you prefer view/edit (which keep the file encrypted at rest) or on-the-fly decryption by Ansible. decrypt is mainly for migrating/debugging outside production."
+    }
+  ]
+}
