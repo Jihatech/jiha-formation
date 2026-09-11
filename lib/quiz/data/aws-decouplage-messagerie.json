@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Dans SQS, que devient un message reçu par un consommateur qui ne le supprime pas ?",
+      "q_en": "In SQS, what happens to a message received by a consumer that does not delete it ?",
+      "choices": [
+        { "fr": "Il est perdu définitivement dès la première réception", "en": "It is permanently lost on first receipt" },
+        { "fr": "Il redevient visible après le visibility timeout et sera relivré (garantie « au moins une fois »)", "en": "It becomes visible again after the visibility timeout and is redelivered (\"at least once\" guarantee)" },
+        { "fr": "Il est automatiquement envoyé à tous les autres consommateurs", "en": "It is automatically sent to all other consumers" }
+      ],
+      "answer": 1,
+      "explain_fr": "À la réception, le message devient invisible un moment (visibility timeout) pour éviter le double traitement ; le consommateur traite puis supprime via son `ReceiptHandle`. S'il ne supprime pas, le message redevient visible et est relivré — d'où la garantie « au moins une fois ».",
+      "explain_en": "On receipt, the message becomes invisible for a while (visibility timeout) to avoid double-processing; the consumer processes then deletes it via its `ReceiptHandle`. If it doesn't delete, the message becomes visible again and is redelivered — hence the \"at least once\" guarantee."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "À quoi sert une dead-letter queue (DLQ) reliée à une file SQS ?",
+      "q_en": "What is a dead-letter queue (DLQ) wired to an SQS queue for ?",
+      "choices": [
+        { "fr": "À doubler le débit de la file principale", "en": "To double the main queue's throughput" },
+        { "fr": "À recueillir les messages après N échecs de traitement (`maxReceiveCount`), pour garder la file principale saine", "en": "To collect messages after N processing failures (`maxReceiveCount`), keeping the main queue healthy" },
+        { "fr": "À garantir l'ordre strict des messages", "en": "To guarantee strict message ordering" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un message « empoisonné » tournerait à l'infini. La DLQ recueille les messages après N échecs (le `maxReceiveCount` de la RedrivePolicy) : la file principale reste saine et on inspecte les échecs à part. C'est la file FIFO (`.fifo`), elle, qui garantit ordre et unicité.",
+      "explain_en": "A \"poison\" message would loop forever. The DLQ collects messages after N failures (the RedrivePolicy's `maxReceiveCount`): the main queue stays healthy and you inspect failures separately. It's the FIFO queue (`.fifo`) that guarantees order and uniqueness."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quelle est la différence fondamentale entre un sujet SNS et une file SQS ?",
+      "q_en": "What is the fundamental difference between an SNS topic and an SQS queue ?",
+      "choices": [
+        { "fr": "SNS diffuse un message à tous ses abonnés et ne stocke rien ; SQS garde un message jusqu'à consommation par un consommateur", "en": "SNS broadcasts a message to all its subscribers and stores nothing; SQS keeps a message until one consumer consumes it" },
+        { "fr": "SNS stocke les messages plus longtemps que SQS", "en": "SNS stores messages longer than SQS" },
+        { "fr": "SNS et SQS sont deux noms du même service", "en": "SNS and SQS are two names for the same service" }
+      ],
+      "answer": 0,
+      "explain_fr": "SQS = un message → un consommateur (on dépile). SNS = un message → tous les abonnés (diffusion), et il ne stocke rien : il pousse immédiatement chaque message aux abonnés. Un message SNS publié sans abonné est perdu.",
+      "explain_en": "SQS = one message → one consumer (you pop). SNS = one message → all subscribers (broadcast), and it stores nothing: it pushes each message to subscribers immediately. An SNS message published with no subscriber is lost."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quel est l'intérêt du motif fan-out (un sujet SNS abonné à plusieurs files SQS) ?",
+      "q_en": "What is the benefit of the fan-out pattern (one SNS topic subscribed by several SQS queues) ?",
+      "choices": [
+        { "fr": "Le producteur doit appeler chaque service individuellement pour plus de fiabilité", "en": "The producer must call each service individually for more reliability" },
+        { "fr": "Un seul `publish` duplique l'événement dans chaque file abonnée, chaque service le consommant indépendamment", "en": "A single `publish` duplicates the event into each subscribed queue, each service consuming it independently" },
+        { "fr": "Il garantit qu'un seul des services reçoit le message", "en": "It guarantees only one of the services receives the message" }
+      ],
+      "answer": 1,
+      "explain_fr": "Au lieu que le producteur appelle facturation, expédition et stats (couplage), il publie une fois dans SNS qui duplique l'événement dans chaque file SQS abonnée. Chaque service consomme sa copie à son rythme, et l'un peut tomber sans bloquer les autres : le motif roi de la résilience.",
+      "explain_en": "Instead of the producer calling billing, shipping and analytics (coupling), it publishes once to SNS which duplicates the event into each subscribed SQS queue. Each service consumes its copy at its own pace, and one can fail without blocking the others: the king pattern of resilience."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que se passe-t-il si tu fais un second `put-item` DynamoDB avec la même clé de partition qu'un élément existant ?",
+      "q_en": "What happens if you do a second DynamoDB `put-item` with the same partition key as an existing item ?",
+      "choices": [
+        { "fr": "Le nouvel élément remplace l'ancien : la clé de partition est unique", "en": "The new item replaces the old one: the partition key is unique" },
+        { "fr": "L'écriture est refusée car la clé existe déjà", "en": "The write is refused because the key already exists" },
+        { "fr": "Les deux éléments coexistent avec la même clé", "en": "Both items coexist with the same key" }
+      ],
+      "answer": 0,
+      "explain_fr": "La clé de partition est obligatoire dans chaque `put-item` et unique : un second `put-item` avec le même `id` remplace l'élément. DynamoDB stocke des éléments sans schéma fixe, aux attributs typés en JSON (`S`, `N`, `BOOL`…), ici en mode PAY_PER_REQUEST.",
+      "explain_en": "The partition key is mandatory in each `put-item` and unique: a second `put-item` with the same `id` replaces the item. DynamoDB stores schemaless items with JSON-typed attributes (`S`, `N`, `BOOL`…), here in PAY_PER_REQUEST mode."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi préférer un `query` (ou `get-item`) à un `scan` sur une grande table DynamoDB ?",
+      "q_en": "Why prefer a `query` (or `get-item`) over a `scan` on a large DynamoDB table ?",
+      "choices": [
+        { "fr": "Parce que `scan` ne fonctionne pas sur les tables PAY_PER_REQUEST", "en": "Because `scan` does not work on PAY_PER_REQUEST tables" },
+        { "fr": "Parce que `scan` lit toute la table puis filtre (lent et cher), alors que `query`/`get-item` ne lisent que ce qui est ciblé par la clé", "en": "Because `scan` reads the whole table then filters (slow and costly), whereas `query`/`get-item` read only what the key targets" },
+        { "fr": "Parce que `query` renvoie toujours plus de résultats que `scan`", "en": "Because `query` always returns more results than `scan`" }
+      ],
+      "answer": 1,
+      "explain_fr": "`scan` parcourt toute la table pour filtrer, catastrophique sur des millions de lignes ; `query` (clé de partition) ou `get-item` (clé complète) ne lit que ce qu'il faut. La leçon SAA : on conçoit son modèle pour interroger par `query`, pas par `scan`.",
+      "explain_en": "`scan` goes through the whole table to filter, catastrophic on millions of rows; `query` (partition key) or `get-item` (full key) reads only what's needed. The SAA lesson: design your model to query with `query`, not `scan`."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Selon la grille de choix, quel service utiliser pour qu'un travail soit fait une seule fois par un consommateur, en absorbant les pics de charge ?",
+      "q_en": "Per the choice grid, which service fits a job to be done once by one consumer, absorbing load spikes ?",
+      "choices": [
+        { "fr": "SNS, car il diffuse à tous les abonnés", "en": "SNS, because it broadcasts to all subscribers" },
+        { "fr": "SQS, qui sert de tampon entre producteur et consommateur unique", "en": "SQS, which buffers between producer and a single consumer" },
+        { "fr": "DynamoDB, car il exécute le traitement", "en": "DynamoDB, because it runs the processing" }
+      ],
+      "answer": 1,
+      "explain_fr": "SQS est la file-tampon : un travail fait une fois, par un consommateur, en absorbant les pics. SNS diffuse à plusieurs abonnés ; SNS→SQS combine diffusion et découplage ; DynamoDB stocke l'état avec des accès par clé rapides. Ensemble : architecture élastique et résiliente.",
+      "explain_en": "SQS is the buffer queue: a job done once, by one consumer, absorbing spikes. SNS broadcasts to several subscribers; SNS→SQS combines broadcast and decoupling; DynamoDB stores state with fast key access. Together: an elastic, resilient architecture."
+    }
+  ]
+}
