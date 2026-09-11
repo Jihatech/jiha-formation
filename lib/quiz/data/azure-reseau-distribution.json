@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quel service pour équilibrer une appli web régionale avec routage par chemin et WAF ?",
+      "q_en": "Which service to balance a regional web app with path-based routing and a WAF ?",
+      "choices": [
+        { "fr": "Application Gateway (L7 régional)", "en": "Application Gateway (L7 regional)" },
+        { "fr": "Azure Load Balancer (L4)", "en": "Azure Load Balancer (L4)" },
+        { "fr": "Traffic Manager (DNS)", "en": "Traffic Manager (DNS)" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le bon outil pour le bon trafic : L4 (Load Balancer) pour du TCP interne, L7 régional (App Gateway) pour un site avec routage + WAF, L7 global (Front Door), DNS global (Traffic Manager).",
+      "explain_en": "The right tool for the right traffic: L4 (Load Balancer) for internal TCP, L7 regional (App Gateway) for a site with routing + WAF, L7 global (Front Door), global DNS (Traffic Manager)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quelle est la différence entre round-robin et moindre connexions ?",
+      "q_en": "What is the difference between round-robin and least connections ?",
+      "choices": [
+        { "fr": "Le round-robin envoie tout au premier backend", "en": "Round-robin sends everything to the first backend" },
+        { "fr": "Round-robin = à tour de rôle (équitable) ; moindre connexions = au backend le moins chargé (s'adapte à la charge réelle)", "en": "Round-robin = in turn (fair); least connections = to the least-loaded backend (adapts to real load)" },
+        { "fr": "Les deux envoient toujours au même backend", "en": "Both always send to the same backend" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le round-robin est simple et équitable ; le moindre connexions s'adapte (utile si les requêtes ont des durées inégales). Azure Load Balancer utilise par défaut un hash (proche du round-robin par flux).",
+      "explain_en": "Round-robin is simple and fair; least connections adapts (useful when requests have uneven durations). Azure Load Balancer uses a hash by default (close to per-flow round-robin)."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que se passe-t-il quand la sonde de santé d'un backend (`vm3`) échoue ?",
+      "q_en": "What happens when a backend's (`vm3`) health probe fails ?",
+      "choices": [
+        { "fr": "Tout le service tombe", "en": "The whole service goes down" },
+        { "fr": "Le trafic continue quand même vers `vm3`", "en": "Traffic still goes to `vm3` anyway" },
+        { "fr": "`vm3` est retiré de la rotation ; le trafic ne va qu'aux backends sains, jusqu'au retour de sa sonde OK", "en": "`vm3` is removed from rotation; traffic goes only to healthy backends, until its probe is OK again" }
+      ],
+      "answer": 2,
+      "explain_fr": "Ne pas envoyer de trafic à un mort : un backend qui tombe est retiré automatiquement, le service continue sur les instances saines. C'est ce qui rend la distribution résiliente.",
+      "explain_en": "Don't send traffic to a dead one: a failing backend is removed automatically, the service continues on healthy instances. That's what makes distribution resilient."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Qu'apporte le routage L7 par chemin (Application Gateway) impossible en L4 ?",
+      "q_en": "What does L7 path-based routing (Application Gateway) bring that's impossible at L4 ?",
+      "choices": [
+        { "fr": "Il lit l'URL (`/api/*`, `/images/*`) et dirige vers des pools spécialisés depuis une seule entrée publique", "en": "It reads the URL (`/api/*`, `/images/*`) and directs to specialized pools from a single public entry" },
+        { "fr": "Il ne voit que l'IP et le port", "en": "It only sees IP and port" },
+        { "fr": "Il chiffre les données au repos", "en": "It encrypts data at rest" }
+      ],
+      "answer": 0,
+      "explain_fr": "En L7, l'équilibreur comprend l'URL et envoie chaque requête au backend spécialisé (API, statique, web) — impossible en L4 (qui ne voit qu'IP/port). Plus la terminaison TLS et le WAF.",
+      "explain_en": "At L7, the balancer understands the URL and sends each request to the specialized backend (API, static, web) — impossible at L4 (which only sees IP/port). Plus TLS termination and WAF."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quelle est la différence entre Front Door et Traffic Manager pour le global ?",
+      "q_en": "What is the difference between Front Door and Traffic Manager for global ?",
+      "choices": [
+        { "fr": "Ils sont identiques", "en": "They are identical" },
+        { "fr": "Front Door est L7 (CDN + WAF, cache près de l'utilisateur) ; Traffic Manager agit au niveau DNS (dirige vers la meilleure région, sans voir le trafic)", "en": "Front Door is L7 (CDN + WAF, caches near the user); Traffic Manager acts at the DNS level (directs to the best region, without seeing the traffic)" },
+        { "fr": "Traffic Manager met en cache le contenu statique au point de présence", "en": "Traffic Manager caches static content at the point of presence" }
+      ],
+      "answer": 1,
+      "explain_fr": "Servir le monde entier depuis la région la plus proche : Front Door ajoute le CDN et un WAF global ; Traffic Manager répond au niveau DNS avec le bon endpoint. Deux outils complémentaires.",
+      "explain_en": "Serve the whole world from the nearest region: Front Door adds the CDN and a global WAF; Traffic Manager answers at DNS level with the right endpoint. Two complementary tools."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi utiliser l'affinité de session avec parcimonie ?",
+      "q_en": "Why use session affinity sparingly ?",
+      "choices": [
+        { "fr": "Elle chiffre le trafic", "en": "It encrypts traffic" },
+        { "fr": "Elle est obligatoire pour tout backend", "en": "It's mandatory for every backend" },
+        { "fr": "Elle déséquilibre la charge et complique le scaling ; préférer des backends sans état (session en cache/base partagé)", "en": "It unbalances load and complicates scaling; prefer stateless backends (session in a shared cache/database)" }
+      ],
+      "answer": 2,
+      "explain_fr": "L'affinité (hash du client) fait revenir un client au même backend — indispensable pour une appli à état, mais un « gros » client surcharge un backend. La bonne pratique : rendre les backends sans état.",
+      "explain_en": "Affinity (client hash) makes a client return to the same backend — essential for a stateful app, but a \"big\" client overloads one backend. Best practice: make backends stateless."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que permet le pilier distribution AZ-700 ?",
+      "q_en": "What does the AZ-700 distribution pillar enable ?",
+      "choices": [
+        { "fr": "Choisir entre LB (L4), App Gateway (L7), Front Door (global) et Traffic Manager (DNS), avec algorithmes, sondes, routage L7 et affinité — pour tenir la charge et résister aux pannes", "en": "Choose between LB (L4), App Gateway (L7), Front Door (global) and Traffic Manager (DNS), with algorithms, probes, L7 routing and affinity — to hold load and resist failures" },
+        { "fr": "Uniquement planifier l'adressage", "en": "Only plan addressing" },
+        { "fr": "Uniquement monter un tunnel VPN", "en": "Only set up a VPN tunnel" }
+      ],
+      "answer": 0,
+      "explain_fr": "Ton appli tient la charge et résiste aux pannes. La suite : l'accès privé aux services (points de terminaison privés, Private Link), puis le projet réseau.",
+      "explain_en": "Your app holds the load and resists failures. Next: private access to services (private endpoints, Private Link), then the network project."
+    }
+  ]
+}
