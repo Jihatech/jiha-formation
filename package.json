@@ -11,7 +11,9 @@
     "postbuild": "rm -rf public/_pagefind && pagefind --site .next/server/app --output-path public/_pagefind",
     "start": "next start",
     "lint": "eslint",
-    "check:parser": "tsx scripts/check-parser.mts"
+    "check:parser": "tsx scripts/check-parser.mts",
+    "journey": "node scripts/journey-test.mjs",
+    "journey:e2e": "node scripts/journey-e2e.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
