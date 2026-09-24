@@ -2,6 +2,13 @@
   padding-top: 2rem;
   padding-bottom: 3rem;
 }
+/* La grille 3 colonnes (sidebar / contenu / ToC) a besoin de plus que la
+   largeur de lecture par défaut (880px) : sinon la colonne de contenu tombe
+   à ~380px et les blocs de code sont tronqués. On élargit ici uniquement les
+   pages « article » de la doc. (.page.page : bat .container sans !important.) */
+.page.page {
+  max-width: 1200px;
+}
 .title {
   font-size: clamp(1.7rem, 5vw, 2.4rem);
   margin-bottom: 0.4rem;

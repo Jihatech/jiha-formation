@@ -2,6 +2,13 @@
   padding-top: 2rem;
   padding-bottom: 3rem;
 }
+/* Corps + ToC : on élargit au-delà de la largeur de lecture par défaut (880px)
+   pour laisser respirer les blocs de code (sinon lignes + commentaires tronqués).
+   La prose reste bornée en largeur côté nodes.module.css (lisibilité).
+   .page.page : bat .container sans !important. */
+.page.page {
+  max-width: 1160px;
+}
 
 .ctaBanner {
   display: flex;

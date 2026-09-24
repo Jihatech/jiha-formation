@@ -1,7 +1,11 @@
 /* Prose : police lisible, pas monospace, pour les pavés (§2.3). */
+/* Largeur de lecture bornée (~74 caractères) : le contenu peut désormais être
+   large (voir grilles docs/guide), mais le texte reste confortable. Les blocs
+   de code (.code) et figures (.figure), eux, occupent toute la largeur. */
 .prose {
   font-family: var(--font-sans);
   color: var(--fg);
+  max-width: 74ch;
 }
 .prose :global(p) {
   margin: 0.8rem 0;
