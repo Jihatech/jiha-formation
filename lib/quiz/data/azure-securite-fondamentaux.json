@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Où vit un secret et que connaît l'application de lui ?",
+      "q_en": "Where does a secret live and what does the application know of it ?",
+      "choices": [
+        { "fr": "Dans un Key Vault ; l'app ne connaît que le nom (la référence), la valeur est chiffrée et les accès journalisés", "en": "In a Key Vault; the app knows only the name (the reference), the value is encrypted and accesses are logged" },
+        { "fr": "Dans le code, chiffré en base64", "en": "In the code, base64-encoded" },
+        { "fr": "Dans une variable d'environnement en clair", "en": "In a clear-text environment variable" }
+      ],
+      "answer": 0,
+      "explain_fr": "Rien en dur, tout au coffre : c'est l'ancre Confidentialité de la triade CIA. L'app ne connaît que la référence.",
+      "explain_en": "Nothing hardcoded, everything in the vault: it's the Confidentiality anchor of the CIA triad. The app only knows the reference."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Qu'est-ce qu'une identité managée ?",
+      "q_en": "What is a managed identity ?",
+      "choices": [
+        { "fr": "Une clé d'accès partagée renforcée", "en": "A hardened shared access key" },
+        { "fr": "Une identité attachée à la ressource qui obtient des jetons automatiquement, sans mot de passe stocké", "en": "An identity attached to the resource that obtains tokens automatically, with no stored password" },
+        { "fr": "Un mot de passe généré puis stocké au coffre", "en": "A generated password then stored in the vault" }
+      ],
+      "answer": 1,
+      "explain_fr": "L'authentification sans mot de passe : Azure émet des jetons pour l'identité — le pilier machine du Zero Trust (vérifier explicitement, sans secret partagé).",
+      "explain_en": "Passwordless authentication: Azure issues tokens for the identity — the machine pillar of Zero Trust (verify explicitly, no shared secret)."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi les clés d'accès partagées (Full) d'un compte de stockage sont-elles un anti-pattern ?",
+      "q_en": "Why are a storage account's shared access keys (Full) an anti-pattern ?",
+      "choices": [
+        { "fr": "Elles expirent trop rapidement", "en": "They expire too quickly" },
+        { "fr": "Elles ne fonctionnent qu'avec une identité managée", "en": "They only work with a managed identity" },
+        { "fr": "Un passe permanent, total, sans identité, sans trace ni expiration ; préférer identité managée + RBAC ou SAS limitée", "en": "A permanent, total pass, with no identity, no trace and no expiry; prefer managed identity + RBAC or a limited SAS" }
+      ],
+      "answer": 2,
+      "explain_fr": "Quiconque détient key1 a un accès total, sans identité ni trace. Si tu dois garder une clé, mets-la au coffre et fais-la tourner (deux clés = rotation).",
+      "explain_en": "Whoever holds key1 has full access, with no identity or trace. If you must keep a key, put it in the vault and rotate it (two keys = rotation)."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quel est le principe d'un NSG en « refus par défaut » ?",
+      "q_en": "What is the principle of a \"deny by default\" NSG ?",
+      "choices": [
+        { "fr": "N'autoriser explicitement que le nécessaire (ex. HTTPS 443) ; tout le reste est refusé", "en": "Explicitly allow only what's needed (e.g. HTTPS 443); everything else is denied" },
+        { "fr": "Autoriser tout sauf ce qui est explicitement refusé", "en": "Allow everything except what's explicitly denied" },
+        { "fr": "Refuser tout trafic, y compris celui autorisé", "en": "Deny all traffic, including the allowed one" }
+      ],
+      "answer": 0,
+      "explain_fr": "Zero Trust : le NSG n'autorise que HTTPS depuis Internet et refuse le SSH ; tout ce qui n'est pas autorisé est refusé par la règle implicite d'Azure.",
+      "explain_en": "Zero Trust: the NSG only allows HTTPS from the Internet and denies SSH; anything not allowed is denied by Azure's implicit rule."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que fait un scanner policy-as-code (`checkov`) face à une config dangereuse (SSH ouvert au monde) ?",
+      "q_en": "What does a policy-as-code scanner (`checkov`) do with a dangerous config (SSH open to the world) ?",
+      "choices": [
+        { "fr": "Il la corrige automatiquement", "en": "It fixes it automatically" },
+        { "fr": "Il échoue (`Failed checks ≥ 1`) et bloque la config avant déploiement ; en prod, Azure Policy refuse la création", "en": "It fails (`Failed checks ≥ 1`) and blocks the config before deployment; in prod, Azure Policy refuses creation" },
+        { "fr": "Il l'ignore et déploie quand même", "en": "It ignores it and deploys anyway" }
+      ],
+      "answer": 1,
+      "explain_fr": "La policy-as-code fait de la sécurité une règle automatique : le garde-fou attrape la config avant le déploiement. Azure Policy joue ce rôle côté plateforme.",
+      "explain_en": "Policy-as-code makes security an automatic rule: the guardrail catches the config before deployment. Azure Policy plays this role on the platform side."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Qu'est-ce que la défense en profondeur ?",
+      "q_en": "What is defense in depth ?",
+      "choices": [
+        { "fr": "Une seule couche très robuste suffit", "en": "A single very robust layer is enough" },
+        { "fr": "Chiffrer uniquement les données", "en": "Encrypting only the data" },
+        { "fr": "Superposer des couches indépendantes (identité, réseau, données, gouvernance) : compromettre l'une ne donne pas les autres", "en": "Stacking independent layers (identity, network, data, governance): compromising one doesn't grant the others" }
+      ],
+      "answer": 2,
+      "explain_fr": "Chaque couche est indépendante : compromettre le réseau ne donne pas le secret (au coffre) ; voler une identité sans droit ne sert à rien (moindre privilège).",
+      "explain_en": "Each layer is independent: compromising the network doesn't grant the secret (in the vault); stealing an identity with no rights is useless (least privilege)."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "À quoi sert le secure score (Defender for Cloud) ?",
+      "q_en": "What is the secure score (Defender for Cloud) for ?",
+      "choices": [
+        { "fr": "Noter en % la conformité à une ligne de base et prioriser les recommandations", "en": "Score conformance to a baseline as a % and prioritize recommendations" },
+        { "fr": "Chiffrer automatiquement les ressources", "en": "Automatically encrypt resources" },
+        { "fr": "Remplacer les NSG", "en": "Replace the NSGs" }
+      ],
+      "answer": 0,
+      "explain_fr": "On ne sécurise pas « au ressenti » : la ligne de base liste les contrôles attendus, le secure score note la conformité et pointe la prochaine recommandation.",
+      "explain_en": "You don't secure \"by feel\": the baseline lists expected controls, the secure score rates conformance and points to the next recommendation."
+    }
+  ]
+}

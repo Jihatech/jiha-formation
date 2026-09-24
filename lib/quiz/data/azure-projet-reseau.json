@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quelle est la première décision de conception hub-and-spoke, avant tout déploiement ?",
+      "q_en": "What is the first hub-and-spoke design decision, before any deployment ?",
+      "choices": [
+        { "fr": "Choisir l'équilibreur de charge", "en": "Choosing the load balancer" },
+        { "fr": "Fermer l'accès public du PaaS", "en": "Closing the PaaS's public access" },
+        { "fr": "Planifier un adressage disjoint (hub `10.0.0.0/16`, spoke `10.1.0.0/16`) sans chevauchement, condition du peering", "en": "Planning a disjoint addressing (hub `10.0.0.0/16`, spoke `10.1.0.0/16`) without overlap, a condition of peering" }
+      ],
+      "answer": 2,
+      "explain_fr": "Les plages disjointes sont la condition absolue du peering (et de tout le reste). C'est la première décision, prise avant de déployer quoi que ce soit.",
+      "explain_en": "Disjoint ranges are the absolute condition of peering (and everything else). It's the first decision, made before deploying anything."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi le hub reçoit-il un sous-réseau `AzureFirewallSubnet` (nom obligatoire) ?",
+      "q_en": "Why does the hub get an `AzureFirewallSubnet` subnet (mandatory name) ?",
+      "choices": [
+        { "fr": "C'est un sous-réseau spécial au nom obligatoire, réservé au pare-feu que portera le hub", "en": "It's a special subnet with a mandatory name, reserved for the firewall the hub will host" },
+        { "fr": "C'est un sous-réseau applicatif ordinaire", "en": "It's an ordinary application subnet" },
+        { "fr": "C'est le sous-réseau du point de terminaison privé", "en": "It's the private endpoint's subnet" }
+      ],
+      "answer": 0,
+      "explain_fr": "Du plan au réel : le hub (avec `AzureFirewallSubnet`) portera le pare-feu partagé, le spoke (avec `snet-app`) portera la charge. La topologie hub-and-spoke prend forme.",
+      "explain_en": "From plan to reality: the hub (with `AzureFirewallSubnet`) will host the shared firewall, the spoke (with `snet-app`) will host the workload. The hub-and-spoke topology takes shape."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi les services partagés (pare-feu, passerelle) vivent-ils au hub ?",
+      "q_en": "Why do shared services (firewall, gateway) live in the hub ?",
+      "choices": [
+        { "fr": "Parce que le hub est plus grand", "en": "Because the hub is larger" },
+        { "fr": "Parce que le peering est non transitif : les spokes accèdent aux services partagés du hub via le peering", "en": "Because peering is non-transitive: spokes access the hub's shared services via peering" },
+        { "fr": "Parce que les spokes ne peuvent pas héberger de sous-réseaux", "en": "Because spokes can't host subnets" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le peering relie le spoke au hub en privé, mais il est non transitif : tout ce qui doit être partagé (pare-feu, passerelle) vit au hub, et les spokes y accèdent via le peering.",
+      "explain_en": "Peering links the spoke to the hub privately, but it's non-transitive: everything to be shared (firewall, gateway) lives in the hub, and spokes access it via peering."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Comment le projet force-t-il tout l'egress du spoke par le pare-feu du hub ?",
+      "q_en": "How does the project force all the spoke's egress through the hub's firewall ?",
+      "choices": [
+        { "fr": "En supprimant le peering", "en": "By removing the peering" },
+        { "fr": "En fermant l'accès public du stockage", "en": "By closing the storage's public access" },
+        { "fr": "Une UDR `0.0.0.0/0` → pare-feu du hub (`10.0.0.4`) écrase la route système, le trafic intra-spoke `/16` restant local", "en": "A UDR `0.0.0.0/0` → hub firewall (`10.0.0.4`) overrides the system route, while intra-spoke `/16` traffic stays local" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le tunneling forcé : le pare-feu partagé du hub inspecte tout l'egress du spoke (UDR écrase la route système), sans casser le trafic interne (préfixe `/16` plus spécifique que `/0`).",
+      "explain_en": "Forced tunneling: the hub's shared firewall inspects all the spoke's egress (UDR overrides the system route), without breaking internal traffic (`/16` prefix more specific than `/0`)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Comment le PaaS est-il privatisé dans le projet ?",
+      "q_en": "How is the PaaS privatized in the project ?",
+      "choices": [
+        { "fr": "Une IP privée dans le spoke (point de terminaison privé) + zone DNS privatelink qui résout vers cette IP, avec fermeture de l'accès public", "en": "A private IP in the spoke (private endpoint) + a privatelink DNS zone resolving to that IP, with public access closed" },
+        { "fr": "Une IP publique avec un WAF devant", "en": "A public IP with a WAF in front" },
+        { "fr": "Un service endpoint gardant l'IP publique", "en": "A service endpoint keeping the public IP" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le stockage est hors d'Internet : IP privée dans `snet-app` + zone privatelink (intégration obligatoire) + accès public fermé. Joignable uniquement depuis le réseau (et l'on-prem via le hub).",
+      "explain_en": "The storage is off the Internet: private IP in `snet-app` + privatelink zone (mandatory integration) + public access closed. Reachable only from the network (and on-prem via the hub)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quel service de distribution est choisi pour la charge web régionale du spoke ?",
+      "q_en": "Which distribution service is chosen for the spoke's regional web workload ?",
+      "choices": [
+        { "fr": "Traffic Manager (DNS global)", "en": "Traffic Manager (global DNS)" },
+        { "fr": "Application Gateway (L7 régional, routage par chemin + WAF)", "en": "Application Gateway (L7 regional, path-based routing + WAF)" },
+        { "fr": "Azure Load Balancer (L4 uniquement)", "en": "Azure Load Balancer (L4 only)" }
+      ],
+      "answer": 1,
+      "explain_fr": "La carte complète : adressage disjoint, hub avec pare-feu, spoke applicatif, peering, tunneling forcé, accès privé au PaaS, et distribution L7 (App Gateway) pour le site régional.",
+      "explain_en": "The complete map: disjoint addressing, hub with firewall, app spoke, peering, forced tunneling, private PaaS access, and L7 distribution (App Gateway) for the regional site."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que contient le livrable final du projet réseau AZ-700 ?",
+      "q_en": "What does the final deliverable of the AZ-700 network project contain ?",
+      "choices": [
+        { "fr": "Uniquement un plan d'adressage", "en": "Only an address plan" },
+        { "fr": "Uniquement une passerelle VPN", "en": "Only a VPN gateway" },
+        { "fr": "Une topologie hub-and-spoke conçue et déployée (adressage, VNets, peering, routage, accès privé, distribution), avec schéma et fiche CV", "en": "A hub-and-spoke topology designed and deployed (addressing, VNets, peering, routing, private access, distribution), with a diagram and a CV sheet" }
+      ],
+      "answer": 2,
+      "explain_fr": "Preuves et pitch : une conception réseau d'entreprise segmentée, routée, privatisée, distribuée, déployée pour de vrai. Mets `CV.md` en avant et parle de chaque décision en entretien.",
+      "explain_en": "Evidence and pitch: an enterprise network design — segmented, routed, privatized, distributed — deployed for real. Highlight `CV.md` and speak to each decision in interviews."
+    }
+  ]
+}

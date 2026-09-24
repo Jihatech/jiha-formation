@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Que définit un `context` du kubeconfig ?",
+      "q_en": "What does a kubeconfig `context` define?",
+      "choices": [
+        { "fr": "Le triplet quel cluster / quel user / quel namespace — ton « adresse » de travail", "en": "The triple which cluster / which user / which namespace — your working \"address\"" },
+        { "fr": "Uniquement le mot de passe d'accès au cluster", "en": "Only the cluster access password" },
+        { "fr": "La version de Kubernetes du cluster cible", "en": "The Kubernetes version of the target cluster" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le context dit quel cluster, quel user et quel namespace. On bascule avec `kubectl config use-context` : à l'examen on jongle entre clusters, et un mauvais context fait modifier le mauvais cluster.",
+      "explain_en": "The context says which cluster, which user and which namespace. You switch with `kubectl config use-context`: in the exam you juggle clusters, and a wrong context changes the wrong cluster."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Depuis Kubernetes 1.24, comment obtenir un token pour un ServiceAccount ?",
+      "q_en": "Since Kubernetes 1.24, how do you obtain a token for a ServiceAccount?",
+      "choices": [
+        { "fr": "En lisant le Secret-token créé automatiquement à la création du SA", "en": "By reading the Secret token auto-created when the SA is created" },
+        { "fr": "Avec `kubectl create token <sa>`, car un SA ne génère plus de Secret-token automatiquement", "en": "With `kubectl create token <sa>`, because a SA no longer auto-generates a Secret token" },
+        { "fr": "Les ServiceAccounts n'ont pas de token, ils utilisent un mot de passe", "en": "ServiceAccounts have no token, they use a password" }
+      ],
+      "answer": 1,
+      "explain_fr": "Depuis 1.24, aucun Secret-token n'est créé automatiquement : on génère un JWT court-lived à la demande avec `kubectl create token`. Un pod porte l'identité du SA via `spec.serviceAccountName`.",
+      "explain_en": "Since 1.24, no Secret token is auto-created: you generate a short-lived JWT on demand with `kubectl create token`. A pod carries the SA identity via `spec.serviceAccountName`."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Un `Role` pod-reader dans `ops` (verbes get/list/watch) est lié au SA `deployer`. Que renvoie `auth can-i delete pods -n ops` pour ce SA ?",
+      "q_en": "A `Role` pod-reader in `ops` (verbs get/list/watch) is bound to the `deployer` SA. What does `auth can-i delete pods -n ops` return for that SA?",
+      "choices": [
+        { "fr": "`yes`, car lire des pods implique de pouvoir les supprimer", "en": "`yes`, because reading pods implies being able to delete them" },
+        { "fr": "`no` : le Role n'accorde que get/list/watch, et il est limité au namespace `ops`", "en": "`no`: the Role only grants get/list/watch, and it is scoped to the `ops` namespace" },
+        { "fr": "Une erreur, car `auth can-i` ne fonctionne pas avec `--as`", "en": "An error, because `auth can-i` doesn't work with `--as`" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le Role n'accorde que get/list/watch : `delete` renvoie `no`. Et il est namespacé sur `ops`, donc `list pods -n default` renvoie aussi `no`. C'est le moindre privilège ; `--as` teste l'identité d'un autre.",
+      "explain_en": "The Role only grants get/list/watch: `delete` returns `no`. And it's namespaced to `ops`, so `list pods -n default` also returns `no`. That's least privilege; `--as` tests another's identity."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi faut-il un ClusterRole + ClusterRoleBinding pour autoriser `deployer` à lister les nodes ?",
+      "q_en": "Why do you need a ClusterRole + ClusterRoleBinding to allow `deployer` to list nodes?",
+      "choices": [
+        { "fr": "Parce que les nodes sont une ressource non-namespacée (cluster) ; un Role/RoleBinding ne couvre qu'un namespace", "en": "Because nodes are a non-namespaced (cluster) resource; a Role/RoleBinding only covers one namespace" },
+        { "fr": "Parce que lister les nodes exige les droits root sur la machine", "en": "Because listing nodes requires root on the machine" },
+        { "fr": "Parce qu'un ClusterRole est simplement plus rapide qu'un Role", "en": "Because a ClusterRole is simply faster than a Role" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les nodes ne sont dans aucun namespace : seul un ClusterRole + ClusterRoleBinding peut accorder ce droit. Role/RoleBinding = un namespace ; ClusterRole/ClusterRoleBinding = tout le cluster et les ressources non-namespacées.",
+      "explain_en": "Nodes live in no namespace: only a ClusterRole + ClusterRoleBinding can grant this. Role/RoleBinding = one namespace; ClusterRole/ClusterRoleBinding = the whole cluster and non-namespaced resources."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quel est le rôle de `cordon` puis `drain` avant une maintenance de nœud, et quel flag est quasi obligatoire ?",
+      "q_en": "What do `cordon` then `drain` do before a node maintenance, and which flag is near-mandatory?",
+      "choices": [
+        { "fr": "`cordon` supprime le nœud, `drain` le recrée ; `--force` est requis", "en": "`cordon` deletes the node, `drain` recreates it; `--force` is required" },
+        { "fr": "`cordon` empêche de nouveaux pods d'y être planifiés, `drain` évacue ses pods vers d'autres nœuds ; `--ignore-daemonsets` est quasi obligatoire", "en": "`cordon` stops new pods being scheduled there, `drain` evicts its pods to other nodes; `--ignore-daemonsets` is near-mandatory" },
+        { "fr": "Les deux redémarrent le nœud ; aucun flag n'est nécessaire", "en": "Both restart the node; no flag is needed" }
+      ],
+      "answer": 1,
+      "explain_fr": "`cordon` marque le nœud `SchedulingDisabled`, `drain` évacue ses pods (recréés ailleurs) sans coupure. `--ignore-daemonsets` est requis (les DaemonSets ne se drainent pas) ; on finit par `uncordon`.",
+      "explain_en": "`cordon` marks the node `SchedulingDisabled`, `drain` evicts its pods (recreated elsewhere) without downtime. `--ignore-daemonsets` is required (DaemonSets don't drain); you finish with `uncordon`."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi la sauvegarde d'etcd est-elle vitale, et quels certificats la commande `etcdctl snapshot save` exige-t-elle ?",
+      "q_en": "Why is backing up etcd vital, and which certificates does `etcdctl snapshot save` require?",
+      "choices": [
+        { "fr": "etcd ne stocke que les logs ; la commande n'exige aucun certificat", "en": "etcd only stores logs; the command requires no certificate" },
+        { "fr": "etcd stocke tout l'état du cluster ; la sauvegarde exige `--endpoints`, `--cacert`, `--cert` et `--key`", "en": "etcd stores all cluster state; the backup requires `--endpoints`, `--cacert`, `--cert` and `--key`" },
+        { "fr": "etcd est optionnel ; la commande fonctionne pareil sur k3d par défaut", "en": "etcd is optional; the command works the same on default k3d" }
+      ],
+      "answer": 1,
+      "explain_fr": "etcd contient tout l'état : le perdre, c'est perdre le cluster. `etcdctl snapshot save` a besoin des quatre paramètres TLS (certs dans `/etc/kubernetes/pki/etcd/`). Sur k3s c'est SQLite ou `k3s etcd-snapshot`.",
+      "explain_en": "etcd holds all state: losing it means losing the cluster. `etcdctl snapshot save` needs the four TLS parameters (certs in `/etc/kubernetes/pki/etcd/`). On k3s it's SQLite or `k3s etcd-snapshot`."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Un pod est en `ImagePullBackOff`. Quelle démarche donne la cause exacte ?",
+      "q_en": "A pod is in `ImagePullBackOff`. Which method gives the exact cause?",
+      "choices": [
+        { "fr": "Supprimer et recréer le pod jusqu'à ce que ça marche", "en": "Delete and recreate the pod until it works" },
+        { "fr": "Lire seulement `kubectl logs`, qui indique toujours la cause", "en": "Read only `kubectl logs`, which always shows the cause" },
+        { "fr": "Remonter la piste : `get` (symptôme) → `describe` (events, ici « Failed to pull image … not found ») → `logs` si le conteneur a démarré", "en": "Follow the trail: `get` (symptom) → `describe` (events, here \"Failed to pull image … not found\") → `logs` if the container started" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le diagnostic est une méthode : le symptôme (`get`) oriente, les events de `describe` donnent la cause. Ici `logs` ne dit rien (conteneur jamais démarré). On ne devine pas.",
+      "explain_en": "Diagnosis is a method: the symptom (`get`) points you, `describe`'s events give the cause. Here `logs` says nothing (container never started). You don't guess."
+    }
+  ]
+}

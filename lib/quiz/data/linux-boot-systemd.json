@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quel est le processus PID 1 sur un système Linux moderne, celui d'où descendent tous les autres ?",
+      "q_en": "What is process PID 1 on a modern Linux system, the one all others descend from?",
+      "choices": [
+        { "fr": "GRUB, le chargeur de démarrage", "en": "GRUB, the bootloader" },
+        { "fr": "Le noyau (kernel) lui-même", "en": "The kernel itself" },
+        { "fr": "systemd, l'init lancé par le noyau", "en": "systemd, the init started by the kernel" }
+      ],
+      "answer": 2,
+      "explain_fr": "La chaîne est firmware → GRUB → noyau → systemd → target. systemd est le PID 1 (l'init) qui orchestre tout le démarrage ; GRUB et le noyau interviennent avant lui et ne sont pas PID 1.",
+      "explain_en": "The chain is firmware → GRUB → kernel → systemd → target. systemd is PID 1 (the init) that orchestrates the whole boot; GRUB and the kernel act before it and are not PID 1."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Après avoir créé ou modifié un fichier .service, quelle commande est indispensable pour que systemd le prenne en compte ?",
+      "q_en": "After creating or modifying a .service file, which command is mandatory for systemd to pick it up?",
+      "choices": [
+        { "fr": "systemctl start hello", "en": "systemctl start hello" },
+        { "fr": "systemctl daemon-reload", "en": "systemctl daemon-reload" },
+        { "fr": "systemctl enable hello", "en": "systemctl enable hello" }
+      ],
+      "answer": 1,
+      "explain_fr": "daemon-reload force systemd à relire les fichiers d'unit ; sans lui, systemd ne « voit » pas la création ou la modification. start lance le service et enable l'attache au boot, mais aucun ne recharge les définitions.",
+      "explain_en": "daemon-reload makes systemd re-read the unit files; without it, systemd doesn't \"see\" the creation or change. start launches the service and enable attaches it to boot, but neither reloads the definitions."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quelle est la différence entre `systemctl disable` et `systemctl mask` sur un service ?",
+      "q_en": "What is the difference between `systemctl disable` and `systemctl mask` on a service?",
+      "choices": [
+        { "fr": "disable retire le démarrage auto mais on peut encore le lancer à la main ; mask l'interdit totalement (lien vers /dev/null)", "en": "disable removes auto-start but you can still launch it by hand; mask forbids it entirely (link to /dev/null)" },
+        { "fr": "disable et mask font exactement la même chose", "en": "disable and mask do exactly the same thing" },
+        { "fr": "mask ne retire que du boot, disable interdit tout lancement", "en": "mask only removes it from boot, disable forbids any launch" }
+      ],
+      "answer": 0,
+      "explain_fr": "Échelle croissante : start/stop (maintenant) < enable/disable (au boot) < mask/unmask (interdiction totale). mask crée un lien vers /dev/null : même un start manuel est refusé (« Unit is masked »), ce que disable autorise encore.",
+      "explain_en": "Increasing scale: start/stop (now) < enable/disable (at boot) < mask/unmask (total ban). mask creates a link to /dev/null: even a manual start is refused (\"Unit is masked\"), which disable still allows."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quelle option de `journalctl` restreint l'affichage aux logs d'un seul service donné ?",
+      "q_en": "Which `journalctl` option restricts the output to the logs of a single given service?",
+      "choices": [
+        { "fr": "-f, le suivi temps réel", "en": "-f, live follow" },
+        { "fr": "-p err, le filtre par priorité", "en": "-p err, filter by priority" },
+        { "fr": "-u hello, le filtre par unité", "en": "-u hello, filter by unit" }
+      ],
+      "answer": 2,
+      "explain_fr": "-u <unit> cible une unité précise et n'affiche que ses lignes. Les filtres se combinent : -b (ce boot), --since (fenêtre), -p (priorité), -f (suivi direct). L'art du diagnostic est de cibler unité, période et gravité.",
+      "explain_en": "-u <unit> targets a specific unit and shows only its lines. Filters combine: -b (this boot), --since (window), -p (priority), -f (live follow). The diagnostic art is targeting unit, period and severity."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quel signal envoies-tu en PREMIER pour arrêter proprement un processus, en lui laissant le temps de nettoyer ?",
+      "q_en": "Which signal do you send FIRST to stop a process cleanly, letting it clean up?",
+      "choices": [
+        { "fr": "SIGKILL (9), le couperet ininterceptable", "en": "SIGKILL (9), the uncatchable guillotine" },
+        { "fr": "SIGTERM (15), l'arrêt poli (défaut de kill)", "en": "SIGTERM (15), the polite stop (kill's default)" },
+        { "fr": "SIGHUP (1), le rechargement de config", "en": "SIGHUP (1), config reload" }
+      ],
+      "answer": 1,
+      "explain_fr": "SIGTERM (15), le défaut de kill, demande poliment l'arrêt : le processus peut intercepter le signal et nettoyer. SIGKILL (9) est le dernier recours, brutal et ininterceptable, quand un process est bloqué.",
+      "explain_en": "SIGTERM (15), kill's default, politely asks to stop: the process can catch the signal and clean up. SIGKILL (9) is the last resort, brutal and uncatchable, when a process is stuck."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Dans une ligne cron `* * * * * commande`, que représentent les cinq champs, dans l'ordre ?",
+      "q_en": "In a cron line `* * * * * command`, what do the five fields represent, in order?",
+      "choices": [
+        { "fr": "minute, heure, jour-du-mois, mois, jour-de-semaine", "en": "minute, hour, day-of-month, month, day-of-week" },
+        { "fr": "heure, minute, jour, mois, année", "en": "hour, minute, day, month, year" },
+        { "fr": "seconde, minute, heure, jour, mois", "en": "second, minute, hour, day, month" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les cinq champs cron sont minute, heure, jour-du-mois, mois, jour-de-semaine, suivis de la commande. `* * * * *` = chaque minute. Il n'y a pas de champ seconde ni année dans une crontab standard.",
+      "explain_en": "The five cron fields are minute, hour, day-of-month, month, day-of-week, followed by the command. `* * * * *` = every minute. There is no second or year field in a standard crontab."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quelle est la particularité d'une tâche planifiée avec `at`, par rapport à cron ou à un timer systemd ?",
+      "q_en": "What is special about a task scheduled with `at`, compared to cron or a systemd timer?",
+      "choices": [
+        { "fr": "Elle se répète automatiquement chaque minute", "en": "It repeats automatically every minute" },
+        { "fr": "Elle ne s'exécute qu'au démarrage de la machine", "en": "It only runs at machine boot" },
+        { "fr": "Elle s'exécute une seule fois, à l'heure dite", "en": "It runs exactly once, at the given time" }
+      ],
+      "answer": 2,
+      "explain_fr": "at planifie une tâche PONCTUELLE : elle s'exécute une seule fois à l'échéance (atq montre la file d'attente). cron et les timers systemd sont, eux, récurrents. Ce sont les trois mécanismes de planification du LPIC-1.",
+      "explain_en": "at schedules a ONE-OFF task: it runs a single time at the deadline (atq shows the queue). cron and systemd timers, by contrast, are recurring. These are the three LPIC-1 scheduling mechanisms."
+    }
+  ]
+}

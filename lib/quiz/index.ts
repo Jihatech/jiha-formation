@@ -1,26 +1,184 @@
 import type { GuideQuiz } from "./types";
+import ansibleAdministrationSysteme from "./data/ansible-administration-systeme.json";
+import ansibleFondamentaux from "./data/ansible-fondamentaux.json";
+import ansibleInventaireConfiguration from "./data/ansible-inventaire-configuration.json";
+import ansibleProjetEntreprise from "./data/ansible-projet-entreprise.json";
+import ansibleRolesCollections from "./data/ansible-roles-collections.json";
+import ansibleTachesAvancees from "./data/ansible-taches-avancees.json";
+import ansibleVariablesFactsTemplates from "./data/ansible-variables-facts-templates.json";
+import ansibleVault from "./data/ansible-vault.json";
 import artOfCommandLine from "./data/art-of-command-line.json";
-import gitFondamentaux from "./data/git-fondamentaux.json";
-import dockerFondamentaux from "./data/docker-fondamentaux.json";
+import awsComputeEc2Lambda from "./data/aws-compute-ec2-lambda.json";
+import awsDecouplageMessagerie from "./data/aws-decouplage-messagerie.json";
+import awsFondamentaux from "./data/aws-fondamentaux.json";
+import awsIamSecurite from "./data/aws-iam-securite.json";
+import awsPasserEnReel from "./data/aws-passer-en-reel.json";
+import awsProjetEntreprise from "./data/aws-projet-entreprise.json";
+import awsReseauVpc from "./data/aws-reseau-vpc.json";
+import awsStockageS3 from "./data/aws-stockage-s3.json";
+import azureArchitectureWellArchitected from "./data/azure-architecture-well-architected.json";
+import azureCalcul from "./data/azure-calcul.json";
+import azureConceptionDonnees from "./data/azure-conception-donnees.json";
+import azureConceptionInfrastructure from "./data/azure-conception-infrastructure.json";
+import azureContinuite from "./data/azure-continuite.json";
+import azureDevopsFondamentaux from "./data/azure-devops-fondamentaux.json";
+import azureDevsecops from "./data/azure-devsecops.json";
+import azureFondamentaux from "./data/azure-fondamentaux.json";
+import azureIacPipelines from "./data/azure-iac-pipelines.json";
+import azureIdentiteGouvernance from "./data/azure-identite-gouvernance.json";
+import azurePasserEnReel from "./data/azure-passer-en-reel.json";
+import azurePipelinesCicd from "./data/azure-pipelines-cicd.json";
+import azureProjetArchitecte from "./data/azure-projet-architecte.json";
+import azureProjetDevops from "./data/azure-projet-devops.json";
+import azureProjetEntreprise from "./data/azure-projet-entreprise.json";
+import azureProjetReseau from "./data/azure-projet-reseau.json";
+import azureProjetSecurite from "./data/azure-projet-securite.json";
+import azureReseau from "./data/azure-reseau.json";
+import azureReseauAccesPrive from "./data/azure-reseau-acces-prive.json";
+import azureReseauDistribution from "./data/azure-reseau-distribution.json";
+import azureReseauFondamentaux from "./data/azure-reseau-fondamentaux.json";
+import azureReseauHybride from "./data/azure-reseau-hybride.json";
+import azureReseauRoutage from "./data/azure-reseau-routage.json";
+import azureSecuriteDonnees from "./data/azure-securite-donnees.json";
+import azureSecuriteFondamentaux from "./data/azure-securite-fondamentaux.json";
+import azureSecuriteIdentite from "./data/azure-securite-identite.json";
+import azureSecuriteOperations from "./data/azure-securite-operations.json";
+import azureSecuriteReseau from "./data/azure-securite-reseau.json";
+import azureStockage from "./data/azure-stockage.json";
+import azureSupervisionLivraison from "./data/azure-supervision-livraison.json";
+import capstoneHomelab from "./data/capstone-homelab.json";
+import cicdGithubActions from "./data/cicd-github-actions.json";
 import dockerCompose from "./data/docker-compose.json";
+import dockerFondamentaux from "./data/docker-fondamentaux.json";
+import dockerImagesDockerfile from "./data/docker-images-dockerfile.json";
+import dockerProjetEntreprise from "./data/docker-projet-entreprise.json";
+import dockerReseau from "./data/docker-reseau.json";
+import dockerSecurite from "./data/docker-securite.json";
+import dockerStockage from "./data/docker-stockage.json";
+import dockerSwarm from "./data/docker-swarm.json";
+import gcpFondamentaux from "./data/gcp-fondamentaux.json";
+import gcpIamTerraform from "./data/gcp-iam-terraform.json";
+import gcpMessagerie from "./data/gcp-messagerie.json";
+import gcpPasserEnReel from "./data/gcp-passer-en-reel.json";
+import gcpProjetEntreprise from "./data/gcp-projet-entreprise.json";
+import gcpStockage from "./data/gcp-stockage.json";
+import gitFondamentaux from "./data/git-fondamentaux.json";
+import immich from "./data/immich.json";
+import kubernetesClusterOpsRbac from "./data/kubernetes-cluster-ops-rbac.json";
+import kubernetesFondamentaux from "./data/kubernetes-fondamentaux.json";
+import kubernetesProjetEntreprise from "./data/kubernetes-projet-entreprise.json";
+import kubernetesServicesNetworking from "./data/kubernetes-services-networking.json";
+import kubernetesStockage from "./data/kubernetes-stockage.json";
+import kubernetesWorkloadsScheduling from "./data/kubernetes-workloads-scheduling.json";
+import linuxBootSystemd from "./data/linux-boot-systemd.json";
+import linuxFichiersDisques from "./data/linux-fichiers-disques.json";
+import linuxFondamentaux from "./data/linux-fondamentaux.json";
+import linuxPaquets from "./data/linux-paquets.json";
+import linuxProjetEntreprise from "./data/linux-projet-entreprise.json";
+import linuxReseauSecurite from "./data/linux-reseau-securite.json";
+import linuxScriptingBash from "./data/linux-scripting-bash.json";
+import linuxUtilisateursPermissions from "./data/linux-utilisateurs-permissions.json";
+import monitoring from "./data/monitoring.json";
+import terraformComposition from "./data/terraform-composition.json";
+import terraformFondamentaux from "./data/terraform-fondamentaux.json";
+import terraformModules from "./data/terraform-modules.json";
+import terraformProjetEntreprise from "./data/terraform-projet-entreprise.json";
+import terraformStateAvance from "./data/terraform-state-avance.json";
 import traefik from "./data/traefik.json";
 import vaultwarden from "./data/vaultwarden.json";
-import immich from "./data/immich.json";
-import monitoring from "./data/monitoring.json";
 
 // Registre des quiz par guide_id (id stable du manifeste). Les guides sans quiz
 // dégradent en « confirmation d'étape » séquentielle côté UI.
-// TODO (source unique) : à terme, migrer les questions dans les fichiers-guides
-// de JIHA-Learn (nouvelle directive du template) plutôt qu'ici.
+// Généré : un fichier lib/quiz/data/<guide_id>.json par guide, un QCM bilingue
+// par étape. Voir scripts/check-quizzes.mts pour la validation.
 const registry: Record<string, GuideQuiz> = {
+  "ansible-administration-systeme": ansibleAdministrationSysteme as GuideQuiz,
+  "ansible-fondamentaux": ansibleFondamentaux as GuideQuiz,
+  "ansible-inventaire-configuration": ansibleInventaireConfiguration as GuideQuiz,
+  "ansible-projet-entreprise": ansibleProjetEntreprise as GuideQuiz,
+  "ansible-roles-collections": ansibleRolesCollections as GuideQuiz,
+  "ansible-taches-avancees": ansibleTachesAvancees as GuideQuiz,
+  "ansible-variables-facts-templates": ansibleVariablesFactsTemplates as GuideQuiz,
+  "ansible-vault": ansibleVault as GuideQuiz,
   "art-of-command-line": artOfCommandLine as GuideQuiz,
-  "git-fondamentaux": gitFondamentaux as GuideQuiz,
-  "docker-fondamentaux": dockerFondamentaux as GuideQuiz,
+  "aws-compute-ec2-lambda": awsComputeEc2Lambda as GuideQuiz,
+  "aws-decouplage-messagerie": awsDecouplageMessagerie as GuideQuiz,
+  "aws-fondamentaux": awsFondamentaux as GuideQuiz,
+  "aws-iam-securite": awsIamSecurite as GuideQuiz,
+  "aws-passer-en-reel": awsPasserEnReel as GuideQuiz,
+  "aws-projet-entreprise": awsProjetEntreprise as GuideQuiz,
+  "aws-reseau-vpc": awsReseauVpc as GuideQuiz,
+  "aws-stockage-s3": awsStockageS3 as GuideQuiz,
+  "azure-architecture-well-architected": azureArchitectureWellArchitected as GuideQuiz,
+  "azure-calcul": azureCalcul as GuideQuiz,
+  "azure-conception-donnees": azureConceptionDonnees as GuideQuiz,
+  "azure-conception-infrastructure": azureConceptionInfrastructure as GuideQuiz,
+  "azure-continuite": azureContinuite as GuideQuiz,
+  "azure-devops-fondamentaux": azureDevopsFondamentaux as GuideQuiz,
+  "azure-devsecops": azureDevsecops as GuideQuiz,
+  "azure-fondamentaux": azureFondamentaux as GuideQuiz,
+  "azure-iac-pipelines": azureIacPipelines as GuideQuiz,
+  "azure-identite-gouvernance": azureIdentiteGouvernance as GuideQuiz,
+  "azure-passer-en-reel": azurePasserEnReel as GuideQuiz,
+  "azure-pipelines-cicd": azurePipelinesCicd as GuideQuiz,
+  "azure-projet-architecte": azureProjetArchitecte as GuideQuiz,
+  "azure-projet-devops": azureProjetDevops as GuideQuiz,
+  "azure-projet-entreprise": azureProjetEntreprise as GuideQuiz,
+  "azure-projet-reseau": azureProjetReseau as GuideQuiz,
+  "azure-projet-securite": azureProjetSecurite as GuideQuiz,
+  "azure-reseau": azureReseau as GuideQuiz,
+  "azure-reseau-acces-prive": azureReseauAccesPrive as GuideQuiz,
+  "azure-reseau-distribution": azureReseauDistribution as GuideQuiz,
+  "azure-reseau-fondamentaux": azureReseauFondamentaux as GuideQuiz,
+  "azure-reseau-hybride": azureReseauHybride as GuideQuiz,
+  "azure-reseau-routage": azureReseauRoutage as GuideQuiz,
+  "azure-securite-donnees": azureSecuriteDonnees as GuideQuiz,
+  "azure-securite-fondamentaux": azureSecuriteFondamentaux as GuideQuiz,
+  "azure-securite-identite": azureSecuriteIdentite as GuideQuiz,
+  "azure-securite-operations": azureSecuriteOperations as GuideQuiz,
+  "azure-securite-reseau": azureSecuriteReseau as GuideQuiz,
+  "azure-stockage": azureStockage as GuideQuiz,
+  "azure-supervision-livraison": azureSupervisionLivraison as GuideQuiz,
+  "capstone-homelab": capstoneHomelab as GuideQuiz,
+  "cicd-github-actions": cicdGithubActions as GuideQuiz,
   "docker-compose": dockerCompose as GuideQuiz,
-  traefik: traefik as GuideQuiz,
-  vaultwarden: vaultwarden as GuideQuiz,
-  immich: immich as GuideQuiz,
-  monitoring: monitoring as GuideQuiz,
+  "docker-fondamentaux": dockerFondamentaux as GuideQuiz,
+  "docker-images-dockerfile": dockerImagesDockerfile as GuideQuiz,
+  "docker-projet-entreprise": dockerProjetEntreprise as GuideQuiz,
+  "docker-reseau": dockerReseau as GuideQuiz,
+  "docker-securite": dockerSecurite as GuideQuiz,
+  "docker-stockage": dockerStockage as GuideQuiz,
+  "docker-swarm": dockerSwarm as GuideQuiz,
+  "gcp-fondamentaux": gcpFondamentaux as GuideQuiz,
+  "gcp-iam-terraform": gcpIamTerraform as GuideQuiz,
+  "gcp-messagerie": gcpMessagerie as GuideQuiz,
+  "gcp-passer-en-reel": gcpPasserEnReel as GuideQuiz,
+  "gcp-projet-entreprise": gcpProjetEntreprise as GuideQuiz,
+  "gcp-stockage": gcpStockage as GuideQuiz,
+  "git-fondamentaux": gitFondamentaux as GuideQuiz,
+  "immich": immich as GuideQuiz,
+  "kubernetes-cluster-ops-rbac": kubernetesClusterOpsRbac as GuideQuiz,
+  "kubernetes-fondamentaux": kubernetesFondamentaux as GuideQuiz,
+  "kubernetes-projet-entreprise": kubernetesProjetEntreprise as GuideQuiz,
+  "kubernetes-services-networking": kubernetesServicesNetworking as GuideQuiz,
+  "kubernetes-stockage": kubernetesStockage as GuideQuiz,
+  "kubernetes-workloads-scheduling": kubernetesWorkloadsScheduling as GuideQuiz,
+  "linux-boot-systemd": linuxBootSystemd as GuideQuiz,
+  "linux-fichiers-disques": linuxFichiersDisques as GuideQuiz,
+  "linux-fondamentaux": linuxFondamentaux as GuideQuiz,
+  "linux-paquets": linuxPaquets as GuideQuiz,
+  "linux-projet-entreprise": linuxProjetEntreprise as GuideQuiz,
+  "linux-reseau-securite": linuxReseauSecurite as GuideQuiz,
+  "linux-scripting-bash": linuxScriptingBash as GuideQuiz,
+  "linux-utilisateurs-permissions": linuxUtilisateursPermissions as GuideQuiz,
+  "monitoring": monitoring as GuideQuiz,
+  "terraform-composition": terraformComposition as GuideQuiz,
+  "terraform-fondamentaux": terraformFondamentaux as GuideQuiz,
+  "terraform-modules": terraformModules as GuideQuiz,
+  "terraform-projet-entreprise": terraformProjetEntreprise as GuideQuiz,
+  "terraform-state-avance": terraformStateAvance as GuideQuiz,
+  "traefik": traefik as GuideQuiz,
+  "vaultwarden": vaultwarden as GuideQuiz,
 };
 
 export function getGuideQuiz(guideId: string): GuideQuiz | null {

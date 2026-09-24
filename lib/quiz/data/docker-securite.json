@@ -1,0 +1,86 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Par défaut, sous quel utilisateur tourne un conteneur, et pourquoi est-ce un problème de sécurité ?",
+      "q_en": "By default, as which user does a container run, and why is that a security problem?",
+      "choices": [
+        { "fr": "En root (uid=0) : un attaquant qui compromet l'app hérite des droits root", "en": "As root (uid=0): an attacker who compromises the app inherits root rights" },
+        { "fr": "En uid=1000 : c'est sûr, aucun durcissement nécessaire", "en": "As uid=1000: it's safe, no hardening needed" },
+        { "fr": "Sous un utilisateur aléatoire recréé à chaque run", "en": "As a random user recreated at each run" }
+      ],
+      "answer": 0,
+      "explain_fr": "docker run alpine id montre uid=0(root) par défaut. Un service compromis en root risque une évasion vers l'hôte. On corrige avec --user au run ou USER dans l'image : un service ne doit jamais tourner en root.",
+      "explain_en": "docker run alpine id shows uid=0(root) by default. A service compromised as root risks an escape to the host. Fix it with --user at run or USER in the image: a service must never run as root."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quelle stratégie de moindre privilège applique-t-on aux capabilities Linux d'un conteneur ?",
+      "q_en": "What least-privilege strategy do you apply to a container's Linux capabilities?",
+      "choices": [
+        { "fr": "Garder toutes les capabilities par défaut, elles sont sûres", "en": "Keep all default capabilities, they are safe" },
+        { "fr": "Partir de --cap-drop ALL puis --cap-add uniquement le strict nécessaire", "en": "Start from --cap-drop ALL then --cap-add only the strict minimum" },
+        { "fr": "Ajouter systématiquement --privileged pour éviter les erreurs", "en": "Always add --privileged to avoid errors" }
+      ],
+      "answer": 1,
+      "explain_fr": "On part de zéro avec --cap-drop ALL, ce qui fait échouer une opération privilégiée comme chown, puis on rajoute seulement la capability nécessaire (--cap-add CHOWN). Un conteneur web n'a besoin de quasiment aucune capability.",
+      "explain_en": "Start from zero with --cap-drop ALL, which makes a privileged operation like chown fail, then add back only the needed capability (--cap-add CHOWN). A web container needs almost no capabilities."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Avec `--read-only`, comment autorise-t-on les rares écritures dont l'application a besoin (ex. /tmp) ?",
+      "q_en": "With `--read-only`, how do you allow the rare writes the application needs (e.g. /tmp)?",
+      "choices": [
+        { "fr": "En repassant tout le conteneur en écriture avec --privileged", "en": "By making the whole container writable again with --privileged" },
+        { "fr": "C'est impossible : --read-only interdit toute écriture définitivement", "en": "It's impossible: --read-only forbids any write permanently" },
+        { "fr": "En ajoutant un --tmpfs sur le chemin concerné, seul inscriptible et en RAM", "en": "By adding a --tmpfs on that path, the only writable one, in RAM" }
+      ],
+      "answer": 2,
+      "explain_fr": "Sous --read-only le rootfs est figé (touch échoue). On ajoute --tmpfs /tmp pour rendre uniquement /tmp inscriptible, en RAM. C'est le motif d'immuabilité : rootfs figé + zones d'écriture explicitement délimitées.",
+      "explain_en": "Under --read-only the rootfs is frozen (touch fails). You add --tmpfs /tmp to make only /tmp writable, in RAM. That's the immutability pattern: frozen rootfs + explicitly delimited write zones."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "À quoi sert de poser `--memory`, `--cpus` et `--pids-limit` sur un conteneur ?",
+      "q_en": "What is the purpose of setting `--memory`, `--cpus` and `--pids-limit` on a container?",
+      "choices": [
+        { "fr": "À protéger l'hôte : un conteneur ne peut pas consommer plus que sa part (anti-DoS)", "en": "To protect the host: a container can't consume more than its share (anti-DoS)" },
+        { "fr": "À accélérer le conteneur en lui réservant du matériel", "en": "To speed up the container by reserving hardware for it" },
+        { "fr": "À chiffrer la mémoire et le CPU du conteneur", "en": "To encrypt the container's memory and CPU" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sans limites, un conteneur peut asphyxier l'hôte. --memory, --cpus et --pids-limit bornent sa part de RAM, CPU et processus : la démo --pids-limit=5 bloque une fork bomb (can't fork). C'est la protection anti-DoS, essentielle en multi-tenant.",
+      "explain_en": "Without limits, a container can choke the host. --memory, --cpus and --pids-limit bound its share of RAM, CPU and processes: the --pids-limit=5 demo blocks a fork bomb (can't fork). That's anti-DoS protection, essential in multi-tenant setups."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi ne faut-il jamais passer un mot de passe via `-e DB_PASSWORD=...` (une variable d'environnement) ?",
+      "q_en": "Why should you never pass a password via `-e DB_PASSWORD=...` (an environment variable)?",
+      "choices": [
+        { "fr": "Parce que les variables d'environnement ralentissent le conteneur", "en": "Because environment variables slow the container down" },
+        { "fr": "Parce que le secret est stocké en clair, visible via docker inspect, /proc et les logs", "en": "Because the secret is stored in cleartext, visible via docker inspect, /proc and logs" },
+        { "fr": "Parce que Docker chiffre les ENV, rendant le mot de passe illisible par l'app", "en": "Because Docker encrypts ENVs, making the password unreadable by the app" }
+      ],
+      "answer": 1,
+      "explain_fr": "docker inspect affiche le secret en clair dans la config du conteneur, également lisible via /proc/<pid>/environ ou des logs. Les vraies solutions : secrets Docker (chiffrés, montés en fichier), secrets de build (--mount=type=secret) ou Vault.",
+      "explain_en": "docker inspect shows the secret in cleartext in the container config, also readable via /proc/<pid>/environ or logs. The real solutions: Docker secrets (encrypted, mounted as a file), build secrets (--mount=type=secret), or Vault."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que fait un scanner d'image comme Trivy ou `docker scout`, et que couvre en plus `DOCKER_CONTENT_TRUST=1` ?",
+      "q_en": "What does an image scanner like Trivy or `docker scout` do, and what does `DOCKER_CONTENT_TRUST=1` additionally cover?",
+      "choices": [
+        { "fr": "Le scanner signe l'image ; content trust en liste les CVE", "en": "The scanner signs the image; content trust lists its CVEs" },
+        { "fr": "Les deux servent uniquement à réduire la taille de l'image", "en": "Both only serve to reduce the image size" },
+        { "fr": "Le scanner liste les vulnérabilités (CVE) ; content trust impose de ne tirer que des images signées", "en": "The scanner lists vulnerabilities (CVEs); content trust enforces pulling only signed images" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un scanner affiche un tableau des CVE par sévérité — le réflexe avant la prod. DOCKER_CONTENT_TRUST=1 impose de ne tirer/lancer que des images signées (authenticité + intégrité). Scanner (les failles) et signer (l'authenticité) sont les deux volets de la confiance dans les images.",
+      "explain_en": "A scanner shows a CVE table by severity — the reflex before prod. DOCKER_CONTENT_TRUST=1 enforces pulling/running only signed images (authenticity + integrity). Scanning (flaws) and signing (authenticity) are the two sides of image trust."
+    }
+  ]
+}

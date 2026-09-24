@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi séparer le dossier `infra/` (Terraform) du dossier `app/` (Python) dans la structure du projet ?",
+      "q_en": "Why separate the `infra/` (Terraform) folder from the `app/` (Python) folder in the project structure ?",
+      "choices": [
+        { "fr": "Parce que Terraform et Python ne peuvent pas coexister dans un même dépôt", "en": "Because Terraform and Python cannot coexist in the same repository" },
+        { "fr": "Pour distinguer l'infrastructure (la définition réelle) du code applicatif — un signal de maturité pour un recruteur", "en": "To distinguish the infrastructure (the real definition) from the application code — a maturity signal to a recruiter" },
+        { "fr": "Pour que le code Python s'exécute plus vite", "en": "So the Python code runs faster" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un vrai projet sépare l'infra (Terraform, la définition réelle du système) de l'app (Python, le code qui tourne). Cette séparation est un signal de maturité pour un recruteur. Le plan : producteur → Pub/Sub → travailleur → Datastore + Storage, avec fan-out analytique et dead-letter.",
+      "explain_en": "A real project separates infra (Terraform, the system's real definition) from app (Python, the running code). This separation is a maturity signal to a recruiter. The plan: producer → Pub/Sub → worker → Datastore + Storage, with analytics fan-out and dead-letter."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Dans l'infra Terraform, comment applique-t-on le moindre privilège aux comptes de service ?",
+      "q_en": "In the Terraform infra, how is least privilege applied to the service accounts ?",
+      "choices": [
+        { "fr": "En donnant `roles/owner` aux deux comptes pour simplifier", "en": "By giving `roles/owner` to both accounts to keep it simple" },
+        { "fr": "En n'accordant à chaque compte que les rôles nécessaires : le producteur peut seulement publier, le travailleur seulement s'abonner et écrire", "en": "By granting each account only the needed roles: the producer can only publish, the worker only subscribe and write" },
+        { "fr": "En n'accordant aucun rôle, les comptes héritant automatiquement des droits", "en": "By granting no role, the accounts inheriting rights automatically" }
+      ],
+      "answer": 1,
+      "explain_fr": "Chaque compte de service n'a que ce qu'il lui faut : le producteur a `pubsub.publisher` (publier seulement), le travailleur `pubsub.subscriber` + `datastore.user` + `storage.objectAdmin`. On décrit tout en IaC versionnable et revue en PR ; `validate` vérifie la forme sans compte.",
+      "explain_en": "Each service account has only what it needs: the producer has `pubsub.publisher` (publish only), the worker `pubsub.subscriber` + `datastore.user` + `storage.objectAdmin`. Everything is described as versionable, PR-reviewed IaC; `validate` checks the shape with no account."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi un script `bootstrap.py` recrée-t-il la topologie sur l'émulateur alors que l'infra est déjà décrite en Terraform ?",
+      "q_en": "Why does a `bootstrap.py` script recreate the topology on the emulator when the infra is already described in Terraform ?",
+      "choices": [
+        { "fr": "Parce que Terraform vise le vrai GCP ; en local, bootstrap crée les mêmes sujets/abonnements sur l'émulateur (ce que ferait `terraform apply` en réel)", "en": "Because Terraform targets real GCP; locally, bootstrap creates the same topics/subscriptions on the emulator (what `terraform apply` would do for real)" },
+        { "fr": "Parce que Terraform ne peut pas décrire de sujets Pub/Sub", "en": "Because Terraform cannot describe Pub/Sub topics" },
+        { "fr": "Parce que bootstrap remplace définitivement Terraform", "en": "Because bootstrap permanently replaces Terraform" }
+      ],
+      "answer": 0,
+      "explain_fr": "Terraform vise le vrai GCP, donc en local un petit `bootstrap.py` rejoue la même topologie sur l'émulateur — l'équivalent de `terraform apply` en réel. Le producteur publie ensuite des commandes en JSON avec des attributs (type, pays, prio). `CMD-BAD` est un message empoisonné volontaire.",
+      "explain_en": "Terraform targets real GCP, so locally a small `bootstrap.py` replays the same topology on the emulator — the equivalent of `terraform apply` for real. The producer then publishes orders as JSON with attributes (type, country, priority). `CMD-BAD` is a deliberate poison message."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "D'où vient l'idempotence du travailleur, essentielle face aux redistributions at-least-once ?",
+      "q_en": "Where does the worker's idempotence — essential under at-least-once redeliveries — come from ?",
+      "choices": [
+        { "fr": "De la clé Datastore (`Commande` + id de commande) : un message redélivré réécrit le même enregistrement, sans doublon", "en": "From the Datastore key (`Commande` + order id): a redelivered message rewrites the same record, no duplicate" },
+        { "fr": "Du fait que Pub/Sub ne livre jamais deux fois le même message", "en": "From Pub/Sub never delivering the same message twice" },
+        { "fr": "Du chiffrement des messages dans le bucket", "en": "From encrypting messages in the bucket" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le travailleur écrit avec une clé Datastore égale à l'id de commande : si le même message est redélivré (garantie at-least-once), on réécrit le même enregistrement sans créer de doublon. C'est ce qui rend le pipeline correct. Les commandes invalides sont nackées (puis dead-letter après N échecs).",
+      "explain_en": "The worker writes with a Datastore key equal to the order id: if the same message is redelivered (at-least-once guarantee), it rewrites the same record with no duplicate. That makes the pipeline correct. Invalid orders are nacked (then dead-lettered after N failures)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Combien de commandes l'abonnement `analytique` reçoit-il, sachant que le travailleur en a rejeté une comme invalide ?",
+      "q_en": "How many orders does the `analytique` subscription receive, given the worker rejected one as invalid ?",
+      "choices": [
+        { "fr": "3, les mêmes que celles traitées par le travailleur", "en": "3, the same ones the worker processed" },
+        { "fr": "Les 4, y compris `CMD-BAD` : l'analytique reçoit sa propre copie de tout le flux, indépendamment du travailleur", "en": "All 4, including `CMD-BAD`: analytics gets its own copy of the whole stream, independently of the worker" },
+        { "fr": "Aucune, car le travailleur consomme d'abord tous les messages", "en": "None, because the worker consumes all messages first" }
+      ],
+      "answer": 1,
+      "explain_fr": "En fan-out, l'abonnement `analytique` reçoit sa propre copie de chaque commande — les 4, y compris `CMD-BAD` —, sans dépendre du travailleur qui, lui, a filtré la mauvaise. Le dead-letter (déclaré `max_delivery_attempts = 5`) garantit que les messages irrécupérables ont une porte de sortie et ne bloquent jamais la file.",
+      "explain_en": "In fan-out, the `analytique` subscription gets its own copy of each order — all 4, including `CMD-BAD` — independently of the worker, which filtered out the bad one. The dead-letter (declared `max_delivery_attempts = 5`) ensures unrecoverable messages have an exit door and never block the queue."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quelle propriété du pipeline est prouvée quand relancer toute la séquence donne un résultat identique ?",
+      "q_en": "Which pipeline property is proven when rerunning the whole sequence gives an identical result ?",
+      "choices": [
+        { "fr": "Son déterminisme (grâce à l'idempotence et au bootstrap propre) — la marque d'un travail sérieux", "en": "Its determinism (thanks to idempotence and a clean bootstrap) — the mark of serious work" },
+        { "fr": "Que le pipeline a été déployé sur le vrai GCP", "en": "That the pipeline was deployed to real GCP" },
+        { "fr": "Que les messages ont été chiffrés", "en": "That the messages were encrypted" }
+      ],
+      "answer": 0,
+      "explain_fr": "La vérification finale montre 3 commandes enregistrées en Datastore et 3 archivées en Storage (la mauvaise écartée) : `Pipeline OK`. Relancer donne un résultat identique grâce à l'idempotence et au bootstrap propre — un pipeline déterministe, exactement la démo à montrer à un recruteur.",
+      "explain_en": "The final check shows 3 orders recorded in Datastore and 3 archived in Storage (the bad one dropped): `Pipeline OK`. Rerunning gives an identical result thanks to idempotence and a clean bootstrap — a deterministic pipeline, exactly the demo to show a recruiter."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi soigner le `README` et la phrase d'accroche du projet est-il aussi important que le code ?",
+      "q_en": "Why is polishing the project's `README` and hook sentence as important as the code ?",
+      "choices": [
+        { "fr": "Parce qu'un projet qu'on ne sait pas raconter n'existe pas aux yeux d'un recruteur : le README transforme un dossier en atout d'embauche", "en": "Because a project you can't tell doesn't exist to a recruiter: the README turns a folder into a hiring asset" },
+        { "fr": "Parce que le README est nécessaire pour que le code s'exécute", "en": "Because the README is required for the code to run" },
+        { "fr": "Parce que sans README, Terraform refuse de valider", "en": "Because without a README, Terraform refuses to validate" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le code est la moitié ; savoir le raconter est l'autre. Un README clair, une phrase d'accroche et la liste des compétences prouvées (architecture événementielle, idempotence, dead-letter, fan-out, IaC, moindre privilège) transforment le dossier en atout d'embauche. La suite du track : passer en réel puis la certification ACE.",
+      "explain_en": "The code is half; knowing how to tell it is the other. A clear README, a hook sentence and the list of proven skills (event-driven architecture, idempotence, dead-letter, fan-out, IaC, least privilege) turn the folder into a hiring asset. Next in the track: going real then the ACE certification."
+    }
+  ]
+}

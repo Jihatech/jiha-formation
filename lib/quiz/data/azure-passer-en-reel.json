@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quelle est l'unité de facturation dans laquelle vivent toutes les ressources Azure ?",
+      "q_en": "What is the billing unit in which all Azure resources live?",
+      "choices": [
+        { "fr": "Le groupe de ressources", "en": "The resource group" },
+        { "fr": "L'abonnement (subscription)", "en": "The subscription" },
+        { "fr": "La région", "en": "The region" }
+      ],
+      "answer": 1,
+      "explain_fr": "Tout vit dans un abonnement, l'unité de facturation ; on crée un compte gratuit, on se connecte et on identifie l'abonnement actif.",
+      "explain_en": "Everything lives in a subscription, the billing unit; you create a free account, sign in and identify the active subscription."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi Terraform a-t-il besoin d'un principal de service plutôt que de `az login` ?",
+      "q_en": "Why does Terraform need a service principal rather than `az login`?",
+      "choices": [
+        { "fr": "Parce que `az login` est payant", "en": "Because `az login` is paid" },
+        { "fr": "Parce que Terraform ne supporte pas Azure sinon", "en": "Because Terraform doesn't support Azure otherwise" },
+        { "fr": "Parce qu'il lui faut une identité non interactive (machine), sans navigateur", "en": "Because it needs a non-interactive (machine) identity, with no browser" }
+      ],
+      "answer": 2,
+      "explain_fr": "Terraform ne s'authentifie pas via un navigateur : on crée un principal de service (rôle Contributeur limité à l'abonnement) et on exporte ses identifiants dans les variables ARM_*.",
+      "explain_en": "Terraform doesn't authenticate through a browser: you create a service principal (Contributor role scoped to the subscription) and export its credentials into the ARM_* variables."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quand poser les garde-fous de coût (budget + alertes Cost Management) ?",
+      "q_en": "When should you set the cost guardrails (budget + Cost Management alerts)?",
+      "choices": [
+        { "fr": "AVANT de créer la moindre ressource", "en": "BEFORE creating any resource" },
+        { "fr": "Seulement après avoir reçu la première facture", "en": "Only after receiving the first bill" },
+        { "fr": "Uniquement en production, jamais en labo", "en": "Only in production, never in a lab" }
+      ],
+      "answer": 0,
+      "explain_fr": "On crée le budget et ses alertes e-mail avant toute ressource : ça ne bloque pas la dépense mais prévient immédiatement — le réflexe qui sauve.",
+      "explain_en": "You create the budget and its email alerts before any resource: it doesn't block spending but warns immediately — the reflex that saves you."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Que faut-il changer dans ton code Terraform pour passer de miniblue au vrai Azure ?",
+      "q_en": "What must you change in your Terraform code to move from miniblue to real Azure?",
+      "choices": [
+        { "fr": "Réécrire entièrement l'infrastructure pour le vrai cloud", "en": "Rewrite the whole infrastructure for the real cloud" },
+        { "fr": "Retirer le bloc de ciblage miniblue du provider ; il s'authentifie alors via les variables ARM_*", "en": "Remove the miniblue targeting block from the provider; it then authenticates via the ARM_* variables" },
+        { "fr": "Changer chaque ressource pour un service Azure différent", "en": "Change each resource to a different Azure service" }
+      ],
+      "answer": 1,
+      "explain_fr": "Bonne surprise : l'infra ne change quasiment pas. On retire le bloc de ciblage miniblue (metadata_host, skip_provider_registration, identifiants factices) et le provider s'authentifie via ARM_*.",
+      "explain_en": "Good surprise: the infra barely changes. You remove the miniblue targeting block (metadata_host, skip_provider_registration, dummy credentials) and the provider authenticates via ARM_*."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que faut-il garder à l'esprit sur miniblue face au vrai Azure ?",
+      "q_en": "What must you keep in mind about miniblue versus real Azure?",
+      "choices": [
+        { "fr": "miniblue reproduit exactement tous les comportements d'Azure", "en": "miniblue reproduces every Azure behavior exactly" },
+        { "fr": "miniblue est parfait pour la logique mais simplifie certains comportements ; connaître ces écarts évite les surprises et fait répondre juste à l'examen", "en": "miniblue is perfect for the logic but simplifies some behaviors; knowing these gaps avoids surprises and helps you answer the exam correctly" },
+        { "fr": "miniblue coûte plus cher que le vrai Azure", "en": "miniblue costs more than real Azure" }
+      ],
+      "answer": 1,
+      "explain_fr": "L'émulateur est idéal pour la logique mais ne reproduit pas tout : connaître ce qu'il simplifiait évite les mauvaises surprises en prod et fait répondre juste à l'AZ-104.",
+      "explain_en": "The emulator is ideal for the logic but doesn't reproduce everything: knowing what it simplified avoids nasty surprises in prod and helps you answer AZ-104 correctly."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quelle est la seule vraie garantie contre une facture surprise ?",
+      "q_en": "What is the only real guarantee against a surprise bill?",
+      "choices": [
+        { "fr": "Supprimer ce que tu ne veux plus payer (terraform destroy, puis supprimer le groupe de ressources entier)", "en": "Delete what you no longer want to pay for (terraform destroy, then delete the whole resource group)" },
+        { "fr": "Arrêter les ressources depuis le portail", "en": "Stop the resources from the portal" },
+        { "fr": "Attendre la fin du crédit gratuit", "en": "Wait for the free credit to run out" }
+      ],
+      "answer": 0,
+      "explain_fr": "`terraform destroy` retire ce que gère le state, puis on supprime le groupe de ressources entier pour être certain qu'il ne reste rien à facturer.",
+      "explain_en": "`terraform destroy` removes what the state manages, then you delete the whole resource group to be sure nothing remains to be billed."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Après l'AZ-104, comment miniblue continue-t-il de servir dans la suite du parcours Azure ?",
+      "q_en": "After AZ-104, how does miniblue keep serving in the rest of the Azure path?",
+      "choices": [
+        { "fr": "Il ne sert plus : il est propre à l'AZ-104", "en": "It no longer serves: it is specific to AZ-104" },
+        { "fr": "Il resservira dans chaque rôle spécialisé (architecte, DevOps, sécurité, réseau)", "en": "It will serve again in each specialized role (architect, DevOps, security, network)" },
+        { "fr": "Il devient payant après l'AZ-104", "en": "It becomes paid after AZ-104" }
+      ],
+      "answer": 1,
+      "explain_fr": "Administrateur (AZ-104) est le socle ; le parcours continue vers des rôles spécialisés — architecte, DevOps, sécurité, réseau — et miniblue resservira dans chacun.",
+      "explain_en": "Administrator (AZ-104) is the base; the path continues toward specialized roles — architect, DevOps, security, network — and miniblue will serve in each."
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "À quoi sert `terraform init` dans ce projet ?",
+      "q_en": "What does `terraform init` do in this project?",
+      "choices": [
+        { "fr": "Il crée les conteneurs Docker déclarés dans `main.tf`", "en": "It creates the Docker containers declared in `main.tf`" },
+        { "fr": "Il lit `required_providers`, télécharge le plugin du provider et prépare le dossier", "en": "It reads `required_providers`, downloads the provider plugin and prepares the folder" },
+        { "fr": "Il applique le plan sans demander de confirmation", "en": "It applies the plan without asking for confirmation" }
+      ],
+      "answer": 1,
+      "explain_fr": "Terraform ne connaît aucun provider par défaut : `init` télécharge le plugin, crée `.terraform/` et fige la version dans `.terraform.lock.hcl`.",
+      "explain_en": "Terraform knows no providers by default: `init` downloads the plugin, creates `.terraform/` and pins the version in `.terraform.lock.hcl`."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi écrire `image = docker_image.nginx.image_id` plutôt qu'un nom d'image en dur ?",
+      "q_en": "Why write `image = docker_image.nginx.image_id` rather than a hardcoded image name?",
+      "choices": [
+        { "fr": "Pour créer une dépendance explicite : Terraform crée l'image avant le conteneur", "en": "To create an explicit dependency: Terraform creates the image before the container" },
+        { "fr": "Parce que Docker interdit les noms d'image en dur dans un conteneur", "en": "Because Docker forbids hardcoded image names in a container" },
+        { "fr": "Pour éviter d'avoir à lancer `terraform init`", "en": "To avoid having to run `terraform init`" }
+      ],
+      "answer": 0,
+      "explain_fr": "Référencer l'attribut d'une ressource construit le graphe de dépendances : Terraform sait qu'il doit créer l'image avant le conteneur.",
+      "explain_en": "Referencing a resource's attribute builds the dependency graph: Terraform knows it must create the image before the container."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Tu relances `terraform apply` sans rien changer. Que se passe-t-il et pourquoi ?",
+      "q_en": "You re-run `terraform apply` without changing anything. What happens and why?",
+      "choices": [
+        { "fr": "Il recrée toutes les ressources pour être sûr qu'elles sont à jour", "en": "It recreates all resources to be sure they are up to date" },
+        { "fr": "Il échoue car le state est déjà présent", "en": "It fails because the state already exists" },
+        { "fr": "« No changes » : Terraform est idempotent, il compare code, state et réel", "en": "\"No changes\": Terraform is idempotent, it compares code, state and reality" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le state mémorise ce que Terraform gère ; comme rien ne diverge, la convergence n'exige aucune action. Et on ne modifie jamais `terraform.tfstate` à la main.",
+      "explain_en": "State records what Terraform manages; since nothing diverges, convergence requires no action. And you never edit `terraform.tfstate` by hand."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quelle est la différence entre une `variable` et une `output` ici ?",
+      "q_en": "What is the difference between a `variable` and an `output` here?",
+      "choices": [
+        { "fr": "La variable externalise une entrée (le port), l'output expose une valeur utile (l'URL) après `apply`", "en": "The variable externalizes an input (the port), the output exposes a useful value (the URL) after `apply`" },
+        { "fr": "La variable est lue après `apply`, l'output est saisie avant", "en": "The variable is read after `apply`, the output is entered before" },
+        { "fr": "Ce sont deux noms pour la même chose, au choix", "en": "They are two names for the same thing, interchangeable" }
+      ],
+      "answer": 0,
+      "explain_fr": "Une variable paramètre l'entrée (évite le port en dur) ; une output rend une valeur réutilisable par un humain ou un autre outil.",
+      "explain_en": "A variable parameterizes the input (avoids the hardcoded port); an output returns a value reusable by a human or another tool."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Dans le plan, changer le tag de l'image affiche `-/+ forces replacement` sur le conteneur. Pourquoi pas un simple `~` ?",
+      "q_en": "In the plan, changing the image tag shows `-/+ forces replacement` on the container. Why not a simple `~`?",
+      "choices": [
+        { "fr": "Parce que `terraform apply` remplace toujours toutes les ressources", "en": "Because `terraform apply` always replaces every resource" },
+        { "fr": "Parce qu'un conteneur Docker est quasi immuable : changer son image impose de le détruire puis recréer", "en": "Because a Docker container is nearly immutable: changing its image forces destroy then recreate" },
+        { "fr": "Parce que la nouvelle image n'existe pas encore dans le state", "en": "Because the new image doesn't exist yet in the state" }
+      ],
+      "answer": 1,
+      "explain_fr": "`~` = changement en place ; `-/+` = remplacement. Un conteneur Docker étant quasi immuable, Terraform le recrée, en créant la nouvelle image d'abord (le graphe).",
+      "explain_en": "`~` = in-place change; `-/+` = replacement. A Docker container being nearly immutable, Terraform recreates it, building the new image first (the graph)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi encapsuler « un conteneur web exposé » dans un `module` ?",
+      "q_en": "Why encapsulate \"an exposed web container\" into a `module`?",
+      "choices": [
+        { "fr": "Parce qu'un module chiffre automatiquement le state", "en": "Because a module automatically encrypts the state" },
+        { "fr": "Parce que Terraform refuse plus de deux ressources sans module", "en": "Because Terraform refuses more than two resources without a module" },
+        { "fr": "Pour réutiliser le schéma avec des paramètres différents, sans copier-coller", "en": "To reuse the pattern with different parameters, without copy-paste" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un module est l'unité de réutilisation : un dossier avec ses variables/resources/outputs, appelé plusieurs fois (ici `site_a`, `site_b`) avec des paramètres distincts.",
+      "explain_en": "A module is the unit of reuse: a folder with its variables/resources/outputs, called several times (here `site_a`, `site_b`) with distinct parameters."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "À quoi sert `terraform destroy` ?",
+      "q_en": "What is `terraform destroy` for?",
+      "choices": [
+        { "fr": "Il supprime tout ce qui est dans le state, car Terraform gère le cycle de vie complet", "en": "It removes everything in the state, because Terraform manages the full lifecycle" },
+        { "fr": "Il efface uniquement le fichier `terraform.tfstate`, pas les ressources réelles", "en": "It only deletes the `terraform.tfstate` file, not the real resources" },
+        { "fr": "Il met en forme le HCL avant un commit", "en": "It formats the HCL before a commit" }
+      ],
+      "answer": 0,
+      "explain_fr": "Terraform gère création ET suppression : `destroy` retire toutes les ressources du state, indispensable pour ne pas laisser de ressources traîner. `fmt`/`validate` sont les réflexes qualité.",
+      "explain_en": "Terraform manages creation AND deletion: `destroy` removes every resource in the state, essential to avoid leaving stray resources. `fmt`/`validate` are the quality reflexes."
+    }
+  ]
+}

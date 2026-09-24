@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi ce guide épingle-t-il l'image `localstack/localstack:3.8.1` au lieu du tag `latest` ?",
+      "q_en": "Why does this guide pin the `localstack/localstack:3.8.1` image instead of the `latest` tag ?",
+      "choices": [
+        { "fr": "Parce que le tag `latest` de LocalStack exige désormais un jeton de licence (édition Pro) et refuse de démarrer sans", "en": "Because LocalStack's `latest` tag now requires a license token (Pro edition) and refuses to start without one" },
+        { "fr": "Parce que la version 3.8.1 est la seule à écouter sur le port 4566", "en": "Because version 3.8.1 is the only one that listens on port 4566" },
+        { "fr": "Parce que le tag `latest` ne contient pas le service S3", "en": "Because the `latest` tag does not include the S3 service" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le tag `latest` réclame un jeton de licence Pro et sort en `Exited (55)` (« License activation failed »). La version communautaire `3.8.1` démarre sans jeton ni compte, fidèle à la promesse local-first.",
+      "explain_en": "The `latest` tag demands a Pro license token and exits with `Exited (55)` (\"License activation failed\"). The community version `3.8.1` starts tokenless and account-free, true to the local-first promise."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que fait la commande `awslocal` par rapport à `aws` ?",
+      "q_en": "What does the `awslocal` command do compared to `aws` ?",
+      "choices": [
+        { "fr": "Elle chiffre automatiquement les identifiants avant de les envoyer", "en": "It automatically encrypts credentials before sending them" },
+        { "fr": "Elle ajoute automatiquement `--endpoint-url=http://localhost:4566` pour parler à LocalStack", "en": "It automatically adds `--endpoint-url=http://localhost:4566` to talk to LocalStack" },
+        { "fr": "Elle installe aws-cli si celui-ci est absent", "en": "It installs aws-cli if it is missing" }
+      ],
+      "answer": 1,
+      "explain_fr": "`awslocal s3 ls` équivaut à `aws --endpoint-url=http://localhost:4566 s3 ls` : c'est un simple raccourci qui pointe l'outil vers LocalStack au lieu du vrai AWS.",
+      "explain_en": "`awslocal s3 ls` equals `aws --endpoint-url=http://localhost:4566 s3 ls`: it is just a shortcut that points the tool at LocalStack instead of real AWS."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quelle est la bonne relation entre une région AWS et une zone de disponibilité (AZ) ?",
+      "q_en": "What is the correct relationship between an AWS region and an availability zone (AZ) ?",
+      "choices": [
+        { "fr": "Une AZ est une zone géographique mondiale qui contient plusieurs régions", "en": "An AZ is a worldwide geographic area that contains several regions" },
+        { "fr": "Région et AZ sont deux mots pour la même chose", "en": "Region and AZ are two words for the same thing" },
+        { "fr": "Une région (ex. `us-east-1`) contient plusieurs AZ (`us-east-1a`, `us-east-1b`…), des datacenters isolés", "en": "A region (e.g. `us-east-1`) contains several AZs (`us-east-1a`, `us-east-1b`…), isolated datacenters" }
+      ],
+      "answer": 2,
+      "explain_fr": "La hiérarchie est AWS → régions (géographie) → AZ (datacenters isolés d'une région). Répartir une application sur plusieurs AZ la rend résistante à la panne d'un datacenter : un pilier du SAA.",
+      "explain_en": "The hierarchy is AWS → regions (geography) → AZs (a region's isolated datacenters). Spreading an app across several AZs makes it resilient to a datacenter failure: a pillar of the SAA."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Dans S3, comment sont organisés les fichiers, et quelle contrainte pèse (en réel) sur le nom d'un bucket ?",
+      "q_en": "In S3, how are files organized, and what constraint applies (in reality) to a bucket name ?",
+      "choices": [
+        { "fr": "Les objets sont rangés dans des buckets, dont le nom doit être unique dans le monde entier", "en": "Objects are stored in buckets, whose name must be globally unique" },
+        { "fr": "Les objets sont rangés dans des dossiers, dont le nom doit être unique dans la région", "en": "Objects are stored in folders, whose name must be unique within the region" },
+        { "fr": "Les objets sont rangés dans des buckets, dont le nom peut être réutilisé librement", "en": "Objects are stored in buckets, whose name can be freely reused" }
+      ],
+      "answer": 0,
+      "explain_fr": "S3 stocke des objets (fichiers) dans des buckets. En réel, le nom d'un bucket est unique à l'échelle mondiale — d'où l'habitude de le préfixer avec un identifiant unique. En LocalStack, pas de collision, mais l'habitude se prend tout de suite.",
+      "explain_en": "S3 stores objects (files) in buckets. In reality a bucket name is globally unique — hence prefixing it with a unique identifier. In LocalStack there is no collision, but you build the habit right away."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quelle est la bonne pratique concernant l'utilisateur `root` d'un compte AWS ?",
+      "q_en": "What is the best practice regarding an AWS account's `root` user ?",
+      "choices": [
+        { "fr": "L'utiliser au quotidien car il a déjà toutes les permissions", "en": "Use it daily since it already has all permissions" },
+        { "fr": "Ne quasiment jamais l'utiliser, et créer des utilisateurs IAM avec juste les permissions nécessaires", "en": "Almost never use it, and create IAM users with only the needed permissions" },
+        { "fr": "Le supprimer immédiatement après la création du compte", "en": "Delete it immediately after creating the account" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le root est tout-puissant et doit rester quasi inutilisé. La bonne pratique est de créer des utilisateurs IAM au moindre privilège, comme le `dev` avec `AmazonS3ReadOnlyAccess`. C'est le cœur de la sécurité AWS.",
+      "explain_en": "Root is all-powerful and should stay almost unused. Best practice is to create least-privilege IAM users, like `dev` with `AmazonS3ReadOnlyAccess`. This is the heart of AWS security."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "À quoi sert l'option `--query` d'une commande `aws`/`awslocal` ?",
+      "q_en": "What is the `--query` option of an `aws`/`awslocal` command used for ?",
+      "choices": [
+        { "fr": "À changer la région ciblée par la commande", "en": "To change the region targeted by the command" },
+        { "fr": "À extraire, via le langage JMESPath, seulement la partie du JSON qui t'intéresse", "en": "To extract, via the JMESPath language, only the part of the JSON you care about" },
+        { "fr": "À convertir la sortie en tableau ASCII", "en": "To convert the output into an ASCII table" }
+      ],
+      "answer": 1,
+      "explain_fr": "`--query` utilise JMESPath pour filtrer/extraire dans les gros JSON de réponse ; c'est `--output` (json/table/text) qui choisit le format d'affichage. Les deux reviennent dans chaque commande AWS.",
+      "explain_en": "`--query` uses JMESPath to filter/extract inside big JSON responses; it is `--output` (json/table/text) that picks the display format. Both come back in every AWS command."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi faut-il détacher la politique d'un utilisateur IAM avant de le supprimer ?",
+      "q_en": "Why must you detach an IAM user's policy before deleting the user ?",
+      "choices": [
+        { "fr": "Parce que `delete-user` échoue (DeleteConflict) tant que des politiques restent attachées", "en": "Because `delete-user` fails (DeleteConflict) as long as policies remain attached" },
+        { "fr": "Parce que la politique serait sinon transférée à l'utilisateur root", "en": "Because the policy would otherwise be transferred to the root user" },
+        { "fr": "Parce que LocalStack facture chaque politique restée attachée", "en": "Because LocalStack bills for each policy left attached" }
+      ],
+      "answer": 0,
+      "explain_fr": "On ne peut pas supprimer un utilisateur qui a des politiques (ou clés, groupes) attachées : `delete-user` renvoie `DeleteConflict`. Il faut détacher d'abord, supprimer ensuite — même logique en réel. C'est le réflexe créer → utiliser → nettoyer.",
+      "explain_en": "You cannot delete a user with attached policies (or keys, groups): `delete-user` returns `DeleteConflict`. Detach first, delete after — same logic in real life. It is the create → use → clean up reflex."
+    }
+  ]
+}

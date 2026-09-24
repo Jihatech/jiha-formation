@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi écrire de vrais tests (`node --test`) avant de construire la pipeline ?",
+      "q_en": "Why write real tests (`node --test`) before building the pipeline ?",
+      "choices": [
+        { "fr": "Une pipeline exige au moins une dépendance npm installée", "en": "A pipeline requires at least one npm dependency installed" },
+        { "fr": "`node --test` doit être installé via npm avant usage", "en": "`node --test` must be installed via npm before use" },
+        { "fr": "Une pipeline qui ne teste rien est une décoration ; la CI a besoin de vrais tests à exécuter", "en": "A pipeline that tests nothing is decoration; CI needs real tests to run" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le lanceur `node --test` est intégré (aucune dépendance) : la CI a de la valeur quand elle exécute de vrais tests.",
+      "explain_en": "The `node --test` runner is built in (no dependency): CI has value when it runs real tests."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Comment une pipeline sait-elle qu'un job a échoué ?",
+      "q_en": "How does a pipeline know a job has failed ?",
+      "choices": [
+        { "fr": "Elle relit et interprète le fichier de tests", "en": "It re-reads and interprets the test file" },
+        { "fr": "Elle lit le code de sortie de la commande : non-zéro = rouge", "en": "It reads the command's exit code: non-zero = red" },
+        { "fr": "Elle compte les lignes `# fail` dans la sortie", "en": "It counts the `# fail` lines in the output" }
+      ],
+      "answer": 1,
+      "explain_fr": "La pipeline lit un code de sortie, pas tes tests. Un `terraform validate` ou `az bicep build` qui échoue rend le job rouge pareil.",
+      "explain_en": "The pipeline reads an exit code, not your tests. A failing `terraform validate` or `az bicep build` turns the job red the same way."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi utiliser `npm ci` plutôt que `npm install` dans une pipeline ?",
+      "q_en": "Why use `npm ci` rather than `npm install` in a pipeline ?",
+      "choices": [
+        { "fr": "`npm ci` installe exactement les versions figées dans `package-lock.json` — build reproductible", "en": "`npm ci` installs exactly the versions frozen in `package-lock.json` — a reproducible build" },
+        { "fr": "`npm ci` met à jour les dépendances vers les dernières versions", "en": "`npm ci` updates dependencies to their latest versions" },
+        { "fr": "`npm ci` fonctionne sans fichier `package.json`", "en": "`npm ci` works without a `package.json` file" }
+      ],
+      "answer": 0,
+      "explain_fr": "`npm ci` exige le fichier de verrou et installe à l'identique : même commit, même install. Versionne `package-lock.json`.",
+      "explain_en": "`npm ci` requires the lock file and installs identically: same commit, same install. Version `package-lock.json`."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "À quoi sert `needs:` entre les jobs `lint`, `test` et `paquet` ?",
+      "q_en": "What does `needs:` do between the `lint`, `test` and `paquet` jobs ?",
+      "choices": [
+        { "fr": "À exécuter tous les jobs en parallèle plus vite", "en": "To run all jobs in parallel, faster" },
+        { "fr": "À partager des variables entre les jobs", "en": "To share variables between jobs" },
+        { "fr": "À ordonner les jobs (dépendance) : `test` après `lint`, `paquet` après `test`", "en": "To order the jobs (dependency): `test` after `lint`, `paquet` after `test`" }
+      ],
+      "answer": 2,
+      "explain_fr": "Par défaut les jobs sont parallèles ; `needs` crée le graphe : rien ne teste avant le lint, rien ne s'empaquette avant les tests.",
+      "explain_en": "By default jobs are parallel; `needs` creates the graph: nothing tests before lint, nothing packages before tests."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que fait `strategy.matrix.node: [20, 22]` sur un job ?",
+      "q_en": "What does `strategy.matrix.node: [20, 22]` do to a job ?",
+      "choices": [
+        { "fr": "Il choisit la version de Node la plus récente disponible", "en": "It picks the newest available Node version" },
+        { "fr": "Il démultiplie le job en N exécutions parallèles, une par version", "en": "It fans the job out into N parallel runs, one per version" },
+        { "fr": "Il force le job à réessayer deux fois en cas d'échec", "en": "It forces the job to retry twice on failure" }
+      ],
+      "answer": 1,
+      "explain_fr": "Une définition, N exécutions : la matrice teste plusieurs versions en parallèle et révèle un code qui casse sur l'une d'elles.",
+      "explain_en": "One definition, N runs: the matrix tests multiple versions in parallel and reveals code that breaks on one of them."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Qu'est-ce qu'un artefact de pipeline (ex. `panier-dist.tgz`, rapport TAP) ?",
+      "q_en": "What is a pipeline artifact (e.g. `panier-dist.tgz`, TAP report) ?",
+      "choices": [
+        { "fr": "Un fichier produit par un job, publié et récupérable par un stage suivant", "en": "A file produced by a job, published and retrievable by a later stage" },
+        { "fr": "Une variable d'environnement partagée entre les jobs", "en": "An environment variable shared between jobs" },
+        { "fr": "Un runner dédié réservé aux déploiements", "en": "A dedicated runner reserved for deployments" }
+      ],
+      "answer": 0,
+      "explain_fr": "`upload-artifact` attache le fichier à l'exécution ; un stage suivant peut le télécharger sans reconstruire.",
+      "explain_en": "`upload-artifact` attaches the file to the run; a later stage can download it without rebuilding."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "À quoi sert un `environment` `production` protégé par une approbation dans une pipeline CD ?",
+      "q_en": "What is a `production` `environment` protected by an approval for in a CD pipeline ?",
+      "choices": [
+        { "fr": "Il accélère le déploiement grâce au cache", "en": "It speeds up deployment through caching" },
+        { "fr": "Il met la pipeline en pause et attend l'approbation d'un humain avant de déployer", "en": "It pauses the pipeline and waits for a human's approval before deploying" },
+        { "fr": "Il chiffre automatiquement les artefacts", "en": "It automatically encrypts the artifacts" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le deployment job cible l'environnement `production` ; l'approbation attachée y ajoute une porte humaine avant la prod.",
+      "explain_en": "The deployment job targets the `production` environment; the attached approval adds a human gate before prod."
+    }
+  ]
+}

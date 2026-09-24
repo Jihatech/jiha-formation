@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Que fait `detect-secrets` sur un fichier ?",
+      "q_en": "What does `detect-secrets` do to a file ?",
+      "choices": [
+        { "fr": "Il chiffre les secrets trouvés", "en": "It encrypts the secrets it finds" },
+        { "fr": "Il repère les clés d'API, jetons et chaînes à forte entropie codés en dur", "en": "It flags hardcoded API keys, tokens and high-entropy strings" },
+        { "fr": "Il supprime automatiquement les secrets du fichier", "en": "It automatically removes the secrets from the file" }
+      ],
+      "answer": 1,
+      "explain_fr": "C'est le radar : on ne protège que ce qu'on voit. Mais détecter après le commit est déjà trop tard — on va prévenir.",
+      "explain_en": "It's the radar: you only protect what you can see. But detecting after the commit is already too late — we'll prevent it."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quel est l'intérêt d'un hook pre-commit qui refuse un secret (`exit 1`) ?",
+      "q_en": "What is the point of a pre-commit hook that refuses a secret (`exit 1`) ?",
+      "choices": [
+        { "fr": "Le secret n'entre jamais dans l'historique Git — prévention shift-left", "en": "The secret never enters Git history — shift-left prevention" },
+        { "fr": "Il chiffre le secret avant de l'enregistrer", "en": "It encrypts the secret before recording it" },
+        { "fr": "Il envoie le secret au Key Vault automatiquement", "en": "It sends the secret to Key Vault automatically" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le hook s'exécute AVANT que Git n'enregistre le commit : s'il détecte un secret, il refuse, et le secret n'entre jamais dans l'historique.",
+      "explain_en": "The hook runs BEFORE Git records the commit: if it detects a secret it refuses, and the secret never enters history."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Où doit vivre un secret, et que garde le code ?",
+      "q_en": "Where should a secret live, and what does the code keep ?",
+      "choices": [
+        { "fr": "Dans le code, chiffré en base64", "en": "In the code, encoded in base64" },
+        { "fr": "Dans une variable d'environnement commitée", "en": "In a committed environment variable" },
+        { "fr": "Dans un coffre (Key Vault) ; le code ne garde qu'une référence, lue au runtime", "en": "In a vault (Key Vault); the code keeps only a reference, read at runtime" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le secret vit dans le coffre ; en vrai Azure, l'app le lit via une identité managée (pas de secret pour accéder au secret).",
+      "explain_en": "The secret lives in the vault; on real Azure, the app reads it via a managed identity (no secret to access the secret)."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "`terraform validate` réussit : l'infrastructure est-elle sûre pour autant ?",
+      "q_en": "`terraform validate` passes: is the infrastructure secure for that ?",
+      "choices": [
+        { "fr": "Oui, `validate` vérifie aussi la sécurité", "en": "Yes, `validate` also checks security" },
+        { "fr": "Non : `validate` vérifie la syntaxe ; `checkov` compare le code à des centaines de règles de sécurité", "en": "No: `validate` checks syntax; `checkov` compares the code to hundreds of security rules" },
+        { "fr": "Oui, si le code compile il est durci", "en": "Yes, if the code compiles it is hardened" }
+      ],
+      "answer": 1,
+      "explain_fr": "Une infra peut être valide et non sécurisée : `checkov` détecte les mauvaises configurations (HTTPS, TLS, accès public…).",
+      "explain_en": "Infra can be valid and insecure: `checkov` detects misconfigurations (HTTPS, TLS, public access…)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "En pipeline, comment le scan `checkov` agit-il comme gate de sécurité ?",
+      "q_en": "In a pipeline, how does the `checkov` scan act as a security gate ?",
+      "choices": [
+        { "fr": "`Failed checks > 0` fait échouer le job ; on peut exiger un scan vert avant de fusionner", "en": "`Failed checks > 0` fails the job; you can require a green scan before merging" },
+        { "fr": "Il corrige automatiquement les mauvaises configurations", "en": "It automatically fixes the misconfigurations" },
+        { "fr": "Il ignore les règles échouées et poursuit", "en": "It ignores failed rules and carries on" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le durcissement (HTTPS forcé, TLS récent, accès public fermé) fait passer les règles ; ne « skippe » une règle que si tu l'assumes.",
+      "explain_en": "Hardening (HTTPS enforced, recent TLS, public access closed) makes rules pass; only \"skip\" a rule you consciously own."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi `permissions: contents: read` et des actions épinglées par SHA dans le workflow Sécurité ?",
+      "q_en": "Why `permissions: contents: read` and SHA-pinned actions in the Security workflow ?",
+      "choices": [
+        { "fr": "Pour accélérer les scans", "en": "To speed up the scans" },
+        { "fr": "Pour donner tous les droits au token de workflow", "en": "To give the workflow token full rights" },
+        { "fr": "Moindre privilège (token en lecture seule) + actions immuables (un attaquant ne peut pas repousser du code derrière `@v4`)", "en": "Least privilege (read-only token) + immutable actions (an attacker can't push code behind `@v4`)" }
+      ],
+      "answer": 2,
+      "explain_fr": "On durcit le workflow lui-même : token en lecture seule et actions figées par SHA. Les scans (secrets, IaC, dépendances) tournent à chaque push.",
+      "explain_en": "You harden the workflow itself: read-only token and SHA-frozen actions. The scans (secrets, IaC, dependencies) run on every push."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi épingler ses dépendances/images/actions et produire un SBOM ?",
+      "q_en": "Why pin your dependencies/images/actions and produce an SBOM ?",
+      "choices": [
+        { "fr": "Pour réduire la taille de la build", "en": "To reduce the build size" },
+        { "fr": "Tu hérites de la sécurité de tes dépendances ; épingler et inventorier (SBOM) limite et trace le risque", "en": "You inherit your dependencies' security; pinning and inventorying (SBOM) bounds and traces the risk" },
+        { "fr": "Pour éviter d'écrire des tests", "en": "To avoid writing tests" }
+      ],
+      "answer": 1,
+      "explain_fr": "La compromission d'une dépendance devient la tienne : scanner (seuil de sévérité), épingler, et un SBOM pour savoir ce qui tourne.",
+      "explain_en": "A dependency's compromise becomes yours: scan (severity threshold), pin, and an SBOM to know what runs."
+    }
+  ]
+}

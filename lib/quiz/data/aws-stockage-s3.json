@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Comment S3 gère-t-il réellement une clé comme `rapports/2026/q1.txt` ?",
+      "q_en": "How does S3 actually handle a key like `rapports/2026/q1.txt` ?",
+      "choices": [
+        { "fr": "Comme trois dossiers imbriqués créés sur un système de fichiers hiérarchique", "en": "As three nested folders created on a hierarchical filesystem" },
+        { "fr": "Comme une seule clé plate ; le préfixe `rapports/` ne sert qu'à filtrer un listing", "en": "As a single flat key; the prefix `rapports/` only serves to filter a listing" },
+        { "fr": "Comme un objet dupliqué automatiquement dans chaque niveau de dossier", "en": "As an object automatically duplicated in each folder level" }
+      ],
+      "answer": 1,
+      "explain_fr": "S3 n'a pas de dossiers : `rapports/2026/q1.txt` est une seule clé dans un modèle plat. Le préfixe sert à filtrer un listing (`s3 ls .../rapports/`), pas à créer une vraie hiérarchie ; `s3 ls --recursive` montre toutes les clés à plat.",
+      "explain_en": "S3 has no folders: `rapports/2026/q1.txt` is a single key in a flat model. The prefix filters a listing (`s3 ls .../rapports/`), not a real hierarchy; `s3 ls --recursive` shows all keys flat."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que se passe-t-il si tu écrases un objet avec le versioning activé sur le bucket ?",
+      "q_en": "What happens if you overwrite an object with versioning enabled on the bucket ?",
+      "choices": [
+        { "fr": "L'ancien contenu est effacé définitivement, comme sans versioning", "en": "The old content is permanently erased, as without versioning" },
+        { "fr": "L'écriture est refusée tant que l'ancienne version n'est pas supprimée", "en": "The write is refused until the old version is deleted" },
+        { "fr": "Une nouvelle version est créée et les versions précédentes restent récupérables", "en": "A new version is created and previous versions stay recoverable" }
+      ],
+      "answer": 2,
+      "explain_fr": "Avec le versioning, chaque écriture crée une nouvelle version (nouveau `VersionId`) et conserve les précédentes ; une seule a `IsLatest=True`. On récupère une ancienne version via `get-object --version-id`. C'est la parade au « j'ai écrasé le bon fichier ».",
+      "explain_en": "With versioning, each write creates a new version (new `VersionId`) and keeps the previous ones; only one has `IsLatest=True`. You recover an old one via `get-object --version-id`. It's the answer to \"I overwrote the right file\"."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pour une archive légale consultée environ une fois par an, quelle classe de stockage S3 est la plus adaptée sur le plan du coût ?",
+      "q_en": "For a legal archive accessed about once a year, which S3 storage class is most cost-appropriate ?",
+      "choices": [
+        { "fr": "Glacier — stockage bien moins cher, récupération lente et payante acceptée", "en": "Glacier — much cheaper storage, slow and paid retrieval accepted" },
+        { "fr": "Standard — la classe par défaut pour un accès très fréquent", "en": "Standard — the default class for very frequent access" },
+        { "fr": "Une classe personnalisée créée pour l'occasion", "en": "A custom class created for the occasion" }
+      ],
+      "answer": 0,
+      "explain_fr": "La logique : fréquent → Standard ; rare mais récupérable vite → Standard-IA ; archivage à récupération lente OK → Glacier ; très froid très long → Glacier Deep Archive. Une archive légale annuelle relève de Glacier : stockage peu cher contre récupération lente et payante.",
+      "explain_en": "The logic: frequent → Standard; rare but quick to retrieve → Standard-IA; archival with slow retrieval OK → Glacier; very cold, very long → Glacier Deep Archive. A yearly legal archive fits Glacier: cheap storage against slow, paid retrieval."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "À quoi sert une règle de cycle de vie (lifecycle) sur un bucket S3 ?",
+      "q_en": "What is an S3 bucket lifecycle rule for ?",
+      "choices": [
+        { "fr": "À chiffrer automatiquement chaque objet déposé", "en": "To automatically encrypt each stored object" },
+        { "fr": "À faire transiter ou expirer les objets automatiquement selon leur âge", "en": "To transition or expire objects automatically based on their age" },
+        { "fr": "À interdire la suppression manuelle des objets", "en": "To forbid manual deletion of objects" }
+      ],
+      "answer": 1,
+      "explain_fr": "Une règle de cycle de vie automatise l'optimisation des coûts selon l'âge : transition vers Standard-IA à 30 jours, Glacier à 90 jours, expiration à 365 jours par exemple. Tu la poses une fois, S3 s'occupe du reste — « set and forget ».",
+      "explain_en": "A lifecycle rule automates cost optimization by age: transition to Standard-IA at 30 days, Glacier at 90 days, expiration at 365 days for example. You set it once, S3 handles the rest — \"set and forget\"."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quel est l'avantage d'activer le chiffrement par défaut (SSE) au niveau du bucket ?",
+      "q_en": "What is the benefit of enabling default encryption (SSE) at the bucket level ?",
+      "choices": [
+        { "fr": "Tout nouvel objet est chiffré au repos automatiquement, sans rien préciser à chaque `put`", "en": "Every new object is encrypted at rest automatically, with nothing to specify on each `put`" },
+        { "fr": "Les objets deviennent illisibles pour les utilisateurs autorisés", "en": "Objects become unreadable for authorized users" },
+        { "fr": "Le bucket refuse tout objet non chiffré côté client", "en": "The bucket rejects any object not encrypted client-side" }
+      ],
+      "answer": 0,
+      "explain_fr": "En posant un chiffrement par défaut (SSE-S3 / AES256) sur le bucket, tout objet déposé est chiffré au repos automatiquement, sans y penser à chaque écriture. SSE-KMS ajouterait la traçabilité via le service de clés KMS. C'est une bonne pratique imposée au niveau du bucket.",
+      "explain_en": "By setting default encryption (SSE-S3 / AES256) on the bucket, every stored object is encrypted at rest automatically, without thinking on each write. SSE-KMS would add traceability via the KMS key service. It's a best practice enforced at the bucket level."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi peut-on héberger un site statique (HTML/CSS/JS) directement sur S3 sans serveur ?",
+      "q_en": "Why can you host a static site (HTML/CSS/JS) directly on S3 with no server ?",
+      "choices": [
+        { "fr": "Parce que S3 exécute le code JavaScript côté serveur pour chaque visiteur", "en": "Because S3 runs the JavaScript server-side for each visitor" },
+        { "fr": "Parce qu'un site sans backend n'a besoin que de servir des fichiers, ce que S3 fait avec le mode « site web »", "en": "Because a backend-less site only needs its files served, which S3 does with \"website\" mode" },
+        { "fr": "Parce que S3 démarre une instance EC2 cachée pour héberger le site", "en": "Because S3 spins up a hidden EC2 instance to host the site" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un site sans backend n'a qu'à servir ses fichiers : on active le mode site web (document d'index + page d'erreur) et on rend les objets lisibles via une bucket policy publique. C'est un cas d'usage SAA classique, souvent combiné à CloudFront pour la performance.",
+      "explain_en": "A backend-less site just needs its files served: you enable website mode (index document + error page) and make objects readable via a public bucket policy. It's a classic SAA use case, often combined with CloudFront for performance."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que permet une URL présignée S3 ?",
+      "q_en": "What does an S3 presigned URL allow ?",
+      "choices": [
+        { "fr": "Rendre définitivement public l'ensemble du bucket", "en": "Make the whole bucket permanently public" },
+        { "fr": "Donner un accès temporaire à un objet privé, signé avec tes droits, sans clé AWS pour le destinataire", "en": "Give temporary access to a private object, signed with your rights, with no AWS key for the recipient" },
+        { "fr": "Partager tes clés d'accès AWS avec l'utilisateur final", "en": "Share your AWS access keys with the end user" }
+      ],
+      "answer": 1,
+      "explain_fr": "Une URL présignée est signée avec tes droits et valable un temps limité : le destinataire télécharge l'objet privé via le lien, sans identifiants AWS, et le bucket reste privé. Passé le délai, le lien ne fonctionne plus — le motif de partage sécurisé.",
+      "explain_en": "A presigned URL is signed with your rights and valid for a limited time: the recipient downloads the private object via the link, with no AWS credentials, and the bucket stays private. After the delay, the link stops working — the secure-sharing pattern."
+    }
+  ]
+}

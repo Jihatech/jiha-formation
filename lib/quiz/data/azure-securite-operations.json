@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quelle est la différence entre Azure Policy (Deny) et un scan `checkov` ?",
+      "q_en": "What is the difference between Azure Policy (Deny) and a `checkov` scan ?",
+      "choices": [
+        { "fr": "Ce sont deux noms du même outil", "en": "They are two names for the same tool" },
+        { "fr": "`checkov` signale en CI (shift-left, sur le code) ; Azure Policy empêche la création côté plateforme (garde-fou permanent)", "en": "`checkov` flags in CI (shift-left, on the code); Azure Policy prevents creation on the platform (permanent guardrail)" },
+        { "fr": "Azure Policy corrige automatiquement les ressources", "en": "Azure Policy automatically fixes resources" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un scan constate avant le déploiement ; une politique Deny empêche la création. Les deux se combinent : checkov en CI (tôt) et Policy en prod (garde-fou permanent).",
+      "explain_en": "A scan reports before deployment; a Deny policy prevents creation. Both combine: checkov in CI (early) and Policy in prod (permanent guardrail)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que fournit Defender for Cloud avec le secure score ?",
+      "q_en": "What does Defender for Cloud provide with the secure score ?",
+      "choices": [
+        { "fr": "Un chiffrement automatique des données", "en": "Automatic data encryption" },
+        { "fr": "Un pare-feu applicatif", "en": "An application firewall" },
+        { "fr": "Une note de posture en % et des recommandations priorisées par sévérité (Haute d'abord)", "en": "A posture score as a % and recommendations prioritized by severity (High first)" }
+      ],
+      "answer": 2,
+      "explain_fr": "Une boussole chiffrée : corrige les recommandations Haute d'abord, le score monte, la surface d'attaque baisse. C'est le pilotage continu de la posture.",
+      "explain_en": "A quantified compass: fix the High recommendations first, the score rises, the attack surface shrinks. It's continuous posture management."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi centraliser les journaux (Log Analytics) ?",
+      "q_en": "Why centralize logs (Log Analytics) ?",
+      "choices": [
+        { "fr": "On ne détecte que ce qu'on voit : sans journaux centralisés et structurés, pas de corrélation", "en": "You only detect what you see: without centralized, structured logs, no correlation" },
+        { "fr": "Pour réduire l'espace disque", "en": "To reduce disk space" },
+        { "fr": "Pour remplacer les règles de détection", "en": "To replace the detection rules" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sans journaux centralisés, pas de corrélation. Les journaux structurés (champs clairs) sont interrogeables et révèlent déjà des signaux à transformer en incidents.",
+      "explain_en": "Without centralized logs, no correlation. Structured logs (clear fields) are queryable and already reveal signals to turn into incidents."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Que fait une règle de détection Sentinel (ex. force brute, voyage impossible) ?",
+      "q_en": "What does a Sentinel detection rule do (e.g. brute force, impossible travel) ?",
+      "choices": [
+        { "fr": "Elle chiffre les journaux", "en": "It encrypts the logs" },
+        { "fr": "Elle corrèle les journaux bruts en incidents actionnables", "en": "It correlates raw logs into actionable incidents" },
+        { "fr": "Elle supprime les comptes inactifs", "en": "It deletes inactive accounts" }
+      ],
+      "answer": 1,
+      "explain_fr": "C'est le cœur d'un SIEM : pas juste stocker des logs, mais en extraire du sens. La règle corrèle (5 échecs puis succès = force brute ; FR→RU = voyage impossible).",
+      "explain_en": "It's the heart of a SIEM: not just storing logs, but extracting meaning. The rule correlates (5 failures then success = brute force; FR→RU = impossible travel)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Qu'est-ce que la chasse aux menaces (threat hunting) en KQL ?",
+      "q_en": "What is threat hunting in KQL ?",
+      "choices": [
+        { "fr": "Une règle qui bloque automatiquement les IP", "en": "A rule that automatically blocks IPs" },
+        { "fr": "Un playbook de réponse", "en": "A response playbook" },
+        { "fr": "Interroger proactivement les journaux à la recherche d'indices, sans attendre qu'une règle se déclenche", "en": "Proactively querying logs looking for clues, without waiting for a rule to fire" }
+      ],
+      "answer": 2,
+      "explain_fr": "Ne pas attendre l'alerte : la chasse révèle l'IP la plus agressive avant même qu'une règle ne se déclenche — utile pour les attaques lentes ou nouvelles.",
+      "explain_en": "Don't wait for the alert: hunting reveals the most aggressive IP even before a rule fires — useful for slow or novel attacks."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que fait un playbook (SOAR) et quel est son effet sur le MTTR ?",
+      "q_en": "What does a playbook (SOAR) do and what is its effect on MTTR ?",
+      "choices": [
+        { "fr": "Il exécute une réponse automatique (désactiver le compte, révoquer les sessions, bloquer l'IP) et fait chuter le MTTR", "en": "It runs an automatic response (disable the account, revoke sessions, block the IP) and drops the MTTR" },
+        { "fr": "Il augmente le MTTR en attendant un humain", "en": "It raises the MTTR by waiting for a human" },
+        { "fr": "Il ne sert qu'à générer des rapports", "en": "It only serves to generate reports" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le R de SOAR : la réponse est immédiate et automatique, pas d'attente d'un humain à 3 h du matin. En vrai Azure, une Logic App déclenchée par l'alerte Sentinel.",
+      "explain_en": "The R of SOAR: the response is immediate and automatic, no waiting for a human at 3 a.m. On real Azure, a Logic App triggered by the Sentinel alert."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quels maillons forment le cycle SecOps continu ?",
+      "q_en": "Which links form the continuous SecOps cycle ?",
+      "choices": [
+        { "fr": "Uniquement chiffrer et sauvegarder", "en": "Only encrypt and back up" },
+        { "fr": "Gouverner, mesurer, centraliser, détecter, chasser, répondre — en boucle continue", "en": "Govern, measure, centralize, detect, hunt, respond — in a continuous loop" },
+        { "fr": "Uniquement segmenter le réseau", "en": "Only segment the network" }
+      ],
+      "answer": 1,
+      "explain_fr": "Une boucle vivante : ce qu'on découvre en chasse et en réponse nourrit de nouvelles règles et politiques. La sécurité est une pratique continue, pas une case cochée.",
+      "explain_en": "A living loop: what hunting and response uncover feeds new rules and policies. Security is a continuous practice, not a checked box."
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Deux conteneurs lancés sans option `--network` se retrouvent sur quel réseau, et comment peuvent-ils communiquer ?",
+      "q_en": "Two containers started without a `--network` option end up on which network, and how can they communicate?",
+      "choices": [
+        { "fr": "Sur le bridge par défaut, joignables par IP (172.17.x.x)", "en": "On the default bridge, reachable by IP (172.17.x.x)" },
+        { "fr": "Sur un réseau overlay, joignables par nom", "en": "On an overlay network, reachable by name" },
+        { "fr": "Sur le réseau host, en partageant la pile de l'hôte", "en": "On the host network, sharing the host's stack" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sans --network, les conteneurs rejoignent le bridge par défaut. docker network inspect bridge liste leurs IP en 172.17.x.x/16 : ils sont sur le même réseau et se joignent par IP.",
+      "explain_en": "Without --network, containers join the default bridge. docker network inspect bridge lists their IPs in 172.17.x.x/16: they are on the same network and reach each other by IP."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Sur le bridge par défaut, pourquoi `docker exec c1 ping c2` (par nom) échoue-t-il alors que le ping par IP réussit ?",
+      "q_en": "On the default bridge, why does `docker exec c1 ping c2` (by name) fail while pinging by IP succeeds?",
+      "choices": [
+        { "fr": "Parce que le ping par nom nécessite le mode réseau host", "en": "Because ping by name requires host network mode" },
+        { "fr": "Parce que le bridge par défaut ne fournit aucun DNS entre conteneurs", "en": "Because the default bridge provides no DNS between containers" },
+        { "fr": "Parce que c2 n'expose pas de port avec EXPOSE", "en": "Because c2 doesn't expose a port with EXPOSE" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le bridge par défaut ne fournit aucune résolution DNS entre conteneurs : le nom c2 n'est pas résolu (bad address). Le ping par IP fonctionne car il n'a pas besoin de DNS. Se reposer sur les IP est fragile ; la solution est un réseau utilisateur.",
+      "explain_en": "The default bridge provides no DNS resolution between containers: the name c2 is not resolved (bad address). Ping by IP works because it needs no DNS. Relying on IPs is fragile; the solution is a user network."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quel avantage un bridge utilisateur (créé avec `docker network create`) apporte-t-il par rapport au bridge par défaut ?",
+      "q_en": "What advantage does a user bridge (created with `docker network create`) offer over the default bridge?",
+      "choices": [
+        { "fr": "Il chiffre automatiquement tout le trafic entre conteneurs", "en": "It automatically encrypts all traffic between containers" },
+        { "fr": "Il double la bande passante disponible", "en": "It doubles the available bandwidth" },
+        { "fr": "Il active un DNS interne qui résout les conteneurs par leur nom", "en": "It enables an internal DNS that resolves containers by their name" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un bridge utilisateur embarque un DNS interne (127.0.0.11) qui résout les noms de conteneurs. C'est pourquoi ping web réussit par nom, et pourquoi on crée toujours un réseau dédié par application (ce que fait Compose automatiquement).",
+      "explain_en": "A user bridge ships an internal DNS (127.0.0.11) that resolves container names. That's why ping web succeeds by name, and why you always create a dedicated network per application (which Compose does automatically)."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quelle est la différence entre `EXPOSE` (dans le Dockerfile) et l'option `-p` de `docker run` ?",
+      "q_en": "What is the difference between `EXPOSE` (in the Dockerfile) and the `-p` option of `docker run`?",
+      "choices": [
+        { "fr": "EXPOSE ne fait que documenter le port ; seul -p rend le conteneur joignable depuis l'hôte", "en": "EXPOSE only documents the port; only -p makes the container reachable from the host" },
+        { "fr": "EXPOSE ouvre le port sur l'hôte, -p ne fait que le documenter", "en": "EXPOSE opens the port on the host, -p only documents it" },
+        { "fr": "Les deux sont équivalents et interchangeables", "en": "The two are equivalent and interchangeable" }
+      ],
+      "answer": 0,
+      "explain_fr": "EXPOSE ne fait que documenter le port applicatif, il n'ouvre rien. Seul -p HÔTE:CONTENEUR (ou -P) publie le port et rend le service joignable depuis l'extérieur. Sans publication, le service reste accessible seulement aux autres conteneurs du réseau.",
+      "explain_en": "EXPOSE only documents the app port, it opens nothing. Only -p HOST:CONTAINER (or -P) publishes the port and makes the service reachable from outside. Without publishing, the service stays reachable only to other containers on the network."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Que voit un conteneur lancé avec `--network host` lorsqu'il exécute `ip addr` ?",
+      "q_en": "What does a container started with `--network host` see when it runs `ip addr`?",
+      "choices": [
+        { "fr": "Uniquement l'interface de loopback lo", "en": "Only the loopback interface lo" },
+        { "fr": "Les interfaces réseau de l'hôte, dont il partage la pile", "en": "The host's network interfaces, whose stack it shares" },
+        { "fr": "Une IP privée en 172.17.x.x du bridge", "en": "A private 172.17.x.x IP from the bridge" }
+      ],
+      "answer": 1,
+      "explain_fr": "Avec --network host, le conteneur partage la pile réseau de l'hôte : ip addr montre les interfaces de l'hôte (eth0…) et son port 80 EST celui de l'hôte, sans -p. C'est l'inverse de --network none, où seul lo subsiste (isolation maximale).",
+      "explain_en": "With --network host, the container shares the host's network stack: ip addr shows the host's interfaces (eth0…) and its port 80 IS the host's, no -p needed. It's the opposite of --network none, where only lo remains (maximum isolation)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Après `docker network connect backend web`, dans quel état réseau se trouve le conteneur `web` ?",
+      "q_en": "After `docker network connect backend web`, what network state is the `web` container in?",
+      "choices": [
+        { "fr": "Il est déplacé du réseau appnet vers backend", "en": "It is moved from the appnet network to backend" },
+        { "fr": "Il est déconnecté de tout réseau jusqu'au prochain redémarrage", "en": "It is disconnected from all networks until the next restart" },
+        { "fr": "Il est multi-homé, présent sur appnet ET backend à la fois", "en": "It is multi-homed, present on both appnet AND backend at once" }
+      ],
+      "answer": 2,
+      "explain_fr": "docker network connect ajoute un réseau sans retirer les autres : web est multi-homé, joignable sur appnet et backend. C'est le motif du reverse proxy (frontend public + backend privé) et la base de la segmentation réseau.",
+      "explain_en": "docker network connect adds a network without removing the others: web is multi-homed, reachable on both appnet and backend. This is the reverse-proxy pattern (public frontend + private backend) and the basis of network segmentation."
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi un module enfant `webservice` ne déclare-t-il ni le bloc `terraform {}` ni le `provider \"docker\"` ?",
+      "q_en": "Why does a child `webservice` module declare neither the `terraform {}` block nor the `provider \"docker\"`?",
+      "choices": [
+        { "fr": "Parce qu'un module enfant hérite des providers configurés par le module racine", "en": "Because a child module inherits the providers configured by the root module" },
+        { "fr": "Parce qu'un module ne peut pas créer de ressources Docker", "en": "Because a module cannot create Docker resources" },
+        { "fr": "Parce que le provider est téléchargé à chaque `apply`, pas déclaré", "en": "Because the provider is downloaded on each `apply`, not declared" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le module racine fournit et configure les providers puis les passe à ses enfants. Un bon module se pense par son interface : variables (entrées) et outputs (sorties).",
+      "explain_en": "The root module provides and configures the providers, then passes them to its children. A good module is designed by its interface: variables (inputs) and outputs (outputs)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Après avoir ajouté un bloc `module \"blog\"`, quelle adresse apparaît dans `terraform state list` et que faut-il lancer d'abord ?",
+      "q_en": "After adding a `module \"blog\"` block, which address appears in `terraform state list` and what must you run first?",
+      "choices": [
+        { "fr": "`docker_container.this`, sans rien relancer", "en": "`docker_container.this`, without re-running anything" },
+        { "fr": "`module.blog.docker_container.this`, après `terraform init` qui ré-indexe le module", "en": "`module.blog.docker_container.this`, after `terraform init` which re-indexes the module" },
+        { "fr": "`blog.container`, après un simple `terraform apply`", "en": "`blog.container`, after a plain `terraform apply`" }
+      ],
+      "answer": 1,
+      "explain_fr": "L'adresse d'une ressource dans un module est préfixée par `module.<nom>`. Terraform doit ré-indexer les modules avec `init` avant `plan` (sinon `Module not installed`).",
+      "explain_en": "A resource's address inside a module is prefixed by `module.<name>`. Terraform must re-index modules with `init` before `plan` (otherwise `Module not installed`)."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Comment décliner un même module en N services standardisés à partir d'une map `var.services` ?",
+      "q_en": "How do you instantiate the same module into N standardized services from a `var.services` map?",
+      "choices": [
+        { "fr": "Copier-coller le bloc `module` autant de fois que nécessaire", "en": "Copy-paste the `module` block as many times as needed" },
+        { "fr": "Ajouter `count = 3` au module", "en": "Add `count = 3` to the module" },
+        { "fr": "Ajouter `for_each = var.services` au bloc `module`, avec `each.key` et `each.value`", "en": "Add `for_each = var.services` to the `module` block, with `each.key` and `each.value`" }
+      ],
+      "answer": 2,
+      "explain_fr": "`for_each` sur une map décline le module par clé (`module.web[\"blog\"]`). Un module + une map = N services standardisés — le pattern d'entreprise.",
+      "explain_en": "`for_each` over a map instantiates the module by key (`module.web[\"blog\"]`). One module + one map = N standardized services — the enterprise pattern."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi `version = \"~> 5.0\"` est-il obligatoire pour un module du Terraform Registry ?",
+      "q_en": "Why is `version = \"~> 5.0\"` mandatory for a Terraform Registry module?",
+      "choices": [
+        { "fr": "Parce qu'un module Registry évolue indépendamment : sans épingler, un `init` pourrait tirer une v6 aux changements cassants", "en": "Because a Registry module evolves independently: without pinning, an `init` could pull a v6 with breaking changes" },
+        { "fr": "Parce que le Registry facture au numéro de version", "en": "Because the Registry bills per version number" },
+        { "fr": "Parce que sans `version`, le module s'applique en lecture seule", "en": "Because without `version`, the module applies read-only" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un module distant vit hors de ton dépôt ; `~> 5.0` autorise les correctifs `5.x` mais bloque `6.0`. Le `source` Registry a le format `<NAMESPACE>/<NOM>/<PROVIDER>`.",
+      "explain_en": "A remote module lives outside your repo; `~> 5.0` allows `5.x` patches but blocks `6.0`. The Registry `source` has the format `<NAMESPACE>/<NAME>/<PROVIDER>`."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Qu'apportent les `terraform workspace` et quelle en est la principale limite ?",
+      "q_en": "What do `terraform workspace`s bring and what is their main limitation?",
+      "choices": [
+        { "fr": "Ils dupliquent le code par environnement ; limite : ils consomment plus de disque", "en": "They duplicate code per environment; limitation: they use more disk" },
+        { "fr": "Plusieurs states pour un même code ; limite : ils partagent le même backend et le même code, inadaptés à des comptes cloud vraiment cloisonnés", "en": "Multiple states for one codebase; limitation: they share the same backend and code, unfit for truly partitioned cloud accounts" },
+        { "fr": "Un state chiffré par workspace ; limite : ils exigent HCP Terraform", "en": "An encrypted state per workspace; limitation: they require HCP Terraform" }
+      ],
+      "answer": 1,
+      "explain_fr": "Les workspaces donnent plusieurs states pour UN code (via `terraform.workspace`). Mais ils partagent backend et code : pour des différences fortes (comptes/régions), on préfère des dossiers séparés + modules partagés.",
+      "explain_en": "Workspaces give several states for ONE codebase (via `terraform.workspace`). But they share backend and code: for strong differences (accounts/regions), separate folders + shared modules are preferred."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Comment la configuration « appli » obtient-elle l'ID du réseau créé par la configuration « plateforme » ?",
+      "q_en": "How does the \"app\" configuration obtain the network ID created by the \"platform\" configuration?",
+      "choices": [
+        { "fr": "Elle recrée le réseau à l'identique dans son propre code", "en": "It recreates the network identically in its own code" },
+        { "fr": "Elle copie manuellement l'ID dans une variable après chaque `apply`", "en": "It manually copies the ID into a variable after each `apply`" },
+        { "fr": "Elle lit l'output de l'autre state via `terraform_remote_state`, sans le recréer", "en": "It reads the other state's output via `terraform_remote_state`, without recreating it" }
+      ],
+      "answer": 2,
+      "explain_fr": "`data \"terraform_remote_state\"` lit les outputs d'une autre configuration. C'est le contrat entre équipes : la plateforme expose des outputs, l'appli les consomme.",
+      "explain_en": "`data \"terraform_remote_state\"` reads another configuration's outputs. It's the contract between teams: the platform exposes outputs, the app consumes them."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Qu'apporte le bloc `cloud {}` (HCP Terraform) et avec quoi ne se combine-t-il pas ?",
+      "q_en": "What does the `cloud {}` block (HCP Terraform) bring and what does it not combine with?",
+      "choices": [
+        { "fr": "State géré et chiffré, verrouillage, historique et exécution distante ; il remplace un bloc `backend \"...\"` (jamais les deux)", "en": "Managed encrypted state, locking, history and remote execution; it replaces a `backend \"...\"` block (never both)" },
+        { "fr": "Uniquement un affichage web du plan ; il se met en plus du bloc `backend`", "en": "Only a web display of the plan; it is added on top of the `backend` block" },
+        { "fr": "Il transforme les workspaces CLI en workspaces HCP automatiquement, sans changement", "en": "It turns CLI workspaces into HCP workspaces automatically, with no change" }
+      ],
+      "answer": 0,
+      "explain_fr": "HCP Terraform héberge le state chiffré, verrouille, garde l'historique et exécute plan/apply à distance. Le bloc `cloud {}` remplace un `backend`. Les workspaces HCP ne sont pas les workspaces CLI.",
+      "explain_en": "HCP Terraform hosts the encrypted state, locks, keeps history and runs plan/apply remotely. The `cloud {}` block replaces a `backend`. HCP workspaces are not the CLI workspaces."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Dans quel ordre détruire l'appli (attachée au réseau) et le réseau partagé ?",
+      "q_en": "In what order do you destroy the app (attached to the network) and the shared network?",
+      "choices": [
+        { "fr": "Le réseau d'abord, puisqu'il a été créé en premier", "en": "The network first, since it was created first" },
+        { "fr": "L'appli d'abord (dans chaque workspace), puis le réseau, car l'appli dépend du réseau", "en": "The app first (in each workspace), then the network, because the app depends on the network" },
+        { "fr": "Peu importe : un seul `destroy` supprime tous les states à la fois", "en": "It doesn't matter: a single `destroy` removes all states at once" }
+      ],
+      "answer": 1,
+      "explain_fr": "L'appli dépend du réseau : on la détruit avant, sinon le réseau est encore utilisé. Et chaque workspace a son propre state, donc on détruit dans chacun (`destroy` n'agit que sur le state courant).",
+      "explain_en": "The app depends on the network: destroy it first, otherwise the network is still in use. And each workspace has its own state, so destroy in each (`destroy` acts only on the current state)."
+    }
+  ]
+}

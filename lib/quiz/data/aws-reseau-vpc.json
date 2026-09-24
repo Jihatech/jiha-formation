@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Que détermine le bloc CIDR choisi pour un VPC, par exemple `10.0.0.0/16` ?",
+      "q_en": "What does the CIDR block chosen for a VPC, e.g. `10.0.0.0/16`, determine ?",
+      "choices": [
+        { "fr": "La région AWS dans laquelle le VPC sera créé", "en": "The AWS region in which the VPC will be created" },
+        { "fr": "Le nombre d'adresses IP privées disponibles (ici 65 536) et la façon de les découper en sous-réseaux", "en": "The number of available private IP addresses (here 65,536) and how to split them into subnets" },
+        { "fr": "Le nombre de zones de disponibilité couvertes automatiquement", "en": "The number of availability zones automatically covered" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le bloc CIDR fixe la taille de l'espace d'adressage et la marge de découpage. `10.0.0.0/16` offre 65 536 adresses privées, assez large pour de nombreux sous-réseaux — le choix standard.",
+      "explain_en": "The CIDR block sets the address space size and the room to subdivide. `10.0.0.0/16` gives 65,536 private addresses, broad enough for many subnets — the standard choice."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Dans combien de zones de disponibilité vit un sous-réseau, et pourquoi en répartir sur plusieurs AZ ?",
+      "q_en": "In how many availability zones does a subnet live, and why spread across several AZs ?",
+      "choices": [
+        { "fr": "Un sous-réseau s'étale sur toutes les AZ de la région, la répartition est automatique", "en": "A subnet spans all AZs of the region, spreading is automatic" },
+        { "fr": "Un sous-réseau vit dans une seule AZ ; répartir sur au moins deux AZ permet de survivre à la panne d'un datacenter", "en": "A subnet lives in a single AZ; spreading across at least two AZs survives a datacenter failure" },
+        { "fr": "Un sous-réseau vit dans une seule AZ, et un seul suffit toujours pour la haute disponibilité", "en": "A subnet lives in a single AZ, and one is always enough for high availability" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un sous-réseau est lié à une seule AZ. Pour la haute disponibilité (pilier du SAA), on place des sous-réseaux dans au moins deux AZ afin de survivre à la panne d'un datacenter. À ce stade, aucun n'est encore public : c'est le routage qui fera la différence.",
+      "explain_en": "A subnet is tied to a single AZ. For high availability (a SAA pillar), you place subnets in at least two AZs to survive a datacenter failure. At this stage none is public yet: routing makes the difference."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quelles conditions rendent réellement un sous-réseau « public » (joignable depuis Internet) ?",
+      "q_en": "What conditions actually make a subnet \"public\" (reachable from the internet) ?",
+      "choices": [
+        { "fr": "Une passerelle Internet attachée au VPC, une route `0.0.0.0/0 → IGW`, et le sous-réseau associé à cette table de routage", "en": "An internet gateway attached to the VPC, a `0.0.0.0/0 → IGW` route, and the subnet associated with that route table" },
+        { "fr": "Il suffit de le nommer « public » avec un tag Name", "en": "It's enough to tag it Name=public" },
+        { "fr": "Il suffit d'un groupe de sécurité autorisant le port 80", "en": "A security group allowing port 80 is enough" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un sous-réseau n'est public que si les trois conditions sont réunies : IGW attachée au VPC, route `0.0.0.0/0` vers l'IGW dans la table de routage, et sous-réseau associé à cette table. Le piège d'examen n°1 : « instance dans un sous-réseau public mais sans Internet » — il manque l'une des trois.",
+      "explain_en": "A subnet is public only if all three conditions are met: IGW attached to the VPC, a `0.0.0.0/0` route to the IGW in the route table, and the subnet associated with that table. Exam trap #1: \"instance in a public subnet but no internet\" — one of the three is missing."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Qu'est-ce qui caractérise un groupe de sécurité (security group) AWS ?",
+      "q_en": "What characterizes an AWS security group ?",
+      "choices": [
+        { "fr": "Il est stateless et exige une règle sortante explicite pour chaque réponse", "en": "It is stateless and requires an explicit outbound rule for each response" },
+        { "fr": "Il s'applique à tout un sous-réseau et supporte des règles deny", "en": "It applies to a whole subnet and supports deny rules" },
+        { "fr": "Il est stateful (la réponse sort automatiquement) et ne comporte que des règles d'autorisation", "en": "It is stateful (the response goes out automatically) and has allow rules only" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un SG s'attache à une instance, il est stateful (autoriser l'entrée sur 80 laisse sortir la réponse sans règle sortante) et ne contient que des règles d'autorisation — ce qui n'est pas autorisé est implicitement refusé.",
+      "explain_en": "An SG attaches to an instance, it is stateful (allowing inbound 80 lets the response go out with no outbound rule) and holds allow rules only — what isn't allowed is implicitly denied."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi une NACL exige-t-elle d'autoriser explicitement le trafic de retour, contrairement à un groupe de sécurité ?",
+      "q_en": "Why does a NACL require explicitly allowing return traffic, unlike a security group ?",
+      "choices": [
+        { "fr": "Parce qu'une NACL est stateless : chaque sens est évalué séparément, il faut une règle sortante pour les ports éphémères", "en": "Because a NACL is stateless: each direction is evaluated separately, so an outbound rule for ephemeral ports is needed" },
+        { "fr": "Parce qu'une NACL s'applique à une seule instance", "en": "Because a NACL applies to a single instance" },
+        { "fr": "Parce qu'une NACL n'autorise que le trafic sortant", "en": "Because a NACL only allows outbound traffic" }
+      ],
+      "answer": 0,
+      "explain_fr": "Une NACL s'applique à tout un sous-réseau et est stateless : autoriser l'entrée sur le port 80 ne suffit pas, il faut aussi autoriser la sortie du retour (ports éphémères 1024-65535). Elle supporte des règles allow et deny numérotées, là où le SG (stateful) ne fait que des allow.",
+      "explain_en": "A NACL applies to a whole subnet and is stateless: allowing inbound on port 80 isn't enough, you must also allow the return outbound (ephemeral ports 1024-65535). It supports numbered allow and deny rules, where the SG (stateful) only does allows."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quel est le rôle d'une passerelle NAT dans le motif de référence public/privé ?",
+      "q_en": "What is the role of a NAT gateway in the reference public/private pattern ?",
+      "choices": [
+        { "fr": "Rendre le sous-réseau privé joignable depuis Internet", "en": "Make the private subnet reachable from the internet" },
+        { "fr": "Permettre au sous-réseau privé de sortir vers Internet sans être joignable de l'extérieur", "en": "Let the private subnet reach out to the internet without being reachable from outside" },
+        { "fr": "Remplacer la table de routage du sous-réseau public", "en": "Replace the public subnet's route table" }
+      ],
+      "answer": 1,
+      "explain_fr": "La base va dans le sous-réseau privé (jamais exposé), mais a parfois besoin de sortir (mises à jour, API). La passerelle NAT, placée dans le public, autorise cette sortie sans rendre le privé joignable. La table privée n'a que la route locale, aucune route `0.0.0.0/0 → IGW`.",
+      "explain_en": "The database goes in the private subnet (never exposed) but sometimes needs egress (updates, APIs). The NAT gateway, placed in the public subnet, allows that egress without making the private subnet reachable. The private table has only the local route, no `0.0.0.0/0 → IGW`."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi un `delete-vpc` échoue-t-il souvent en `DependencyViolation` ?",
+      "q_en": "Why does a `delete-vpc` often fail with `DependencyViolation` ?",
+      "choices": [
+        { "fr": "Parce que le VPC contient encore des ressources dépendantes (associations, sous-réseaux, IGW attachée…) qu'il faut supprimer de l'intérieur vers l'extérieur", "en": "Because the VPC still holds dependent resources (associations, subnets, attached IGW…) that must be deleted inside-out" },
+        { "fr": "Parce qu'un VPC ne peut jamais être supprimé une fois créé", "en": "Because a VPC can never be deleted once created" },
+        { "fr": "Parce que la suppression exige de recréer d'abord un nouveau CIDR", "en": "Because deletion requires first creating a new CIDR" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les ressources réseau ont des dépendances : on détache et supprime de l'intérieur vers l'extérieur — entrées, associations dissociées (`disassociate-route-table`), IGW détachée, sous-réseaux, tables, SG, NACL, puis le VPC en dernier. Un `delete-vpc` qui échoue signale presque toujours une dépendance oubliée.",
+      "explain_en": "Network resources have dependencies: you detach and delete inside-out — entries, disassociated route tables (`disassociate-route-table`), detached IGW, subnets, tables, SG, NACL, then the VPC last. A failing `delete-vpc` almost always signals a forgotten dependency."
+    }
+  ]
+}

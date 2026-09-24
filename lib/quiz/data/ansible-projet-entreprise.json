@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Dans l'inventaire de l'architecture 3-tiers, quel intérêt d'un groupe parent `[prod:children]` regroupant `loadbalancer`, `app` et `database` ?",
+      "q_en": "In the 3-tier inventory, what is the benefit of a parent group `[prod:children]` gathering `loadbalancer`, `app` and `database`?",
+      "choices": [
+        { "fr": "Il rassemble les tiers pour les réglages communs et rend le site.yml lisible par tier", "en": "It gathers the tiers for common settings and makes site.yml readable per tier" },
+        { "fr": "Il fusionne les trois tiers en une seule machine", "en": "It merges the three tiers into a single machine" },
+        { "fr": "Il chiffre automatiquement les variables des trois groupes", "en": "It automatically encrypts the variables of all three groups" }
+      ],
+      "answer": 0,
+      "explain_fr": "Chaque tier est un groupe (loadbalancer, app, database) ; le parent prod les rassemble pour les réglages communs (ex. ansible_user via [prod:vars]). Cette structure rend le site.yml lisible : « applique le rôle db au groupe database ».",
+      "explain_en": "Each tier is a group (loadbalancer, app, database); the parent prod gathers them for common settings (e.g. ansible_user via [prod:vars]). This structure makes site.yml readable: \"apply the db role to the database group\"."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi chiffrer `vault_db_password` dans `vault.yml` et exposer `db_password: \"{{ vault_db_password }}\"` en clair dans `main.yml` ?",
+      "q_en": "Why encrypt `vault_db_password` in `vault.yml` and expose `db_password: \"{{ vault_db_password }}\"` in clear in `main.yml`?",
+      "choices": [
+        { "fr": "Pour que les deux valeurs soient chiffrées deux fois, plus sûr", "en": "So both values are encrypted twice, safer" },
+        { "fr": "Pour que les rôles utilisent un nom lisible (db_password) tandis que la vraie valeur reste chiffrée", "en": "So roles use a readable name (db_password) while the real value stays encrypted" },
+        { "fr": "Parce que Vault ne peut chiffrer qu'une variable préfixée vault_", "en": "Because Vault can only encrypt a variable prefixed vault_" }
+      ],
+      "answer": 1,
+      "explain_fr": "C'est le pont clair/chiffré, la convention pro : les rôles référencent db_password (nom lisible), et db_password pointe vers vault_db_password qui, lui, est chiffré dans vault.yml. La vraie valeur n'est jamais en clair sur le disque ; .vault_pass reste dans .gitignore.",
+      "explain_en": "It's the clear/encrypted bridge, the pro convention: roles reference db_password (readable name), and db_password points to vault_db_password which is encrypted in vault.yml. The real value is never in clear on disk; .vault_pass stays in .gitignore."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Dans le rôle `commun`, pourquoi autoriser OpenSSH dans ufw AVANT de passer la politique à `deny incoming` ?",
+      "q_en": "In the `commun` role, why allow OpenSSH in ufw BEFORE switching the policy to `deny incoming`?",
+      "choices": [
+        { "fr": "Sinon on se coupe soi-même l'accès SSH à la VM", "en": "Otherwise you cut your own SSH access to the VM" },
+        { "fr": "Parce que ufw refuse d'activer sans une règle SSH nommée", "en": "Because ufw refuses to enable without a named SSH rule" },
+        { "fr": "Pour accélérer l'application des règles suivantes", "en": "To speed up applying the following rules" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'ordre des tâches est critique : si on passe la politique deny incoming avant d'autoriser OpenSSH, on se déconnecte de la VM et Ansible perd l'accès. Toujours allow OpenSSH puis enable. Le rôle commun (base partagée) s'attache en dépendance aux autres.",
+      "explain_en": "Task order is critical: switching to deny incoming before allowing OpenSSH disconnects you from the VM and Ansible loses access. Always allow OpenSSH then enable. The commun role (shared base) attaches as a dependency to the others."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi le rôle `db` installe-t-il `python3-psycopg2` et met-il `no_log: true` sur la création de l'utilisateur PostgreSQL ?",
+      "q_en": "Why does the `db` role install `python3-psycopg2` and put `no_log: true` on the PostgreSQL user creation?",
+      "choices": [
+        { "fr": "psycopg2 accélère PostgreSQL ; no_log réduit la taille des logs", "en": "psycopg2 speeds up PostgreSQL; no_log reduces log size" },
+        { "fr": "psycopg2 est le driver requis par les modules postgresql_* ; no_log évite que le mot de passe apparaisse dans les logs", "en": "psycopg2 is the driver required by the postgresql_* modules; no_log keeps the password out of the logs" },
+        { "fr": "psycopg2 chiffre la base ; no_log désactive la journalisation de PostgreSQL", "en": "psycopg2 encrypts the database; no_log disables PostgreSQL logging" }
+      ],
+      "answer": 1,
+      "explain_fr": "Les modules postgresql_* s'exécutent via le driver Python python3-psycopg2 sur la cible (sinon : Failed to import psycopg2). no_log: true empêche le mot de passe (venu de Vault) d'apparaître dans les logs Ansible. La base est le seul tier avec état.",
+      "explain_en": "The postgresql_* modules run via the python3-psycopg2 driver on the target (otherwise: Failed to import psycopg2). no_log: true keeps the password (from Vault) out of Ansible logs. The database is the only stateful tier."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Comment le rôle `app` obtient-il l'adresse de la base sans l'écrire en dur dans son template `app.conf.j2` ?",
+      "q_en": "How does the `app` role get the database address without hardcoding it in its `app.conf.j2` template?",
+      "choices": [
+        { "fr": "Via hostvars[groups['database'][0]]['ansible_host'], l'IP du premier hôte du groupe database", "en": "Via hostvars[groups['database'][0]]['ansible_host'], the IP of the first host of the database group" },
+        { "fr": "En interrogeant un serveur DNS externe au moment du curl", "en": "By querying an external DNS server at curl time" },
+        { "fr": "En lisant une variable db_host codée en dur dans defaults", "en": "By reading a db_host variable hardcoded in defaults" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le template utilise hostvars[groups['database'][0]]['ansible_host'] : « l'IP du premier hôte du groupe database ». L'app découvre la base via l'inventaire, sans écriture en dur. Le mot de passe n'est PAS mis dans app.conf (bonne hygiène) ; un handler recharge nginx si un template a changé.",
+      "explain_en": "The template uses hostvars[groups['database'][0]]['ansible_host']: \"the IP of the first host of the database group\". The app discovers the database via the inventory, without hardcoding. The password is NOT put in app.conf (good hygiene); a handler reloads nginx if a template changed."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Comment le rôle `loadbalancer` intègre-t-il automatiquement un nouvel `app3` ajouté à l'inventaire ?",
+      "q_en": "How does the `loadbalancer` role automatically integrate a new `app3` added to the inventory?",
+      "choices": [
+        { "fr": "Il scanne le réseau pour détecter les serveurs nginx actifs", "en": "It scans the network to detect active nginx servers" },
+        { "fr": "Son template boucle sur groups['app'] et génère un upstream avec l'IP de chaque app", "en": "Its template loops over groups['app'] and generates an upstream with each app's IP" },
+        { "fr": "Il faut ajouter app3 manuellement dans lb.conf.j2", "en": "You must add app3 manually in lb.conf.j2" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le template du LB boucle sur groups['app'] et génère un bloc upstream avec hostvars[h]['ansible_host'] pour chaque app. Ajouter app3 à l'inventaire et relancer site.yml l'intègre automatiquement. La même variable app_port aligne le rôle app (écoute + ufw) et l'upstream du LB.",
+      "explain_en": "The LB template loops over groups['app'] and generates an upstream block with hostvars[h]['ansible_host'] for each app. Adding app3 to the inventory and rerunning site.yml integrates it automatically. The same app_port variable aligns the app role (listen + ufw) and the LB upstream."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Dans quel ordre `site.yml` orchestre-t-il les trois tiers, et pourquoi ?",
+      "q_en": "In what order does `site.yml` orchestrate the three tiers, and why?",
+      "choices": [
+        { "fr": "database d'abord, puis app, puis loadbalancer en dernier (car le LB référence les apps)", "en": "database first, then app, then loadbalancer last (because the LB references the apps)" },
+        { "fr": "loadbalancer d'abord pour capter le trafic, puis app, puis database", "en": "loadbalancer first to catch traffic, then app, then database" },
+        { "fr": "L'ordre est indifférent, Ansible parallélise tout", "en": "Order doesn't matter, Ansible parallelizes everything" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'ordre suit les dépendances : la base d'abord (les apps s'y connectent), les apps ensuite, le load-balancer en dernier (il référence les apps). Un site.yml bien ordonné se lit comme le plan d'architecture. La preuve d'or : relancer donne changed=0 partout (idempotence parfaite).",
+      "explain_en": "The order follows dependencies: the database first (apps connect to it), the apps next, the load-balancer last (it references the apps). A well-ordered site.yml reads like the architecture plan. The golden proof: rerunning gives changed=0 everywhere (perfect idempotence)."
+    }
+  ]
+}

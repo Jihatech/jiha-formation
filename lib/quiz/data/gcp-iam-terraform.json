@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Qu'est-ce qu'un compte de service (service account) dans le modèle IAM de GCP ?",
+      "q_en": "What is a service account in GCP's IAM model ?",
+      "choices": [
+        { "fr": "L'identité d'un workload (une application), pas celle d'une personne", "en": "The identity of a workload (an application), not that of a person" },
+        { "fr": "Un compte de facturation rattaché à une carte bancaire", "en": "A billing account tied to a credit card" },
+        { "fr": "Un bucket de stockage réservé aux logs", "en": "A storage bucket reserved for logs" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un compte de service est l'identité d'une application (un workload), distincte d'un utilisateur humain. On le décrit en Terraform (`google_service_account`) et on le valide sans compte avec `terraform validate`, qui vérifie la forme sans parler au vrai GCP ni rien créer.",
+      "explain_en": "A service account is the identity of an application (a workload), distinct from a human user. You describe it in Terraform (`google_service_account`) and validate it with no account via `terraform validate`, which checks the shape without talking to real GCP or creating anything."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pour ajouter un principal à un rôle sans écraser les autres liaisons existantes, quelle ressource Terraform utiliser ?",
+      "q_en": "To add a principal to a role without overwriting other existing bindings, which Terraform resource should you use ?",
+      "choices": [
+        { "fr": "`google_project_iam_policy`, qui remplace toute la politique", "en": "`google_project_iam_policy`, which replaces the whole policy" },
+        { "fr": "`google_project_iam_member`, non destructif (ajoute un seul principal à un rôle)", "en": "`google_project_iam_member`, non-destructive (adds a single principal to a role)" },
+        { "fr": "`google_project_iam_binding`, qui fixe la liste complète des principals du rôle", "en": "`google_project_iam_binding`, which sets the role's full principal list" }
+      ],
+      "answer": 1,
+      "explain_fr": "`_member` ajoute un principal à un rôle sans toucher aux autres (recommandé) ; `_binding` fixe la liste complète des principals d'un rôle (écrase les autres) ; `_policy` remplace toute la politique (dangereux). On accorde des rôles prédéfinis précis (`pubsub.publisher`, `storage.objectViewer`), jamais `Owner`.",
+      "explain_en": "`_member` adds a principal to a role without touching others (recommended); `_binding` sets the full list of a role's principals (overwrites others); `_policy` replaces the whole policy (dangerous). You grant precise predefined roles (`pubsub.publisher`, `storage.objectViewer`), never `Owner`."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Quand faut-il créer un rôle personnalisé plutôt qu'utiliser un rôle prédéfini ?",
+      "q_en": "When should you create a custom role rather than use a predefined one ?",
+      "choices": [
+        { "fr": "Toujours, car les rôles personnalisés sont plus sûrs", "en": "Always, because custom roles are safer" },
+        { "fr": "Seulement si aucun rôle prédéfini n'est assez serré ; sinon on préfère le prédéfini, maintenu par Google", "en": "Only if no predefined role is tight enough; otherwise prefer predefined, maintained by Google" },
+        { "fr": "Jamais, les rôles personnalisés sont interdits", "en": "Never, custom roles are forbidden" }
+      ],
+      "answer": 1,
+      "explain_fr": "On privilégie toujours un rôle prédéfini s'il existe (Google le maintient à jour). On ne crée un rôle personnalisé — avec exactement les permissions voulues, au format `service.ressource.verbe` — que si aucun prédéfini n'est assez serré. Un rôle personnalisé, c'est à toi de le maintenir.",
+      "explain_en": "Always prefer a predefined role if one exists (Google keeps it up to date). Only create a custom role — with exactly the permissions you want, in the `service.resource.verb` format — if no predefined fits tightly enough. A custom role is yours to maintain."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Comment Terraform déduit-il l'ordre de création des ressources, par exemple le sujet Pub/Sub avant son abonnement ?",
+      "q_en": "How does Terraform infer the creation order of resources, e.g. the Pub/Sub topic before its subscription ?",
+      "choices": [
+        { "fr": "À partir des références entre ressources (`topic = google_pubsub_topic.commandes.id`), qui forment un graphe de dépendances", "en": "From references between resources (`topic = google_pubsub_topic.commandes.id`), which form a dependency graph" },
+        { "fr": "Selon l'ordre alphabétique des noms de ressources", "en": "By alphabetical order of resource names" },
+        { "fr": "Selon l'ordre où elles apparaissent dans le fichier", "en": "By the order they appear in the file" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les références entre ressources (`topic = google_pubsub_topic.commandes.id`, `dead_letter_topic = ...rebut.id`) forment un graphe de dépendances dont Terraform déduit l'ordre de création. On décrit ainsi en IaC — reproductible et versionné — ce qu'on créait à la main, y compris le versioning et le cycle de vie exacts du vrai GCP.",
+      "explain_en": "References between resources (`topic = google_pubsub_topic.commandes.id`, `dead_letter_topic = ...rebut.id`) form a dependency graph from which Terraform infers creation order. You thus describe as IaC — reproducible and versioned — what you created by hand, including real GCP's exact versioning and lifecycle."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quel est l'intérêt d'extraire le projet et la région en variables et d'exposer des outputs ?",
+      "q_en": "What is the benefit of extracting project and region into variables and exposing outputs ?",
+      "choices": [
+        { "fr": "Rendre la config réutilisable : la même sert plusieurs environnements en changeant une valeur, et les outputs exposent les valeurs calculées", "en": "Make the config reusable: the same serves several environments by changing one value, and outputs expose computed values" },
+        { "fr": "Chiffrer automatiquement le fichier d'état", "en": "Automatically encrypt the state file" },
+        { "fr": "Supprimer la nécessité d'un provider", "en": "Remove the need for a provider" }
+      ],
+      "answer": 0,
+      "explain_fr": "Paramétrer avec des variables (`var.project_id`) évite de coder en dur : changer de projet = changer une valeur (ou `-var=...`). Les outputs exposent les valeurs calculées (l'e-mail du compte de service, résolu à l'apply). Une variable sans `default` devient obligatoire. C'est la base des modules réutilisables.",
+      "explain_en": "Parameterizing with variables (`var.project_id`) avoids hard-coding: switching projects = changing one value (or `-var=...`). Outputs expose computed values (the service account email, resolved at apply). A variable without a `default` becomes required. It's the basis of reusable modules."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi `terraform validate` réussit-il sans compte, alors que `terraform plan` échoue faute d'identifiants ?",
+      "q_en": "Why does `terraform validate` succeed with no account, while `terraform plan` fails for lack of credentials ?",
+      "choices": [
+        { "fr": "`validate` vérifie seulement la forme localement ; `plan` doit interroger le vrai GCP et exige donc une authentification", "en": "`validate` only checks the shape locally; `plan` must query real GCP and thus requires authentication" },
+        { "fr": "`validate` et `plan` font exactement la même chose, l'échec est un bug", "en": "`validate` and `plan` do exactly the same thing, the failure is a bug" },
+        { "fr": "`plan` échoue parce que la config est invalide", "en": "`plan` fails because the config is invalid" }
+      ],
+      "answer": 0,
+      "explain_fr": "`validate` vérifie syntaxe et schéma en local, sans compte. `plan` calcule le diff entre le code et le réel : il doit interroger le vrai GCP et exige des identifiants (ADC), d'où l'échec attendu sans compte. Cycle complet : init → fmt → validate (local) → plan → apply → destroy (réel). Le state est sensible, jamais dans Git.",
+      "explain_en": "`validate` checks syntax and schema locally, no account. `plan` computes the diff between code and reality: it must query real GCP and needs credentials (ADC), hence the expected failure with no account. Full cycle: init → fmt → validate (local) → plan → apply → destroy (real). The state is sensitive, never in Git."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quel est l'ordre de préférence des types de rôles selon la grille de décision du moindre privilège ?",
+      "q_en": "What is the preference order of role types per the least-privilege decision grid ?",
+      "choices": [
+        { "fr": "Primitif > personnalisé > prédéfini", "en": "Primitive > custom > predefined" },
+        { "fr": "Prédéfini > personnalisé > (jamais) primitif", "en": "Predefined > custom > (never) primitive" },
+        { "fr": "Personnalisé > primitif > prédéfini", "en": "Custom > primitive > predefined" }
+      ],
+      "answer": 1,
+      "explain_fr": "Avant d'accorder un droit : qui en a besoin, pour quoi (le rôle le plus étroit qui suffit), sur quelle ressource. L'ordre de préférence : prédéfini > personnalisé > (jamais) primitif comme Owner. Côté IaC : décrire tout, versionner, revoir en PR. Aucune ressource réelle n'ayant été créée, un nettoyage local suffit.",
+      "explain_en": "Before granting a right: who needs it, for what (the narrowest role that suffices), on which resource. Preference order: predefined > custom > (never) primitive like Owner. On the IaC side: describe everything, version it, review in PRs. Since no real resource was created, a local cleanup suffices."
+    }
+  ]
+}

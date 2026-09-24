@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Dans la commande ad-hoc `ansible localhost -m ping -c local`, que vérifie réellement le module `ping` ?",
+      "q_en": "In the ad-hoc command `ansible localhost -m ping -c local`, what does the `ping` module actually check?",
+      "choices": [
+        { "fr": "Que la cible répond à un ping réseau ICMP", "en": "That the target responds to a network ICMP ping" },
+        { "fr": "Qu'Ansible peut « parler » à la cible et y exécuter un module", "en": "That Ansible can \"talk\" to the target and run a module on it" },
+        { "fr": "Que la latence réseau vers la cible est acceptable", "en": "That the network latency to the target is acceptable" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le module ping n'est pas un ping réseau ICMP : il vérifie qu'Ansible peut se connecter à la cible et y exécuter un module (réponse pong). L'option -c local dit de ne pas passer par SSH.",
+      "explain_en": "The ping module is not a network ICMP ping: it checks that Ansible can connect to the target and run a module there (pong response). The -c local option says not to go through SSH."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Après un premier lancement en `changed=1`, relancer le même playbook donne `changed=0, ok=1`. Quel principe cela illustre-t-il ?",
+      "q_en": "After a first run showing `changed=1`, re-running the same playbook gives `changed=0, ok=1`. What principle does this illustrate?",
+      "choices": [
+        { "fr": "La parallélisation : la tâche a été mise en cache", "en": "Parallelization: the task was cached" },
+        { "fr": "Une erreur : le playbook aurait dû réinstaller le paquet", "en": "An error: the playbook should have reinstalled the package" },
+        { "fr": "L'idempotence : Ansible n'agit que si l'état diffère de l'état voulu", "en": "Idempotence: Ansible acts only if the state differs from the desired one" }
+      ],
+      "answer": 2,
+      "explain_fr": "C'est l'idempotence : on décrit l'état voulu (tree présent), pas la commande. Au premier run tree est installé (changed=1) ; au second, l'état correspond déjà, donc Ansible n'agit pas (changed=0). become: true fournit les droits root.",
+      "explain_en": "That's idempotence: you describe the desired state (tree present), not the command. On the first run tree is installed (changed=1); on the second, the state already matches, so Ansible does nothing (changed=0). become: true provides root rights."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi passe-t-on de `localhost` à une vraie VM Multipass gérée en SSH ?",
+      "q_en": "Why move from `localhost` to a real Multipass VM managed over SSH?",
+      "choices": [
+        { "fr": "Parce que le vrai métier est de gérer des machines à distance via SSH", "en": "Because the real job is managing machines remotely over SSH" },
+        { "fr": "Parce que localhost ne supporte pas le module ping", "en": "Because localhost doesn't support the ping module" },
+        { "fr": "Parce qu'une VM est plus rapide qu'une exécution locale", "en": "Because a VM is faster than a local run" }
+      ],
+      "answer": 0,
+      "explain_fr": "localhost sert à isoler le concept sans le bruit du SSH ; mais le vrai métier est de gérer des machines à distance. Multipass donne un Ubuntu jetable où l'on injecte sa clé publique via cloud-init pour qu'Ansible s'y connecte en SSH sans mot de passe.",
+      "explain_en": "localhost isolates the concept without SSH noise; but the real job is managing machines remotely. Multipass gives a disposable Ubuntu where you inject your public key via cloud-init so Ansible connects over SSH without a password."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Sur la tâche de service nginx, quelle est la différence entre `state: started` et `enabled: true` ?",
+      "q_en": "On the nginx service task, what is the difference between `state: started` and `enabled: true`?",
+      "choices": [
+        { "fr": "started démarre le service au boot, enabled le lance maintenant", "en": "started launches the service at boot, enabled runs it now" },
+        { "fr": "started le fait tourner maintenant, enabled garantit qu'il redémarre au boot", "en": "started makes it run now, enabled ensures it restarts at boot" },
+        { "fr": "Les deux sont synonymes, l'un est juste plus explicite", "en": "The two are synonyms, one is just more explicit" }
+      ],
+      "answer": 1,
+      "explain_fr": "state: started garantit que le service tourne maintenant (comme systemctl start) ; enabled: true garantit qu'il redémarrera au boot (comme systemctl enable). Ce sont deux garanties distinctes.",
+      "explain_en": "state: started ensures the service runs now (like systemctl start); enabled: true ensures it will restart at boot (like systemctl enable). These are two distinct guarantees."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "À quoi sert un template Jinja2 (`index.html.j2`) contenant `{{ ansible_hostname }}` ?",
+      "q_en": "What is a Jinja2 template (`index.html.j2`) containing `{{ ansible_hostname }}` for?",
+      "choices": [
+        { "fr": "À produire un fichier dont les valeurs (ex. hostname) changent selon la machine cible", "en": "To produce a file whose values (e.g. hostname) change per target machine" },
+        { "fr": "À chiffrer le contenu du fichier avant de le déposer", "en": "To encrypt the file's content before dropping it" },
+        { "fr": "À compresser la page HTML pour un transfert plus rapide", "en": "To compress the HTML page for faster transfer" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un template est un fichier avec des trous ({{ variable }}) qu'Ansible remplit. Il permet une config qui s'adapte à chaque machine : ici on injecte le hostname (un fact collecté automatiquement) et le thème dans la page HTML.",
+      "explain_en": "A template is a file with blanks ({{ variable }}) that Ansible fills in. It enables config that adapts per machine: here we inject the hostname (a fact gathered automatically) and the theme into the HTML page."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quand un handler notifié par `notify: redémarrer nginx` s'exécute-t-il ?",
+      "q_en": "When does a handler notified by `notify: redémarrer nginx` run?",
+      "choices": [
+        { "fr": "À chaque exécution du playbook, systématiquement", "en": "On every playbook run, systematically" },
+        { "fr": "Uniquement si la tâche qui le notifie a réellement changé quelque chose", "en": "Only if the task that notifies it actually changed something" },
+        { "fr": "Avant toutes les autres tâches, en début de run", "en": "Before all other tasks, at the start of the run" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un handler ne s'exécute que s'il est notifié par une tâche qui a réellement changé quelque chose (état changed). Redémarrer nginx à chaque run serait inutile et couperait le service pour rien : c'est le pattern idempotent par excellence.",
+      "explain_en": "A handler runs only if notified by a task that actually changed something (changed state). Restarting nginx on every run would be pointless and cut the service for nothing: it's the idempotent pattern par excellence."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Qu'est-ce qu'un rôle Ansible et quel problème résout-il ?",
+      "q_en": "What is an Ansible role and what problem does it solve?",
+      "choices": [
+        { "fr": "Un utilisateur système avec des droits particuliers sur la cible", "en": "A system user with special rights on the target" },
+        { "fr": "Un mode d'exécution parallèle pour accélérer les playbooks", "en": "A parallel execution mode to speed up playbooks" },
+        { "fr": "Une structure de dossiers standard qui encapsule une responsabilité et se réutilise", "en": "A standard folder structure that encapsulates one responsibility and is reused" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un rôle est une structure de dossiers standard (tasks/, templates/, handlers/, vars/) qui encapsule une responsabilité (« serveur web ») et se réutilise d'un projet à l'autre. C'est la brique de partage d'Ansible (cf. Galaxy). tasks/main.yml contient la liste des tâches directement.",
+      "explain_en": "A role is a standard folder structure (tasks/, templates/, handlers/, vars/) that encapsulates one responsibility (\"web server\") and is reused across projects. It's Ansible's sharing unit (see Galaxy). tasks/main.yml holds the task list directly."
+    }
+  ]
+}

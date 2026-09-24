@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Par défaut, un service PaaS (compte de stockage) est-il privé ?",
+      "q_en": "By default, is a PaaS service (storage account) private ?",
+      "choices": [
+        { "fr": "Oui, il est isolé du réseau", "en": "Yes, it is isolated from the network" },
+        { "fr": "Non : il est public par défaut, joignable d'Internet — une surface d'attaque que checkov signale", "en": "No: it is public by default, reachable from the Internet — an attack surface that checkov flags" },
+        { "fr": "Oui, il exige un point de terminaison privé pour démarrer", "en": "Yes, it requires a private endpoint to start" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le PaaS est public par défaut : même avec des clés, c'est une surface d'attaque. `CKV_AZURE_59` le détecte. La bonne réponse : le rendre privé (service ou private endpoint).",
+      "explain_en": "PaaS is public by default: even with keys, it's an attack surface. `CKV_AZURE_59` detects it. The right answer: make it private (service or private endpoint)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que fait un point de terminaison de service (service endpoint), et quelle est sa limite ?",
+      "q_en": "What does a service endpoint do, and what is its limit ?",
+      "choices": [
+        { "fr": "Il donne au PaaS une IP privée dans le VNet", "en": "It gives the PaaS a private IP in the VNet" },
+        { "fr": "Il coupe totalement l'accès Internet du PaaS", "en": "It fully cuts the PaaS's Internet access" },
+        { "fr": "Il restreint l'accès à tes sous-réseaux (trafic par le backbone Azure), mais le service garde son IP publique et ne couvre pas l'on-prem", "en": "It restricts access to your subnets (traffic over the Azure backbone), but the service keeps its public IP and doesn't cover on-prem" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le service endpoint restreint (pas privatise) : mieux qu'un accès ouvert, mais le service garde son IP publique et ne couvre pas l'on-prem. Pour un accès vraiment privé, il faut le private endpoint.",
+      "explain_en": "The service endpoint restricts (doesn't privatize): better than open access, but the service keeps its public IP and doesn't cover on-prem. For truly private access, you need the private endpoint."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Qu'est-ce qu'un point de terminaison privé (private endpoint) ?",
+      "q_en": "What is a private endpoint ?",
+      "choices": [
+        { "fr": "Il donne au PaaS une carte réseau avec une IP privée dans ton sous-réseau, via Private Link", "en": "It gives the PaaS a NIC with a private IP in your subnet, via Private Link" },
+        { "fr": "Il ouvre le PaaS à Internet avec un WAF", "en": "It opens the PaaS to the Internet with a WAF" },
+        { "fr": "Il restreint l'accès sans changer l'IP publique", "en": "It restricts access without changing the public IP" }
+      ],
+      "answer": 0,
+      "explain_fr": "Une IP privée dans ton VNet : le PaaS devient une ressource de ton réseau, joignable sans passer par Internet, et depuis l'on-prem aussi. Mais il manque l'élément crucial : la résolution DNS.",
+      "explain_en": "A private IP in your VNet: the PaaS becomes a resource of your network, reachable without going through the Internet, and from on-prem too. But the crucial piece is missing: DNS resolution."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi l'intégration DNS privatelink est-elle obligatoire avec un point de terminaison privé ?",
+      "q_en": "Why is privatelink DNS integration mandatory with a private endpoint ?",
+      "choices": [
+        { "fr": "Pour chiffrer le trafic", "en": "To encrypt traffic" },
+        { "fr": "Sans elle, le nom public du PaaS pointe encore vers l'IP publique ; la zone privatelink résout le nom vers l'IP privée du point de terminaison", "en": "Without it, the PaaS's public name still points to the public IP; the privatelink zone resolves the name to the endpoint's private IP" },
+        { "fr": "Pour attribuer une IP publique au point de terminaison", "en": "To assign a public IP to the endpoint" }
+      ],
+      "answer": 1,
+      "explain_fr": "Oublier cette intégration DNS est l'erreur n°1 : le point de terminaison existe, mais les clients continuent d'aller vers l'IP publique. Zone + enregistrement + liaison au VNet = accès privé effectif.",
+      "explain_en": "Forgetting this DNS integration is mistake #1: the endpoint exists, but clients keep going to the public IP. Zone + record + VNet link = effective private access."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quand choisir un point de terminaison privé plutôt qu'un point de terminaison de service ?",
+      "q_en": "When should you choose a private endpoint over a service endpoint ?",
+      "choices": [
+        { "fr": "Quand on veut juste restreindre l'accès à ses sous-réseaux", "en": "When you just want to restrict access to your subnets" },
+        { "fr": "Quand on veut garder l'IP publique du service", "en": "When you want to keep the service's public IP" },
+        { "fr": "Dès qu'il faut une IP privée, couper l'accès public, ou atteindre depuis l'on-prem", "en": "As soon as you need a private IP, cut public access, or reach from on-prem" }
+      ],
+      "answer": 2,
+      "explain_fr": "Léger ou fort : pour juste restreindre à ses sous-réseaux → service endpoint ; pour des données sensibles (IP privée, zéro Internet, on-prem) → private endpoint + fermeture publique.",
+      "explain_en": "Light or strong: to just restrict to your subnets → service endpoint; for sensitive data (private IP, zero Internet, on-prem) → private endpoint + public closure."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Pourquoi fermer l'accès public (`public_network_access = Disabled`) même avec un point de terminaison privé ?",
+      "q_en": "Why close public access (`public_network_access = Disabled`) even with a private endpoint ?",
+      "choices": [
+        { "fr": "Tant que l'accès public reste ouvert, le service est encore joignable d'Internet ; fermer + IP privée + DNS privatelink = PaaS hors d'Internet", "en": "As long as public access stays open, the service is still reachable from the Internet; closing + private IP + privatelink DNS = PaaS off the Internet" },
+        { "fr": "Cela accélère les requêtes", "en": "It speeds up requests" },
+        { "fr": "Cela supprime le besoin de zone DNS", "en": "It removes the need for a DNS zone" }
+      ],
+      "answer": 0,
+      "explain_fr": "La boucle est complète : IP privée (private endpoint) + DNS privé (privatelink) + accès public coupé = surface d'attaque minimale, le PaaS joignable uniquement depuis ton réseau.",
+      "explain_en": "The loop is complete: private IP (private endpoint) + private DNS (privatelink) + public access cut = minimal attack surface, the PaaS reachable only from your network."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quelles sont les trois briques indissociables de l'accès privé à un PaaS ?",
+      "q_en": "What are the three inseparable pieces of private access to a PaaS ?",
+      "choices": [
+        { "fr": "Uniquement un pare-feu et un NSG", "en": "Only a firewall and an NSG" },
+        { "fr": "Point de terminaison privé (IP privée), DNS privatelink (résolution), fermeture de l'accès public", "en": "Private endpoint (private IP), privatelink DNS (resolution), closing public access" },
+        { "fr": "Peering, VPN et ExpressRoute", "en": "Peering, VPN and ExpressRoute" }
+      ],
+      "answer": 1,
+      "explain_fr": "L'intégration DNS privatelink est l'élément obligatoire trop souvent oublié. Ton PaaS n'est plus sur Internet : il est privé, joignable uniquement depuis ton réseau.",
+      "explain_en": "The privatelink DNS integration is the mandatory piece too often forgotten. Your PaaS is no longer on the Internet: it's private, reachable only from your network."
+    }
+  ]
+}

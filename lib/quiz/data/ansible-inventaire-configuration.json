@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quel est l'intérêt principal d'un fichier `ansible.cfg` à la racine du projet ?",
+      "q_en": "What is the main benefit of an `ansible.cfg` file at the project root?",
+      "choices": [
+        { "fr": "Éviter de retaper les options (`-i`, become…) et garantir la même config à quiconque clone le repo", "en": "Avoid retyping options (`-i`, become…) and give everyone who clones the repo the same config" },
+        { "fr": "Chiffrer automatiquement les variables sensibles du projet", "en": "Automatically encrypt the project's sensitive variables" },
+        { "fr": "Accélérer l'exécution en compilant les playbooks", "en": "Speed up execution by compiling the playbooks" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un ansible.cfg de projet évite de retaper -i inventory ou --ask-become-pass à chaque fois et assure que tous ceux qui clonent le repo partagent la même config. On le vérifie avec ansible-config dump --only-changed (source ansible.cfg).",
+      "explain_en": "A project ansible.cfg avoids retyping -i inventory or --ask-become-pass each time and ensures everyone who clones the repo shares the same config. Check it with ansible-config dump --only-changed (source ansible.cfg)."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi le guide fait-il lancer deux VM (`web1` et `db1`) plutôt qu'une seule ?",
+      "q_en": "Why does the guide have you launch two VMs (`web1` and `db1`) rather than just one?",
+      "choices": [
+        { "fr": "Pour répartir la charge de calcul entre les deux machines", "en": "To spread the compute load across both machines" },
+        { "fr": "Parce qu'un inventaire à un seul hôte n'apprend rien sur les groupes et les patterns", "en": "Because a single-host inventory teaches nothing about groups and patterns" },
+        { "fr": "Parce que Multipass exige au moins deux VM par cloud-init", "en": "Because Multipass requires at least two VMs per cloud-init" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un inventaire mono-hôte n'apprend rien sur les groupes et les patterns, cœur du RHCE. Deux hôtes de rôles différents (web et db) forment le plus petit parc réaliste. Le cloud-init injecte la clé publique pour un accès SSH sans mot de passe.",
+      "explain_en": "A single-host inventory teaches nothing about groups and patterns, the heart of RHCE. Two hosts with different roles (web and db) form the smallest realistic fleet. The cloud-init injects the public key for passwordless SSH access."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que signifie la section `[prod:children]` contenant `web` et `db` dans l'inventaire ?",
+      "q_en": "What does the `[prod:children]` section containing `web` and `db` mean in the inventory?",
+      "choices": [
+        { "fr": "Que prod est un groupe de groupes ; une variable sur prod descend sur tous les hôtes web et db", "en": "That prod is a group of groups; a variable set on prod flows down to all web and db hosts" },
+        { "fr": "Que web et db sont des hôtes enfants directs de prod", "en": "That web and db are direct child hosts of prod" },
+        { "fr": "Que prod ne s'exécute qu'après web et db", "en": "That prod only runs after web and db" }
+      ],
+      "answer": 0,
+      "explain_fr": "[prod:children] fait de prod un groupe de groupes composé de web et db. Une variable posée sur prod descend alors sur tous les hôtes web ET db sans les relister. ansible-inventory --graph montre l'arbre.",
+      "explain_en": "[prod:children] makes prod a group of groups made of web and db. A variable set on prod then flows down to all web AND db hosts without relisting them. ansible-inventory --graph shows the tree."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Que cible le pattern d'hôtes `prod:!db1` ?",
+      "q_en": "What does the host pattern `prod:!db1` target?",
+      "choices": [
+        { "fr": "L'intersection de prod et db1", "en": "The intersection of prod and db1" },
+        { "fr": "Tous les hôtes du groupe prod SAUF db1", "en": "All hosts of the prod group EXCEPT db1" },
+        { "fr": "Uniquement db1 au sein de prod", "en": "Only db1 within prod" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le : fait l'union, & l'intersection, et ! l'exclusion. prod:!db1 cible donc tous les hôtes de prod sauf db1 (ici web1). --list-hosts montre qui serait ciblé sans rien exécuter.",
+      "explain_en": "The : does union, & intersection, and ! exclusion. prod:!db1 thus targets all hosts of prod except db1 (here web1). --list-hosts shows who would be targeted without executing anything."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pour `web1` (présent dans host_vars, dans le groupe web, et dans all), quelle définition de `message` l'emporte ?",
+      "q_en": "For `web1` (present in host_vars, in the web group, and in all), which definition of `message` wins?",
+      "choices": [
+        { "fr": "Celle de group_vars/all.yml (le plus général)", "en": "The one in group_vars/all.yml (the most general)" },
+        { "fr": "Celle de group_vars/web.yml (le groupe)", "en": "The one in group_vars/web.yml (the group)" },
+        { "fr": "Celle de host_vars/web1.yml (le plus spécifique)", "en": "The one in host_vars/web1.yml (the most specific)" }
+      ],
+      "answer": 2,
+      "explain_fr": "La précédence va du plus spécifique au plus général : host_vars bat group_vars d'un enfant, qui bat group_vars du parent, qui bat group_vars/all. Pour web1, host_vars/web1.yml gagne. Un hôte comme db1 (sans host_vars ni groupe web) prend la valeur de group_vars/all.",
+      "explain_en": "Precedence goes from most specific to most general: host_vars beats a child's group_vars, which beats the parent's group_vars, which beats group_vars/all. For web1, host_vars/web1.yml wins. A host like db1 (no host_vars, not in web) takes the group_vars/all value."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quand privilégier une commande ad-hoc plutôt qu'un playbook ?",
+      "q_en": "When should you prefer an ad-hoc command over a playbook?",
+      "choices": [
+        { "fr": "Pour une action ponctuelle et jetable ; le playbook sert au reproductible et versionné", "en": "For a one-off, throwaway action; the playbook is for reproducible, versioned work" },
+        { "fr": "L'ad-hoc est toujours préférable, le playbook est obsolète", "en": "Ad-hoc is always preferable, the playbook is obsolete" },
+        { "fr": "L'ad-hoc ne fonctionne pas avec l'escalade de privilèges", "en": "Ad-hoc doesn't work with privilege escalation" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'ad-hoc convient à une action ponctuelle et jetable (« redémarre nginx sur tout le web maintenant ») ; le playbook à quelque chose de reproductible et versionné. -b escalade en root. L'idempotence marche aussi en ad-hoc (CHANGED puis ok au relancement).",
+      "explain_en": "Ad-hoc suits a one-off, throwaway action (\"restart nginx on all web now\"); the playbook suits reproducible, versioned work. -b escalates to root. Idempotence works in ad-hoc too (CHANGED then ok on re-run)."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Parmi plusieurs `ansible.cfg`, lequel Ansible charge-t-il si la variable `ANSIBLE_CONFIG` est définie ?",
+      "q_en": "Among several `ansible.cfg`, which one does Ansible load if the `ANSIBLE_CONFIG` variable is set?",
+      "choices": [
+        { "fr": "Celui pointé par ANSIBLE_CONFIG, qui écrase tout le reste", "en": "The one pointed to by ANSIBLE_CONFIG, which overrides everything else" },
+        { "fr": "Toujours ./ansible.cfg du répertoire courant", "en": "Always ./ansible.cfg of the current directory" },
+        { "fr": "Toujours /etc/ansible/ansible.cfg du système", "en": "Always the system /etc/ansible/ansible.cfg" }
+      ],
+      "answer": 0,
+      "explain_fr": "ANSIBLE_CONFIG écrase tout le reste : la variable d'env gagne toujours. Sinon Ansible prend ./ansible.cfg du répertoire courant, puis remonte vers ~/.ansible.cfg ou /etc/ansible/ansible.cfg. ansible --version | grep 'config file' dit lequel a été chargé.",
+      "explain_en": "ANSIBLE_CONFIG overrides everything else: the env var always wins. Otherwise Ansible takes ./ansible.cfg of the current directory, then falls back to ~/.ansible.cfg or /etc/ansible/ansible.cfg. ansible --version | grep 'config file' tells which was loaded."
+    }
+  ]
+}

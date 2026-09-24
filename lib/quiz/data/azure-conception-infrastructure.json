@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quelle option choisir pour exécuter des microservices serverless avec scale-to-zero (la voie moderne) ?",
+      "q_en": "Which option to run serverless microservices with scale-to-zero (the modern way)?",
+      "choices": [
+        { "fr": "Azure Container Instances (ACI), pour un conteneur ponctuel", "en": "Azure Container Instances (ACI), for a one-off container" },
+        { "fr": "AKS, un Kubernetes managé à contrôle total", "en": "AKS, a fully controlled managed Kubernetes" },
+        { "fr": "Azure Container Apps", "en": "Azure Container Apps" }
+      ],
+      "answer": 2,
+      "explain_fr": "Container Apps vise les microservices serverless (scale-to-zero) ; ACI un conteneur ponctuel ; AKS un Kubernetes managé à contrôle total pour grandes plateformes.",
+      "explain_en": "Container Apps targets serverless microservices (scale-to-zero); ACI a one-off container; AKS a fully controlled managed Kubernetes for large platforms."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "À quoi sert un registre ACR (Azure Container Registry) ?",
+      "q_en": "What is an ACR (Azure Container Registry) for?",
+      "choices": [
+        { "fr": "À orchestrer les conteneurs à la place de Kubernetes", "en": "To orchestrate containers instead of Kubernetes" },
+        { "fr": "À stocker les images privées : on y pousse (push), AKS/Container Apps/ACI les tirent (pull)", "en": "To store private images: you push, and AKS/Container Apps/ACI pull them" },
+        { "fr": "À filtrer le trafic réseau des conteneurs", "en": "To filter the containers' network traffic" }
+      ],
+      "answer": 1,
+      "explain_fr": "ACR héberge les images de conteneurs privées : on y pousse les images construites, et AKS/Container Apps/ACI les tirent pour s'exécuter — la brique centrale d'une plateforme conteneurisée.",
+      "explain_en": "ACR hosts private container images: you push built images, and AKS/Container Apps/ACI pull them to run — the central building block of a containerized platform."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pour héberger une appli web/API sans gérer l'OS ni le scaling, quel service PaaS choisir ?",
+      "q_en": "To host a web app/API without managing the OS or scaling, which PaaS service to choose?",
+      "choices": [
+        { "fr": "App Service (un plan + une application)", "en": "App Service (a plan + an application)" },
+        { "fr": "Une VM avec un disque managé", "en": "A VM with a managed disk" },
+        { "fr": "Un compte de stockage blob", "en": "A blob storage account" }
+      ],
+      "answer": 0,
+      "explain_fr": "App Service est le PaaS web : tu déposes le code, Azure gère l'OS, le scaling et les certificats. On décrit un plan (les ressources) et une application dessus.",
+      "explain_en": "App Service is the web PaaS: you drop the code, Azure handles the OS, scaling and certificates. You describe a plan (the resources) and an application on it."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Sur quoi s'appuie un Load Balancer (L4) pour ne router le trafic que vers les instances saines ?",
+      "q_en": "What does an L4 Load Balancer rely on to route traffic only to healthy instances?",
+      "choices": [
+        { "fr": "Un WAF applicatif", "en": "An application WAF" },
+        { "fr": "Une résolution DNS géographique", "en": "Geographic DNS resolution" },
+        { "fr": "Une sonde de santé (health probe)", "en": "A health probe" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le Load Balancer (L4) distribue le trafic sur un pool backend en s'appuyant sur une sonde de santé : elle vérifie l'état pour ne router que vers les instances saines.",
+      "explain_en": "The L4 Load Balancer distributes traffic across a backend pool relying on a health probe: it checks status to route only to healthy instances."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quel service constitue le point d'entrée global moderne (L7, CDN + WAF) devant des backends régionaux ?",
+      "q_en": "Which service is the modern global entry point (L7, CDN + WAF) in front of regional backends?",
+      "choices": [
+        { "fr": "Azure Front Door", "en": "Azure Front Door" },
+        { "fr": "Un Load Balancer interne (L4)", "en": "An internal Load Balancer (L4)" },
+        { "fr": "Un NSG appliqué au sous-réseau", "en": "An NSG applied to the subnet" }
+      ],
+      "answer": 0,
+      "explain_fr": "Front Door est le point d'entrée global moderne (L7, CDN + WAF) ; Traffic Manager route par DNS ; Application Gateway est un L7 régional (souvent derrière Front Door).",
+      "explain_en": "Front Door is the modern global entry point (L7, CDN + WAF); Traffic Manager routes by DNS; Application Gateway is a regional L7 (often behind Front Door)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que faut-il mémoriser côté infrastructure pour décider vite à l'AZ-305 ?",
+      "q_en": "What must you memorize on the infrastructure side to decide fast in AZ-305?",
+      "choices": [
+        { "fr": "Le prix exact de chaque VM par heure", "en": "The exact hourly price of each VM" },
+        { "fr": "Les grilles compute et équilibrage, plus les approches de migration", "en": "The compute and load-balancing grids, plus the migration approaches" },
+        { "fr": "La liste complète des régions Azure", "en": "The full list of Azure regions" }
+      ],
+      "answer": 1,
+      "explain_fr": "On mémorise deux grilles (compute et équilibrage) et les approches de migration pour décider vite face à un scénario d'examen.",
+      "explain_en": "You memorize two grids (compute and load balancing) and the migration approaches to decide fast against an exam scenario."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que supprime-t-on au nettoyage de ce guide infrastructure ?",
+      "q_en": "What do you delete when cleaning up this infrastructure guide?",
+      "choices": [
+        { "fr": "Seulement le registre ACR", "en": "Only the ACR registry" },
+        { "fr": "Seulement le cluster AKS", "en": "Only the AKS cluster" },
+        { "fr": "Le groupe de ressources et tous les services conteneurs", "en": "The resource group and all the container services" }
+      ],
+      "answer": 2,
+      "explain_fr": "On supprime le groupe de ressources d'un bloc : il emporte tous les services conteneurs créés (ACI, Container Apps, AKS, ACR).",
+      "explain_en": "You delete the resource group wholesale: it takes all created container services (ACI, Container Apps, AKS, ACR) with it."
+    }
+  ]
+}

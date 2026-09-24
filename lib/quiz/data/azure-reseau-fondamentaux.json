@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi la planification de l'adressage (CIDR) est-elle la première décision réseau ?",
+      "q_en": "Why is address planning (CIDR) the first network decision ?",
+      "choices": [
+        { "fr": "C'est la décision la plus dure à changer après coup ; les plages doivent être non chevauchantes", "en": "It's the hardest decision to change later; the ranges must be non-overlapping" },
+        { "fr": "C'est purement esthétique", "en": "It's purely cosmetic" },
+        { "fr": "Parce qu'Azure interdit les sous-réseaux", "en": "Because Azure forbids subnets" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'adressage se décide avant tout déploiement, sans chevauchement : un /24 offre 251 IP utilisables (256 − 5 réservées), un /16 laisse une large marge.",
+      "explain_en": "Addressing is decided before any deployment, without overlap: a /24 offers 251 usable IPs (256 − 5 reserved), a /16 leaves a wide margin."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que fait `terraform apply` du VNet `10.0.0.0/16` avec ses sous-réseaux web/app/data ?",
+      "q_en": "What does `terraform apply` of the `10.0.0.0/16` VNet with its web/app/data subnets do ?",
+      "choices": [
+        { "fr": "Il crée uniquement un compte de stockage", "en": "It creates only a storage account" },
+        { "fr": "Il matérialise le plan d'adressage : un réseau isolé segmenté en tiers, chaque sous-réseau ayant sa plage distincte", "en": "It materializes the address plan: an isolated network segmented into tiers, each subnet with its distinct range" },
+        { "fr": "Il fusionne les trois sous-réseaux en un seul", "en": "It merges the three subnets into one" }
+      ],
+      "answer": 1,
+      "explain_fr": "Du plan au réel : le VNet et ses trois sous-réseaux sont déployés sur miniblue, sans chevauchement, prêts à héberger des ressources.",
+      "explain_en": "From plan to reality: the VNet and its three subnets are deployed on miniblue, without overlap, ready to host resources."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi un sous-réseau `/29` n'offre-t-il que 3 IP utilisables ?",
+      "q_en": "Why does a `/29` subnet offer only 3 usable IPs ?",
+      "choices": [
+        { "fr": "Azure limite chaque sous-réseau à 3 machines", "en": "Azure limits each subnet to 3 machines" },
+        { "fr": "Le `/29` est réservé au `GatewaySubnet`", "en": "The `/29` is reserved for the `GatewaySubnet`" },
+        { "fr": "Azure réserve 5 IP par sous-réseau (8 − 5 = 3) ; d'où l'importance de ne pas sous-dimensionner", "en": "Azure reserves 5 IPs per subnet (8 − 5 = 3); hence don't undersize" }
+      ],
+      "answer": 2,
+      "explain_fr": "Une adresse n'est pas toujours utilisable : Azure réserve 5 IP/sous-réseau, et les sous-réseaux spéciaux (`GatewaySubnet`, `/27` mini) ont un nom et une taille imposés — à réserver dès le plan.",
+      "explain_en": "An address isn't always usable: Azure reserves 5 IPs/subnet, and special subnets (`GatewaySubnet`, `/27` min) have a mandatory name and size — reserve them at plan time."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "À quoi sert une zone DNS privée avec un enregistrement A ?",
+      "q_en": "What is a private DNS zone with an A record for ?",
+      "choices": [
+        { "fr": "À résoudre un nom (ex. `app.interne.jiha.lab`) en IP privée à l'intérieur du VNet, pour appeler par nom plutôt que par IP", "en": "To resolve a name (e.g. `app.interne.jiha.lab`) to a private IP inside the VNet, so you call by name rather than by IP" },
+        { "fr": "À exposer l'app sur Internet public", "en": "To expose the app on the public Internet" },
+        { "fr": "À chiffrer le trafic interne", "en": "To encrypt internal traffic" }
+      ],
+      "answer": 0,
+      "explain_fr": "Des noms, pas des IP : liée à un VNet, la zone résout `app.interne.jiha.lab` → `10.0.1.10` en interne. Les apps s'appellent par nom (qui ne change pas), pas par IP.",
+      "explain_en": "Names, not IPs: linked to a VNet, the zone resolves `app.interne.jiha.lab` → `10.0.1.10` internally. Apps call by name (which doesn't change), not by IP."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quelle est la contrainte absolue d'une topologie hub-and-spoke reliée par peering ?",
+      "q_en": "What is the absolute constraint of a hub-and-spoke topology linked by peering ?",
+      "choices": [
+        { "fr": "Tous les VNets doivent être dans la même région", "en": "All VNets must be in the same region" },
+        { "fr": "Les plages d'adresses des VNets ne doivent pas se chevaucher, sinon le peering échoue", "en": "The VNets' address ranges must not overlap, otherwise peering fails" },
+        { "fr": "Le hub doit être plus grand que `/8`", "en": "The hub must be larger than `/8`" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un spoke inclus dans le hub (ex. `10.0.5.0/24` dans `10.0.0.0/16`) fait échouer le peering. C'est pourquoi on planifie l'adressage globalement, avant tout VNet.",
+      "explain_en": "A spoke included in the hub (e.g. `10.0.5.0/24` within `10.0.0.0/16`) makes peering fail. That's why you plan addressing globally, before any VNet."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que confirme la vérification de la fondation déployée ?",
+      "q_en": "What does verifying the deployed foundation confirm ?",
+      "choices": [
+        { "fr": "Que le pare-feu bloque tout le trafic", "en": "That the firewall blocks all traffic" },
+        { "fr": "Que le DNS public résout les noms", "en": "That public DNS resolves the names" },
+        { "fr": "Que chaque sous-réseau est bien inclus dans le VNet `10.0.0.0/16`, sans chevauchement — le plan correspond au déployé", "en": "That each subnet is indeed within the `10.0.0.0/16` VNet, without overlap — the plan matches what was deployed" }
+      ],
+      "answer": 2,
+      "explain_fr": "`terraform state list` confirme le VNet et ses sous-réseaux ; le calcul confirme la cohérence du plan sur le réel. C'est ce contrôle qui évite les surprises de routage.",
+      "explain_en": "`terraform state list` confirms the VNet and its subnets; the calculation confirms the plan's consistency against reality. This check avoids routing surprises."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quelles briques composent une fondation réseau AZ-700 saine ?",
+      "q_en": "Which building blocks make up a sound AZ-700 network foundation ?",
+      "choices": [
+        { "fr": "Planifier l'adressage (CIDR, non-chevauchement), segmenter (VNet + sous-réseaux), dimensionner, résoudre les noms (DNS privé), concevoir la topologie (hub-and-spoke)", "en": "Plan addressing (CIDR, non-overlap), segment (VNet + subnets), size, resolve names (private DNS), design the topology (hub-and-spoke)" },
+        { "fr": "Uniquement un pare-feu applicatif", "en": "Only an application firewall" },
+        { "fr": "Uniquement une passerelle VPN", "en": "Only a VPN gateway" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sur cette base saine, tout le reste tient : le routage, la connectivité hybride, la distribution applicative — la suite du track AZ-700.",
+      "explain_en": "On this sound base, everything else holds: routing, hybrid connectivity, application distribution — the rest of the AZ-700 track."
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "À quel pilier du Well-Architected Framework mappe-t-on un besoin de 99,9 % de disponibilité ?",
+      "q_en": "To which Well-Architected Framework pillar do you map a 99.9% availability requirement?",
+      "choices": [
+        { "fr": "Optimisation des coûts", "en": "Cost optimization" },
+        { "fr": "Efficacité des performances", "en": "Performance efficiency" },
+        { "fr": "Fiabilité", "en": "Reliability" }
+      ],
+      "answer": 2,
+      "explain_fr": "La disponibilité mappe à la fiabilité ; la latence à la performance ; le budget au coût ; les données sensibles à la sécurité ; « maintenable » à l'excellence opérationnelle.",
+      "explain_en": "Availability maps to reliability; latency to performance; budget to cost; sensitive data to security; \"maintainable\" to operational excellence."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi commencer une architecture solide par un réseau segmenté avec NSG ?",
+      "q_en": "Why start a solid architecture with a segmented network plus NSG?",
+      "choices": [
+        { "fr": "Pour la fiabilité (isolation des pannes) et la sécurité (défense en profondeur) dès la fondation", "en": "For reliability (fault isolation) and security (defense in depth) from the foundation" },
+        { "fr": "Pour réduire la latence des requêtes SQL", "en": "To reduce SQL query latency" },
+        { "fr": "Parce qu'un NSG est obligatoire avant tout déploiement", "en": "Because an NSG is mandatory before any deployment" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un réseau segmenté en tiers (web/app/data) avec NSG sert la fiabilité (isolation des pannes) et la sécurité (défense en profondeur) dès la fondation.",
+      "explain_en": "A network segmented into tiers (web/app/data) with an NSG serves reliability (fault isolation) and security (defense in depth) from the foundation."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi placer un cache Redis devant la base SQL (pattern cache-aside) ?",
+      "q_en": "Why place a Redis cache in front of the SQL database (cache-aside pattern)?",
+      "choices": [
+        { "fr": "Pour garantir la conformité ACID des transactions", "en": "To guarantee ACID compliance of transactions" },
+        { "fr": "Pour servir les données chaudes depuis la mémoire (< 1 ms) et décharger la base en lecture", "en": "To serve hot data from memory (< 1 ms) and offload the database on reads" },
+        { "fr": "Pour chiffrer les données au repos", "en": "To encrypt data at rest" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le cache Redis sert les données chaudes depuis la mémoire (< 1 ms) et décharge la base SQL en lecture : c'est le pattern cache-aside, réflexe de performance.",
+      "explain_en": "The Redis cache serves hot data from memory (< 1 ms) and offloads the SQL database on reads: that's the cache-aside pattern, a performance reflex."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quelle option de compute convient le mieux à une API à charge en pics (payée à l'exécution) ?",
+      "q_en": "Which compute option best fits an API with spiky load (paid per execution)?",
+      "choices": [
+        { "fr": "Une VM IaaS toujours allumée", "en": "An always-on IaaS VM" },
+        { "fr": "App Service avec un plan dédié fixe", "en": "App Service with a fixed dedicated plan" },
+        { "fr": "Le serverless (Azure Functions)", "en": "Serverless (Azure Functions)" }
+      ],
+      "answer": 2,
+      "explain_fr": "Functions (serverless) est payé à l'exécution, idéal pour une charge en pics ; App Service (PaaS) convient mieux à un trafic soutenu.",
+      "explain_en": "Functions (serverless) is paid per execution, ideal for spiky load; App Service (PaaS) fits sustained traffic better."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "En quoi consiste une revue Well-Architected une fois l'architecture posée ?",
+      "q_en": "What does a Well-Architected review consist of once the architecture is in place?",
+      "choices": [
+        { "fr": "Passer l'architecture au crible des 5 piliers et noter les améliorations", "en": "Screen the architecture against the 5 pillars and note improvements" },
+        { "fr": "Redéployer entièrement la solution", "en": "Redeploy the whole solution" },
+        { "fr": "Supprimer les ressources les plus chères", "en": "Delete the most expensive resources" }
+      ],
+      "answer": 0,
+      "explain_fr": "La revue WAF est un livrable concret : l'architecte passe la solution au crible des 5 piliers et note les améliorations pilier par pilier.",
+      "explain_en": "The WAF review is a concrete deliverable: the architect screens the solution against the 5 pillars and notes improvements pillar by pillar."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Quelle est LA question centrale de l'AZ-305 que l'on prépare avec les grilles de choix ?",
+      "q_en": "What is THE central AZ-305 question that the choice grids prepare you for?",
+      "choices": [
+        { "fr": "« Quel service pour ce besoin ? » (base de données, compute…)", "en": "\"Which service for this need?\" (database, compute…)" },
+        { "fr": "« Combien coûte exactement chaque ressource ? »", "en": "\"How much exactly does each resource cost?\"" },
+        { "fr": "« Quelle commande CLI taper ? »", "en": "\"Which CLI command to type?\"" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'AZ-305 tourne autour de « quel service pour ce besoin ? » : on mémorise les grilles base de données et compute, chaque ligne mappant un besoin à un service.",
+      "explain_en": "AZ-305 revolves around \"which service for this need?\": you memorize the database and compute grids, each row mapping a need to a service."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que supprime-t-on au nettoyage de l'architecture ?",
+      "q_en": "What do you delete when cleaning up the architecture?",
+      "choices": [
+        { "fr": "Seulement la Function app, en gardant le réseau", "en": "Only the Function app, keeping the network" },
+        { "fr": "Seulement le cache Redis", "en": "Only the Redis cache" },
+        { "fr": "Le groupe de ressources et tout ce qu'il contient (réseau + services)", "en": "The resource group and everything it contains (network + services)" }
+      ],
+      "answer": 2,
+      "explain_fr": "On supprime le groupe de ressources d'un bloc : il emporte le réseau et tous les services créés (SQL, Redis, Functions).",
+      "explain_en": "You delete the resource group wholesale: it takes the network and all created services (SQL, Redis, Functions) with it."
+    }
+  ]
+}

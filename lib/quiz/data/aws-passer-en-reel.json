@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quelle est la priorité de sécurité juste après la création d'un compte AWS, concernant l'utilisateur root ?",
+      "q_en": "What is the security priority right after creating an AWS account, regarding the root user ?",
+      "choices": [
+        { "fr": "Activer la MFA sur le root et ne créer aucune clé d'accès root", "en": "Enable MFA on the root and create no root access keys" },
+        { "fr": "Créer immédiatement des clés d'accès root pour la CLI", "en": "Immediately create root access keys for the CLI" },
+        { "fr": "Supprimer le compte root définitivement", "en": "Delete the root account permanently" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le root peut tout faire ; s'il est compromis, c'est terminé. On active la MFA immédiatement, on ne crée aucune clé d'accès root (et on supprime celles qui existent), et on cesse de s'en servir dès l'utilisateur IAM créé.",
+      "explain_en": "The root can do everything; if compromised, it's over. You enable MFA immediately, create no root access keys (and delete any that exist), and stop using it as soon as the IAM user is created."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pour le travail quotidien sur le vrai AWS, quelle identité utilise-t-on et comment la CLI y accède-t-elle ?",
+      "q_en": "For daily work on real AWS, which identity do you use and how does the CLI access it ?",
+      "choices": [
+        { "fr": "L'utilisateur root, via ses clés d'accès stockées dans Git", "en": "The root user, via its access keys stored in Git" },
+        { "fr": "Un utilisateur IAM admin avec MFA, via un profil nommé (`aws --profile perso`) et des clés gardées locales", "en": "An admin IAM user with MFA, via a named profile (`aws --profile perso`) with keys kept local" },
+        { "fr": "N'importe quel utilisateur anonyme, aucune clé n'étant requise", "en": "Any anonymous user, no key required" }
+      ],
+      "answer": 1,
+      "explain_fr": "On ne travaille jamais en root : on crée un utilisateur IAM admin avec MFA et on configure un profil CLI nommé. `get-caller-identity --profile perso` renvoie ton vrai numéro de compte. Les clés restent locales (`~/.aws/credentials`), jamais dans Git.",
+      "explain_en": "You never work as root: you create an admin IAM user with MFA and configure a named CLI profile. `get-caller-identity --profile perso` returns your real account number. Keys stay local (`~/.aws/credentials`), never in Git."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que fait un budget AWS avec alerte, et quelle est sa limite ?",
+      "q_en": "What does an AWS budget with an alert do, and what is its limit ?",
+      "choices": [
+        { "fr": "Il bloque automatiquement toute dépense au-delà du seuil", "en": "It automatically blocks any spending beyond the threshold" },
+        { "fr": "Il prévient par e-mail au dépassement d'un seuil, mais ne bloque pas la dépense", "en": "It emails you when a threshold is crossed, but does not block spending" },
+        { "fr": "Il rembourse les coûts dépassant le budget", "en": "It refunds costs exceeding the budget" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un budget avec alerte t'envoie un e-mail dès que tes coûts (réels ou prévus) dépassent un seuil — à poser avant de créer la moindre ressource. Mais il prévient après coup sans bloquer : la vraie protection reste la discipline de nettoyage. Le budget est le filet, pas le mur.",
+      "explain_en": "A budget with an alert emails you as soon as your costs (actual or forecast) exceed a threshold — set it before creating any resource. But it warns after the fact without blocking: the real protection stays the cleanup discipline. The budget is the net, not the wall."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Comment bascule-t-on le projet Terraform de LocalStack vers le vrai AWS ?",
+      "q_en": "How do you switch the Terraform project from LocalStack to real AWS ?",
+      "choices": [
+        { "fr": "En réécrivant entièrement le code pour le vrai AWS", "en": "By fully rewriting the code for real AWS" },
+        { "fr": "En retirant le bloc `endpoints` et les réglages de labo, et en pointant le provider vers ton profil IAM", "en": "By removing the `endpoints` block and lab settings, and pointing the provider at your IAM profile" },
+        { "fr": "En changeant la version du provider AWS uniquement", "en": "By only changing the AWS provider version" }
+      ],
+      "answer": 1,
+      "explain_fr": "Comme tout est en infrastructure-as-code, le passage est minimal : on retire le bloc `endpoints`, les `skip_*` et `s3_use_path_style`, on pointe le provider vers le profil `perso`, et `terraform apply` déploie en réel. Même code, autre cible — c'est l'intérêt de l'IaC (attention au nom de bucket unique mondialement).",
+      "explain_en": "Since everything is infrastructure-as-code, the switch is minimal: remove the `endpoints` block, the `skip_*` and `s3_use_path_style`, point the provider at the `perso` profile, and `terraform apply` deploys for real. Same code, another target — that's the point of IaC (mind the globally-unique bucket name)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Parmi ces différences entre LocalStack et le vrai AWS, laquelle est correcte ?",
+      "q_en": "Among these differences between LocalStack and real AWS, which is correct ?",
+      "choices": [
+        { "fr": "En réel, IAM est réellement appliqué et le « Block Public Access » est actif par défaut, contrairement au labo indulgent", "en": "In real AWS, IAM is actually enforced and \"Block Public Access\" is on by default, unlike the lenient lab" },
+        { "fr": "En réel, les noms de bucket n'ont plus besoin d'être uniques", "en": "In real AWS, bucket names no longer need to be unique" },
+        { "fr": "En réel, les passerelles NAT et le trafic sortant sont gratuits", "en": "In real AWS, NAT gateways and outbound traffic are free" }
+      ],
+      "answer": 0,
+      "explain_fr": "LocalStack est un émulateur indulgent : en réel, IAM bloque vraiment les actions interdites, le Block Public Access doit être explicitement désactivé pour un bucket public, les noms sont uniques mondialement, la Lambda a un cold start, la cohérence est à terme, et le réseau (NAT, sortant) facture.",
+      "explain_en": "LocalStack is a lenient emulator: in real AWS, IAM actually blocks forbidden actions, Block Public Access must be explicitly disabled for a public bucket, names are globally unique, Lambda has a cold start, consistency is eventual, and networking (NAT, outbound) bills."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Après un `terraform destroy` en réel, pourquoi chasser manuellement les instances EC2, passerelles NAT et volumes EBS orphelins ?",
+      "q_en": "After a real `terraform destroy`, why manually hunt for lingering EC2 instances, NAT gateways and orphan EBS volumes ?",
+      "choices": [
+        { "fr": "Parce que ces ressources oubliées continuent de facturer, et le nettoyage discipliné est la seule vraie protection", "en": "Because these forgotten resources keep billing, and disciplined cleanup is the only real protection" },
+        { "fr": "Parce que Terraform ne peut jamais supprimer ces ressources", "en": "Because Terraform can never delete these resources" },
+        { "fr": "Parce que les alertes de budget bloquent déjà toute dépense", "en": "Because budget alerts already block any spending" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les alertes préviennent mais ne bloquent pas : la seule vraie protection est l'habitude créer → tester → détruire → vérifier. Les gros postes à traquer : instances EC2 oubliées, passerelles NAT (chères), volumes EBS non attachés, IP Elastic non associées, trafic sortant — à faire à chaque fin de session.",
+      "explain_en": "Alerts warn but don't block: the only real protection is the create → test → destroy → verify habit. The big items to hunt: forgotten EC2 instances, NAT gateways (expensive), unattached EBS volumes, unassociated Elastic IPs, outbound traffic — at every end of session."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Sur quoi porte principalement l'examen SAA-C03 et quel réflexe aide le jour J ?",
+      "q_en": "What is the SAA-C03 exam mainly about, and which reflex helps on the day ?",
+      "choices": [
+        { "fr": "Réciter des commandes CLI par cœur, sans se soucier des scénarios", "en": "Reciting CLI commands by heart, ignoring scenarios" },
+        { "fr": "Choisir « quelle architecture pour ce besoin » (résilience, sécurité, performance, coût) ; repérer les mots-clés comme « le plus économique » ou « hautement disponible »", "en": "Choosing \"which architecture for this need\" (resilience, security, performance, cost); spotting keywords like \"most cost-effective\" or \"highly available\"" },
+        { "fr": "Installer LocalStack pendant l'examen", "en": "Installing LocalStack during the exam" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le SAA-C03 est un QCM orienté « scénario → meilleure architecture » sur quatre domaines : sécurisé, résilient, performant, économique. Le jour J, les mots-clés d'une question (« le plus économique », « hautement disponible », « le moins d'administration ») pointent vers la bonne réponse.",
+      "explain_en": "The SAA-C03 is a \"scenario → best architecture\" MCQ over four domains: secure, resilient, high-performing, cost-optimized. On the day, a question's keywords (\"most cost-effective\", \"highly available\", \"least administration\") point to the right answer."
+    }
+  ]
+}

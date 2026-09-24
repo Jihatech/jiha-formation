@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi fusionner la branche de fonctionnalité avec `--no-ff` lors de l'échafaudage du dépôt ?",
+      "q_en": "Why merge the feature branch with `--no-ff` when scaffolding the repo ?",
+      "choices": [
+        { "fr": "Pour supprimer la branche après fusion", "en": "To delete the branch after merging" },
+        { "fr": "Pour garder un commit de fusion qui trace la pull request dans l'historique", "en": "To keep a merge commit that traces the pull request in history" },
+        { "fr": "Pour éviter tout conflit de fusion", "en": "To avoid any merge conflict" }
+      ],
+      "answer": 1,
+      "explain_fr": "Tout part de la source : `--no-ff` garde la trace de la PR (précieux pour l'audit), reliant la branche et `main`.",
+      "explain_en": "Everything starts from source: `--no-ff` keeps the PR trace (valuable for auditing), joining the branch and `main`."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que signifie un hook pre-commit « fail-closed » (échoue fermé) ?",
+      "q_en": "What does a \"fail-closed\" pre-commit hook mean ?",
+      "choices": [
+        { "fr": "Il ignore les secrets si l'outil de scan est absent", "en": "It ignores secrets if the scan tool is missing" },
+        { "fr": "Il autorise le commit en cas de doute", "en": "It allows the commit when in doubt" },
+        { "fr": "Si l'outil de détection manque, il bloque le commit par défaut — la sécurité prime", "en": "If the detection tool is missing, it blocks the commit by default — security first" }
+      ],
+      "answer": 2,
+      "explain_fr": "Fail-closed : rien n'avance sans la garde. Le hook bloque les secrets et `checkov` scanne l'IaC — la porte de sécurité d'abord.",
+      "explain_en": "Fail-closed: nothing moves without the guard. The hook blocks secrets and `checkov` scans the IaC — the security gate first."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi la CI utilise-t-elle `npm ci` avant `node --test` ?",
+      "q_en": "Why does the CI use `npm ci` before `node --test` ?",
+      "choices": [
+        { "fr": "Pour un build reproductible (install figé du verrou) puis des tests ; code de sortie `0` = feu vert", "en": "For a reproducible build (locked install) then tests; exit code `0` = green light" },
+        { "fr": "Pour mettre à jour les dépendances avant les tests", "en": "To update dependencies before the tests" },
+        { "fr": "Parce que `node --test` ne fonctionne pas sans `npm ci`", "en": "Because `node --test` doesn't work without `npm ci`" }
+      ],
+      "answer": 0,
+      "explain_fr": "La CI installe à l'identique puis teste ; un code de sortie `0` valide le feu vert pour déployer (le job tournera sur une matrice Node 20/22).",
+      "explain_en": "CI installs identically then tests; exit code `0` gives the green light to deploy (the job will run on a Node 20/22 matrix)."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Où l'étape CD range-t-elle le secret de l'application ?",
+      "q_en": "Where does the CD step store the application's secret ?",
+      "choices": [
+        { "fr": "Dans une variable d'environnement du runner, en clair", "en": "In a runner environment variable, in clear text" },
+        { "fr": "Dans le Key Vault (coffre), jamais dans le code", "en": "In Key Vault (the vault), never in the code" },
+        { "fr": "Dans le fichier `tfplan`", "en": "In the `tfplan` file" }
+      ],
+      "answer": 1,
+      "explain_fr": "On planifie l'IaC (artefact), on applique sur miniblue, et le secret va au coffre — déployer pour de vrai sans secret en dur.",
+      "explain_en": "We plan the IaC (artifact), apply on miniblue, and the secret goes to the vault — deploying for real with no hardcoded secret."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "À quoi sert le smoke test post-déploiement ?",
+      "q_en": "What is the post-deployment smoke test for ?",
+      "choices": [
+        { "fr": "À recompiler l'infrastructure", "en": "To recompile the infrastructure" },
+        { "fr": "À générer les métriques DORA", "en": "To generate the DORA metrics" },
+        { "fr": "À confirmer que le service répond (readiness == 200) et que l'infra existe ; sinon on échoue / rollback", "en": "To confirm the service answers (readiness == 200) and the infra exists; otherwise fail / roll back" }
+      ],
+      "answer": 2,
+      "explain_fr": "Déployer ne suffit pas — vérifie. Un smoke test rouge échoue le déploiement et déclenche un rollback : la dernière garde avant « livré ».",
+      "explain_en": "Deploying isn't enough — verify. A red smoke test fails the deployment and triggers a rollback: the last guard before \"shipped\"."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que regroupe la pipeline complète assemblée à cette étape ?",
+      "q_en": "What does the full pipeline assembled at this step group together ?",
+      "choices": [
+        { "fr": "Sécurité → build/test (matrice) → plan → deploy derrière la porte `production`, en moindre privilège et actions épinglées SHA", "en": "Security → build/test (matrix) → plan → deploy behind the `production` gate, with least privilege and SHA-pinned actions" },
+        { "fr": "Uniquement le déploiement, sans tests ni sécurité", "en": "Only the deployment, without tests or security" },
+        { "fr": "Seulement les scans de sécurité", "en": "Only the security scans" }
+      ],
+      "answer": 0,
+      "explain_fr": "Toute la chaîne en un fichier, graphe chaîné par `needs` : sécurité d'abord, tests, plan revu, déploiement derrière une porte — durcie.",
+      "explain_en": "The whole chain in one file, graph chained by `needs`: security first, tests, reviewed plan, deploy behind a gate — hardened."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi taguer le déploiement à la fin du projet ?",
+      "q_en": "Why tag the deployment at the end of the project ?",
+      "choices": [
+        { "fr": "Pour chiffrer le dépôt", "en": "To encrypt the repo" },
+        { "fr": "Pour fournir la matière première des métriques DORA (preuve de livraison)", "en": "To provide the raw material for the DORA metrics (evidence of delivery)" },
+        { "fr": "Pour supprimer l'historique Git", "en": "To delete the Git history" }
+      ],
+      "answer": 1,
+      "explain_fr": "On tague (matière à DORA), on calcule une métrique, on détruit proprement le lab, puis on emballe la fiche CV : preuves et pitch.",
+      "explain_en": "We tag (DORA material), compute a metric, cleanly destroy the lab, then package the CV sheet: evidence and pitch."
+    }
+  ]
+}

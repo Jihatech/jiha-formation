@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quelle est la bonne pratique moderne pour l'identité d'une application (workload) ?",
+      "q_en": "What is the modern best practice for a workload's identity?",
+      "choices": [
+        { "fr": "Stocker un mot de passe dans le code de l'application", "en": "Store a password in the application code" },
+        { "fr": "Utiliser une identité managée : Azure gère les secrets à la place de l'appli", "en": "Use a managed identity: Azure handles the secrets for the app" },
+        { "fr": "Partager la clé du compte de stockage entre les applications", "en": "Share the storage account key between applications" }
+      ],
+      "answer": 1,
+      "explain_fr": "Une identité managée évite à l'application de porter un mot de passe (à protéger, faire tourner) : Azure gère les secrets pour elle.",
+      "explain_en": "A managed identity spares the app from holding a password (to protect, to rotate): Azure handles the secrets for it."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "À quoi sert un tag (paire clé-valeur) comme `cost-center=formation` ?",
+      "q_en": "What is a tag (key-value pair) like `cost-center=formation` used for?",
+      "choices": [
+        { "fr": "À classer les ressources et répartir les coûts (facturation par tag)", "en": "To classify resources and allocate costs (billing by tag)" },
+        { "fr": "À filtrer le trafic réseau entrant", "en": "To filter inbound network traffic" },
+        { "fr": "À accélérer le déploiement des ressources", "en": "To speed up resource deployment" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les tags servent à classer les ressources et à répartir les coûts (facturation par tag) ; ils n'ont aucun rôle réseau ou de performance.",
+      "explain_en": "Tags classify resources and allocate costs (billing by tag); they play no networking or performance role."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que relie une attribution de rôle RBAC ?",
+      "q_en": "What does an RBAC role assignment link together?",
+      "choices": [
+        { "fr": "Un tag à une ressource", "en": "A tag to a resource" },
+        { "fr": "Un sous-réseau à un NSG", "en": "A subnet to an NSG" },
+        { "fr": "Un principal à un rôle sur une portée", "en": "A principal to a role over a scope" }
+      ],
+      "answer": 2,
+      "explain_fr": "Une attribution RBAC lie un principal (qui) à un rôle (quelles actions) sur une portée (où) — par ex. le rôle intégré Lecteur au niveau du groupe de ressources.",
+      "explain_en": "An RBAC assignment links a principal (who) to a role (which actions) over a scope (where) — e.g. the built-in Reader role at resource-group scope."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quand crée-t-on un rôle personnalisé plutôt qu'un rôle intégré ?",
+      "q_en": "When do you create a custom role rather than a built-in role?",
+      "choices": [
+        { "fr": "Toujours : les rôles intégrés sont dépréciés", "en": "Always: built-in roles are deprecated" },
+        { "fr": "Quand aucun rôle intégré ne convient (trop large ou trop étroit) : on liste alors les actions et les portées assignables", "en": "When no built-in role fits (too broad or too narrow): you then list the allowed actions and assignable scopes" },
+        { "fr": "Uniquement pour les identités managées", "en": "Only for managed identities" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le rôle personnalisé applique le moindre privilège quand aucun rôle intégré ne colle : on énumère précisément les actions autorisées et les portées assignables.",
+      "explain_en": "A custom role applies least privilege when no built-in role fits: you precisely enumerate the allowed actions and assignable scopes."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quelle est la différence entre RBAC et une Policy Azure ?",
+      "q_en": "What is the difference between RBAC and an Azure Policy?",
+      "choices": [
+        { "fr": "Le RBAC dit qui peut agir ; la Policy dit ce qui est permis sur les ressources (ex. imposer un tag)", "en": "RBAC says who can act; Policy says what is allowed on resources (e.g. enforce a tag)" },
+        { "fr": "Ils font exactement la même chose", "en": "They do exactly the same thing" },
+        { "fr": "Le RBAC ne fonctionne qu'au niveau abonnement, la Policy qu'au niveau ressource", "en": "RBAC works only at subscription level, Policy only at resource level" }
+      ],
+      "answer": 0,
+      "explain_fr": "RBAC = qui peut faire quoi ; Policy = ce qui est permis sur les ressources (ex. « toute ressource doit avoir un tag env, sinon refus de création »).",
+      "explain_en": "RBAC = who can do what; Policy = what is allowed on resources (e.g. \"every resource must have an env tag, otherwise creation is denied\")."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que fait un verrou `CanNotDelete` sur une ressource ?",
+      "q_en": "What does a `CanNotDelete` lock do on a resource?",
+      "choices": [
+        { "fr": "Il rend la ressource totalement en lecture seule", "en": "It makes the resource fully read-only" },
+        { "fr": "Il chiffre la ressource", "en": "It encrypts the resource" },
+        { "fr": "Il autorise la modification mais empêche la suppression", "en": "It allows modification but prevents deletion" }
+      ],
+      "answer": 2,
+      "explain_fr": "`CanNotDelete` laisse modifier la ressource mais interdit sa suppression ; `ReadOnly` empêche aussi les modifications. Les verrous s'assignent à une portée (héritage).",
+      "explain_en": "`CanNotDelete` lets you modify the resource but forbids deleting it; `ReadOnly` also blocks changes. Locks are assigned at a scope (inheritance)."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Au nettoyage, que reste-t-il des artefacts Bicep (rôles, policies, verrous) écrits dans ce guide ?",
+      "q_en": "At cleanup, what remains of the Bicep artifacts (roles, policies, locks) written in this guide?",
+      "choices": [
+        { "fr": "Ils doivent être supprimés du vrai Azure", "en": "They must be deleted from real Azure" },
+        { "fr": "Rien à défaire : ils n'ont été que validés, jamais déployés", "en": "Nothing to undo: they were only validated, never deployed" },
+        { "fr": "Ils tournent encore sur miniblue et facturent", "en": "They still run on miniblue and incur billing" }
+      ],
+      "answer": 1,
+      "explain_fr": "Seules les identités et groupes créés en live (miniblue) sont supprimés ; les artefacts Bicep restaient à valider, jamais déployés, donc rien à défaire.",
+      "explain_en": "Only the identities and groups created live (miniblue) are deleted; the Bicep artifacts were only to be validated, never deployed, so nothing to undo."
+    }
+  ]
+}

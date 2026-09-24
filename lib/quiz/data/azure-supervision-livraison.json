@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "D'où proviennent les 4 métriques DORA dans ce guide ?",
+      "q_en": "Where do the 4 DORA metrics come from in this guide ?",
+      "choices": [
+        { "fr": "D'un outil SaaS payant obligatoire", "en": "From a mandatory paid SaaS tool" },
+        { "fr": "D'une estimation manuelle de l'équipe", "en": "From a manual estimate by the team" },
+        { "fr": "De l'historique Git : commits datés + tags de déploiement (dont un hotfix)", "en": "From Git history: dated commits + deploy tags (including a hotfix)" }
+      ],
+      "answer": 2,
+      "explain_fr": "Pas d'outil coûteux : des commits datés et des tags `deploy-N` (avec un `hotfix` = incident) contiennent tout pour les 4 métriques.",
+      "explain_en": "No costly tool: dated commits and `deploy-N` tags (with a `hotfix` = incident) hold everything for the 4 metrics."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que mesurent la fréquence de déploiement et le lead time ?",
+      "q_en": "What do deployment frequency and lead time measure ?",
+      "choices": [
+        { "fr": "La vélocité : nombre de déploiements sur la période, et délai du 1er commit à la prod", "en": "Velocity: number of deployments over the period, and delay from 1st commit to prod" },
+        { "fr": "La stabilité : taux d'échec et temps de rétablissement", "en": "Stability: failure rate and recovery time" },
+        { "fr": "Le coût d'infrastructure par déploiement", "en": "The infrastructure cost per deployment" }
+      ],
+      "answer": 0,
+      "explain_fr": "Fréquence et lead time forment la vélocité ; le taux d'échec et le MTTR (étape suivante) forment la stabilité.",
+      "explain_en": "Frequency and lead time form velocity; failure rate and MTTR (next step) form stability."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que mesure le MTTR ?",
+      "q_en": "What does MTTR measure ?",
+      "choices": [
+        { "fr": "Le nombre de déploiements par jour", "en": "The number of deployments per day" },
+        { "fr": "Le temps entre le déploiement cassé et son correctif (rétablissement)", "en": "The time between the broken deployment and its fix (recovery)" },
+        { "fr": "Le délai entre le premier commit et la prod", "en": "The delay between the first commit and prod" }
+      ],
+      "answer": 1,
+      "explain_fr": "MTTR = temps de `deploy-2` (cassé) à `deploy-3-hotfix` (réparé). Avec le taux d'échec, il mesure la fiabilité de livraison.",
+      "explain_en": "MTTR = time from `deploy-2` (broken) to `deploy-3-hotfix` (fixed). With failure rate, it measures delivery reliability."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Quelle est la différence entre les sondes `liveness` et `readiness` ?",
+      "q_en": "What is the difference between `liveness` and `readiness` probes ?",
+      "choices": [
+        { "fr": "`liveness` chiffre le trafic, `readiness` le déchiffre", "en": "`liveness` encrypts traffic, `readiness` decrypts it" },
+        { "fr": "Elles sont identiques", "en": "They are identical" },
+        { "fr": "`liveness` = le process tourne ; `readiness` = prêt à recevoir du trafic (503 sinon), et l'orchestrateur n'envoie pas de trafic tant que `readiness` n'est pas 200", "en": "`liveness` = the process runs; `readiness` = ready for traffic (503 otherwise), and the orchestrator sends no traffic until `readiness` is 200" }
+      ],
+      "answer": 2,
+      "explain_fr": "« Vivant » n'est pas « prêt » : au démarrage le service est vivant mais pas prêt ; `readiness` évite d'envoyer du trafic trop tôt.",
+      "explain_en": "\"Alive\" isn't \"ready\": at startup the service is alive but not ready; `readiness` avoids sending traffic too early."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi loguer en JSON structuré plutôt qu'en texte libre ?",
+      "q_en": "Why log in structured JSON rather than free text ?",
+      "choices": [
+        { "fr": "Un log structuré se filtre, s'agrège et s'alerte (ex. requête KQL dans Application Insights)", "en": "A structured log can be filtered, aggregated and alerted on (e.g. a KQL query in Application Insights)" },
+        { "fr": "Le JSON prend moins de place sur le disque", "en": "JSON takes less disk space" },
+        { "fr": "Azure refuse les logs en texte", "en": "Azure rejects text logs" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un `console.log(\"erreur !\")` est inutile à l'échelle ; les logs JSON arrivent dans Application Insights et KQL les interroge.",
+      "explain_en": "A `console.log(\"error!\")` is useless at scale; JSON logs land in Application Insights and KQL queries them."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Qu'apporte un déploiement canari par feature flag ?",
+      "q_en": "What does a canary deployment via feature flag bring ?",
+      "choices": [
+        { "fr": "Il bascule 100 % des utilisateurs d'un coup entre deux environnements", "en": "It switches 100% of users at once between two environments" },
+        { "fr": "Il expose la nouveauté à un faible pourcentage stable d'utilisateurs, qu'on surveille et augmente — ou rebascule à 0 % sans redéployer", "en": "It exposes the new feature to a small stable percentage of users, watched and ramped up — or rolled back to 0% without redeploying" },
+        { "fr": "Il supprime le besoin de tests", "en": "It removes the need for tests" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le canari monte 10 % → 50 % → 100 % en surveillant, avec retour à 0 % sans redéployer. Le blue-green, lui, bascule tout d'un coup.",
+      "explain_en": "The canary ramps 10% → 50% → 100% while watching, rolling back to 0% without redeploying. Blue-green switches everything at once."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Que fait une règle d'alerte (Azure Monitor) et pourquoi ferme-t-elle la boucle de retour ?",
+      "q_en": "What does an alert rule (Azure Monitor) do and why does it close the feedback loop ?",
+      "choices": [
+        { "fr": "Elle surveille une métrique, se déclenche au franchissement d'un seuil et notifie / déclenche un rollback via un groupe d'actions", "en": "It watches a metric, fires when a threshold is crossed and notifies / triggers a rollback via an action group" },
+        { "fr": "Elle empêche tout déploiement", "en": "It prevents any deployment" },
+        { "fr": "Elle remplace les sondes de santé", "en": "It replaces the health probes" }
+      ],
+      "answer": 0,
+      "explain_fr": "Mesurer sans réagir ne sert à rien : l'alerte relie une métrique (ou une requête KQL) à un groupe d'actions (mail, webhook, rollback).",
+      "explain_en": "Measuring without reacting is pointless: the alert links a metric (or KQL query) to an action group (mail, webhook, rollback)."
+    }
+  ]
+}

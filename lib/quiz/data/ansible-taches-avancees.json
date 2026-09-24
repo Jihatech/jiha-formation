@@ -1,0 +1,100 @@
+{
+  "step-01": [
+    {
+      "q_fr": "À quoi sert le mot-clé `register` sur une tâche, et pourquoi est-il la brique de base du contrôle de flux ?",
+      "q_en": "What does the `register` keyword on a task do, and why is it the building block of flow control?",
+      "choices": [
+        { "fr": "Il capture le résultat de la tâche (.rc, .stdout, .changed) qu'exploitent when, changed_when, failed_when", "en": "It captures the task's result (.rc, .stdout, .changed) that when, changed_when, failed_when rely on" },
+        { "fr": "Il enregistre la tâche dans un journal d'audit distant", "en": "It logs the task into a remote audit journal" },
+        { "fr": "Il force la tâche à s'exécuter en parallèle sur tous les hôtes", "en": "It forces the task to run in parallel on all hosts" }
+      ],
+      "answer": 0,
+      "explain_fr": "register capture le résultat de la tâche dans une variable (dictionnaire avec .rc, .stdout, .stdout_lines, .changed…). when, changed_when et failed_when s'appuient presque toujours dessus. À noter : command se déclare toujours changed.",
+      "explain_en": "register captures the task's result into a variable (a dictionary with .rc, .stdout, .stdout_lines, .changed…). when, changed_when and failed_when almost always rely on it. Note: command always reports changed."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quand faut-il boucler (`loop`) sur une liste de dictionnaires plutôt que sur une liste de chaînes ?",
+      "q_en": "When should you loop over a list of dictionaries rather than a list of strings?",
+      "choices": [
+        { "fr": "Jamais : une liste de chaînes couvre tous les cas", "en": "Never: a list of strings covers all cases" },
+        { "fr": "Dès que chaque élément a plusieurs attributs, accédés via item.nom, item.role", "en": "As soon as each element has several attributes, accessed via item.nom, item.role" },
+        { "fr": "Uniquement lorsque la boucle doit s'exécuter en parallèle", "en": "Only when the loop must run in parallel" }
+      ],
+      "answer": 1,
+      "explain_fr": "Une liste de chaînes suffit pour « crée ces trois dossiers ». Mais dès que chaque élément porte plusieurs attributs (nom + role), il faut une liste de dictionnaires et on accède à item.nom, item.role. register.results donne le détail par itération.",
+      "explain_en": "A list of strings is enough for \"create these three folders\". But as soon as each element carries several attributes (name + role), you need a list of dictionaries and access item.nom, item.role. register.results gives per-iteration detail."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Comment écrit-on correctement une condition dans un `when`, et que signifie une liste de conditions ?",
+      "q_en": "How do you correctly write a condition in a `when`, and what does a list of conditions mean?",
+      "choices": [
+        { "fr": "Avec `{{ }}` autour de l'expression ; une liste signifie OU", "en": "With `{{ }}` around the expression; a list means OR" },
+        { "fr": "Sans `{{ }}` (déjà un contexte Jinja2) ; une liste signifie ET", "en": "Without `{{ }}` (already a Jinja2 context); a list means AND" },
+        { "fr": "Toujours entre guillemets doubles ; une liste est interdite", "en": "Always in double quotes; a list is forbidden" }
+      ],
+      "answer": 1,
+      "explain_fr": "Dans un when, l'expression s'écrit sans {{ }} car on est déjà en contexte Jinja2 (when: ma_var). Une liste de conditions sous when signifie « toutes ces conditions ET ». failed_when: false évite qu'un grep sans résultat (rc=1) fasse échouer le play.",
+      "explain_en": "In a when, the expression is written without {{ }} because it's already a Jinja2 context (when: my_var). A list of conditions under when means \"all these conditions AND\". failed_when: false prevents a grep with no result (rc=1) from failing the play."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Dans quelles conditions un handler notifié s'exécute-t-il, et à quel moment du play ?",
+      "q_en": "Under what conditions does a notified handler run, and at what point in the play?",
+      "choices": [
+        { "fr": "Seulement si la tâche qui le notifie est changed, et en fin de play", "en": "Only if the notifying task is changed, and at the end of the play" },
+        { "fr": "À chaque run, immédiatement après la tâche qui notifie", "en": "On every run, immediately after the notifying task" },
+        { "fr": "Toujours, mais uniquement au tout début du play", "en": "Always, but only at the very start of the play" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un handler ne se déclenche que si la tâche qui le notifie a réellement changé quelque chose, et il tourne en fin de play. Au 2e passage sans changement, copy est ok et le handler n'est pas joué. meta: flush_handlers les force immédiatement.",
+      "explain_en": "A handler triggers only if its notifying task actually changed something, and it runs at the end of the play. On a second no-change pass, copy is ok and the handler doesn't run. meta: flush_handlers forces them immediately."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi ajoute-t-on `changed_when: false` à une tâche `command` en lecture seule (ex. `date +%Y`) ?",
+      "q_en": "Why add `changed_when: false` to a read-only `command` task (e.g. `date +%Y`)?",
+      "choices": [
+        { "fr": "Pour empêcher la tâche de modifier le système", "en": "To prevent the task from modifying the system" },
+        { "fr": "Parce que command se déclare toujours changed, ce qui casse l'idempotence des rapports", "en": "Because command always reports changed, which breaks report idempotence" },
+        { "fr": "Pour que la tâche s'exécute plus rapidement", "en": "To make the task run faster" }
+      ],
+      "answer": 1,
+      "explain_fr": "command et shell se déclarent toujours changed (ils ignorent s'ils ont modifié quelque chose), ce qui pollue les rapports. changed_when: false rend la tâche ok, jamais changed. failed_when permet d'échouer sur le contenu (ex. 'ERROR' in stdout) plutôt que sur le seul code retour.",
+      "explain_en": "command and shell always report changed (they don't know if they changed anything), which pollutes reports. changed_when: false makes the task ok, never changed. failed_when lets you fail on content (e.g. 'ERROR' in stdout) rather than on the return code alone."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que permet la structure `block` / `rescue` / `always` face à une tâche qui échoue ?",
+      "q_en": "What does the `block` / `rescue` / `always` structure allow when a task fails?",
+      "choices": [
+        { "fr": "rescue rattrape l'échec (play en succès) et always s'exécute quoi qu'il arrive", "en": "rescue recovers from the failure (play succeeds) and always runs no matter what" },
+        { "fr": "block relance automatiquement la tâche échouée jusqu'à réussite", "en": "block automatically retries the failed task until it succeeds" },
+        { "fr": "always empêche toute tâche du block d'échouer", "en": "always prevents any task in the block from failing" }
+      ],
+      "answer": 0,
+      "explain_fr": "C'est le try/catch/finally d'Ansible : sans block, la 1re tâche qui échoue arrête le play. Le rescue absorbe l'échec (le récap montre failed=0, play en succès), les tâches suivantes du block sont sautées, et always nettoie quoi qu'il arrive.",
+      "explain_en": "It's Ansible's try/catch/finally: without a block, the first failing task stops the play. The rescue absorbs the failure (recap shows failed=0, play succeeds), the block's later tasks are skipped, and always cleans up no matter what."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quel comportement spécial ont les tags `always` et `never` sur une tâche ?",
+      "q_en": "What special behavior do the `always` and `never` tags give a task?",
+      "choices": [
+        { "fr": "always empêche l'exécution, never la force à chaque run", "en": "always prevents execution, never forces it on every run" },
+        { "fr": "always joue la tâche à chaque run ; never ne la joue que si on la demande explicitement", "en": "always plays the task on every run; never plays it only when explicitly requested" },
+        { "fr": "Les deux désactivent complètement la tâche", "en": "Both fully disable the task" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le tag always marque une tâche toujours jouée (même avec --tags config) ; le tag never une tâche jouée seulement si on la demande (ex. --tags debug la débloque). Les tags rejouent un sous-ensemble sans tout relancer ; --list-tags les liste tous.",
+      "explain_en": "The always tag marks a task always played (even with --tags config); the never tag a task played only when requested (e.g. --tags debug unlocks it). Tags replay a subset without rerunning everything; --list-tags lists them all."
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Après `docker swarm init` sur une machine seule, quel rôle joue-t-elle dans le cluster ?",
+      "q_en": "After `docker swarm init` on a single machine, what role does it play in the cluster?",
+      "choices": [
+        { "fr": "Un manager (elle décide) qui est aussi worker (elle exécute)", "en": "A manager (it decides) that is also a worker (it runs tasks)" },
+        { "fr": "Un simple worker en attente d'un manager distant", "en": "A plain worker waiting for a remote manager" },
+        { "fr": "Un registre d'images pour le cluster", "en": "An image registry for the cluster" }
+      ],
+      "answer": 0,
+      "explain_fr": "docker swarm init fait de la machine un manager (Leader) qui est aussi worker. docker node ls la montre Ready/Active. On passe du Docker « lance des conteneurs » au Docker orchestrateur : on déclare désormais des services, pas des conteneurs.",
+      "explain_en": "docker swarm init makes the machine a manager (Leader) that is also a worker. docker node ls shows it Ready/Active. You move from \"launch containers\" Docker to orchestrator Docker: you now declare services, not containers."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Un service à 5 répliques dont on supprime de force une tâche revient à 5/5 sans intervention. Comment appelle-t-on ce comportement ?",
+      "q_en": "A 5-replica service whose one task is force-removed returns to 5/5 with no intervention. What is this behavior called?",
+      "choices": [
+        { "fr": "L'équilibrage de charge (load balancing)", "en": "Load balancing" },
+        { "fr": "La réconciliation vers l'état voulu (self-healing)", "en": "Reconciliation toward the desired state (self-healing)" },
+        { "fr": "La mise à jour progressive (rolling update)", "en": "Rolling update" }
+      ],
+      "answer": 1,
+      "explain_fr": "C'est le self-healing par réconciliation : on déclare « je veux 5 répliques », et Swarm maintient 5 quoi qu'il arrive, recréant toute tâche perdue. On ne gère plus des conteneurs mais un état voulu.",
+      "explain_en": "It's self-healing by reconciliation: you declare \"I want 5 replicas\", and Swarm keeps 5 whatever happens, recreating any lost task. You no longer manage containers but a desired state."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "À quoi servent `--update-parallelism 1 --update-delay 3s` lors d'un `docker service update` ?",
+      "q_en": "What are `--update-parallelism 1 --update-delay 3s` for during a `docker service update`?",
+      "choices": [
+        { "fr": "À remplacer toutes les tâches simultanément pour aller plus vite", "en": "To replace all tasks simultaneously to go faster" },
+        { "fr": "À limiter le service à une seule réplique pendant la mise à jour", "en": "To limit the service to a single replica during the update" },
+        { "fr": "À remplacer les tâches une à la fois avec un délai, pour une mise à jour sans coupure", "en": "To replace tasks one at a time with a delay, for a zero-downtime update" }
+      ],
+      "answer": 2,
+      "explain_fr": "Ces options font une mise à jour progressive : Swarm remplace les tâches par lots (1 à la fois, 3 s d'écart) pendant que le service continue de répondre. En cas de souci, docker service rollback revient à l'image précédente en une commande.",
+      "explain_en": "These options make a rolling update: Swarm replaces tasks in batches (1 at a time, 3s apart) while the service keeps answering. If a problem arises, docker service rollback reverts to the previous image in one command."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Sur un cluster multi-nœuds, que garantit le routing mesh pour un port publié par un service overlay ?",
+      "q_en": "On a multi-node cluster, what does the routing mesh guarantee for a port published by an overlay service?",
+      "choices": [
+        { "fr": "Le port n'est joignable que sur les nœuds hébergeant une réplique", "en": "The port is only reachable on nodes hosting a replica" },
+        { "fr": "Le port est joignable sur n'importe quel nœud, Swarm routant vers une tâche vivante", "en": "The port is reachable on any node, Swarm routing to a live task" },
+        { "fr": "Chaque nœud expose le port sur une IP publique différente", "en": "Each node exposes the port on a different public IP" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le routing mesh publie le port sur tout le cluster : le même port est joignable sur n'importe quel nœud, même sans réplique locale, Swarm routant en interne vers une tâche vivante. L'overlay permet aux services de communiquer par nom à travers les machines.",
+      "explain_en": "The routing mesh publishes the port across the whole cluster: the same port is reachable on any node, even without a local replica, Swarm routing internally to a live task. The overlay lets services talk by name across machines."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Comment un secret Swarm (`--secret db_pass`) est-il exposé à l'application dans le conteneur ?",
+      "q_en": "How is a Swarm secret (`--secret db_pass`) exposed to the application in the container?",
+      "choices": [
+        { "fr": "Monté en fichier dans /run/secrets/, jamais en variable d'environnement", "en": "Mounted as a file in /run/secrets/, never as an environment variable" },
+        { "fr": "Injecté dans une variable d'environnement DB_PASS", "en": "Injected into a DB_PASS environment variable" },
+        { "fr": "Écrit dans une couche de l'image au build", "en": "Written into an image layer at build time" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le secret Swarm est chiffré au repos (raft) et monté en fichier dans /run/secrets/db_pass (un tmpfs en RAM), lisible comme un fichier mais jamais exposé en ENV, docker inspect ou couche d'image. C'est la bonne solution, contrairement à l'ENV qui fuit.",
+      "explain_en": "The Swarm secret is encrypted at rest (raft) and mounted as a file in /run/secrets/db_pass (an in-RAM tmpfs), readable as a file but never exposed in an ENV, docker inspect or image layer. That's the right solution, unlike the leaking ENV."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Dans un fichier de stack Swarm, quelle section porte la configuration d'orchestration (répliques, mise à jour, redémarrage) ?",
+      "q_en": "In a Swarm stack file, which section carries the orchestration config (replicas, updates, restart)?",
+      "choices": [
+        { "fr": "La section build:", "en": "The build: section" },
+        { "fr": "La section deploy:, spécifique à Swarm", "en": "The deploy: section, specific to Swarm" },
+        { "fr": "La section networks:", "en": "The networks: section" }
+      ],
+      "answer": 1,
+      "explain_fr": "La section deploy: (replicas, update_config, restart_policy) est spécifique à Swarm et n'est prise en compte que par docker stack deploy, pas par docker compose up. Un stack est l'unité de déploiement : Compose, mais pour un cluster.",
+      "explain_en": "The deploy: section (replicas, update_config, restart_policy) is Swarm-specific and only honored by docker stack deploy, not by docker compose up. A stack is the deployment unit: Compose, but for a cluster."
+    }
+  ]
+}

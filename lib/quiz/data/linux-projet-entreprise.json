@@ -1,0 +1,114 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Dans une règle sudoers `%atelier ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart atelier`, que signifie le préfixe `%` devant `atelier` ?",
+      "q_en": "In the sudoers rule `%atelier ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart atelier`, what does the `%` prefix before `atelier` mean?",
+      "choices": [
+        { "fr": "C'est un commentaire décoratif", "en": "It's a decorative comment" },
+        { "fr": "C'est une variable d'environnement", "en": "It's an environment variable" },
+        { "fr": "C'est un GROUPE : la règle s'applique à tous ses membres", "en": "It's a GROUP: the rule applies to all its members" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le % désigne un groupe : tous les membres de atelier héritent de la permission. La règle n'autorise qu'une seule action root (restart du service) et rien d'autre — le moindre privilège appliqué à une équipe.",
+      "explain_en": "The % denotes a group: every member of atelier inherits the permission. The rule allows only one root action (restarting the service) and nothing else — least privilege applied to a team."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi poser le SGID (chmod 2775) sur /srv/atelier, le répertoire partagé de l'équipe ?",
+      "q_en": "Why set SGID (chmod 2775) on /srv/atelier, the team's shared directory?",
+      "choices": [
+        { "fr": "Pour que tout fichier créé dedans appartienne au groupe atelier (héritage de groupe)", "en": "So every file created inside belongs to the atelier group (group inheritance)" },
+        { "fr": "Pour empêcher chacun de supprimer les fichiers des autres", "en": "To stop everyone from deleting others' files" },
+        { "fr": "Pour exécuter les fichiers du dossier en tant que root", "en": "To run the folder's files as root" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le SGID sur un répertoire fait hériter le groupe du dossier à tout fichier créé : les membres de l'équipe partagent naturellement leurs fichiers via le groupe atelier. Empêcher la suppression croisée serait le rôle du sticky bit ; le SUID (pas ici) ferait exécuter en tant que propriétaire.",
+      "explain_en": "SGID on a directory makes every created file inherit the directory's group: team members naturally share files via the atelier group. Preventing cross-deletion would be the sticky bit's job; SUID (not here) would run as the owner."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Pourquoi le service atelier tourne-t-il sous l'utilisateur www-data (User=www-data) plutôt que sous root ?",
+      "q_en": "Why does the atelier service run as the www-data user (User=www-data) rather than root?",
+      "choices": [
+        { "fr": "Parce que root ne peut pas ouvrir de port réseau", "en": "Because root cannot open a network port" },
+        { "fr": "Par moindre privilège : limiter les dégâts si le service est compromis", "en": "For least privilege: limit the damage if the service is compromised" },
+        { "fr": "Parce que systemd interdit les services lancés par root", "en": "Because systemd forbids services started by root" }
+      ],
+      "answer": 1,
+      "explain_fr": "Faire tourner un service sous un compte non privilégié (www-data) applique le moindre privilège : si l'application est compromise, l'attaquant n'a pas les droits root. root pourrait parfaitement ouvrir le port, et systemd autorise les services root — c'est un choix de sécurité, pas une contrainte.",
+      "explain_en": "Running a service under an unprivileged account (www-data) applies least privilege: if the app is compromised, the attacker doesn't have root. root could perfectly well open the port, and systemd allows root services — it's a security choice, not a constraint."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "À quoi sert l'option `Persistent=true` dans un timer systemd `OnCalendar=daily` ?",
+      "q_en": "What is `Persistent=true` for in a systemd timer with `OnCalendar=daily`?",
+      "choices": [
+        { "fr": "Elle garde le timer armé après un redémarrage", "en": "It keeps the timer armed after a reboot" },
+        { "fr": "Elle empêche le timer d'être désactivé manuellement", "en": "It prevents the timer from being disabled manually" },
+        { "fr": "Elle rattrape au démarrage une exécution manquée (serveur éteint à l'heure prévue)", "en": "It catches up at startup a run missed while the server was off at the scheduled time" }
+      ],
+      "answer": 2,
+      "explain_fr": "Persistent=true fait exécuter au prochain démarrage une occurrence qui aurait dû tourner pendant que la machine était éteinte — une sauvegarde manquée n'est pas simplement sautée. C'est ce qui rend la planification fiable.",
+      "explain_en": "Persistent=true runs at the next startup an occurrence that should have fired while the machine was off — a missed backup isn't simply skipped. That's what makes the schedule reliable."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Pourquoi nommer le drop-in de durcissement SSH `00-durci.conf` avec le préfixe 00- ?",
+      "q_en": "Why name the SSH hardening drop-in `00-durci.conf` with the 00- prefix?",
+      "choices": [
+        { "fr": "Parce que sshd retient la PREMIÈRE valeur trouvée : 00- passe devant un 50-cloud-init.conf qui remettrait les mots de passe", "en": "Because sshd keeps the FIRST value found: 00- sorts ahead of a 50-cloud-init.conf that would re-enable passwords" },
+        { "fr": "Parce que sshd ne lit que les fichiers commençant par 00", "en": "Because sshd only reads files starting with 00" },
+        { "fr": "Pour que le fichier soit chargé en dernier et écrase les autres", "en": "So the file loads last and overrides the others" }
+      ],
+      "answer": 0,
+      "explain_fr": "Les drop-ins sont lus par ordre alphabétique et sshd conserve la PREMIÈRE valeur rencontrée pour chaque directive. Le préfixe 00- fait passer notre durcissement avant un éventuel 50-cloud-init.conf, garantissant que PasswordAuthentication no l'emporte.",
+      "explain_en": "Drop-ins are read alphabetically and sshd keeps the FIRST value found for each directive. The 00- prefix puts our hardening ahead of any 50-cloud-init.conf, ensuring PasswordAuthentication no wins."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que produit le health-check pour qu'un système de supervision (cron, monitoring) puisse réagir automatiquement à l'état du serveur ?",
+      "q_en": "What does the health-check produce so a supervision system (cron, monitoring) can react automatically to the server's state?",
+      "choices": [
+        { "fr": "Uniquement un fichier de log à relire à la main", "en": "Only a log file to read by hand" },
+        { "fr": "Un code de sortie exploitable (0 = sain, 1 = problème)", "en": "A usable exit code (0 = healthy, 1 = problem)" },
+        { "fr": "Une notification email envoyée à l'équipe", "en": "An email notification sent to the team" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le script renvoie exit 0 si tout est sain, exit 1 sinon : ce code est ce qu'un cron, un &&, ou un outil de monitoring lit pour réagir automatiquement. Le rapport [OK]/[FAIL] est pour l'humain ; le code de sortie est pour la machine.",
+      "explain_en": "The script returns exit 0 if all is healthy, exit 1 otherwise: this code is what a cron, an &&, or a monitoring tool reads to react automatically. The [OK]/[FAIL] report is for the human; the exit code is for the machine."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Quel est le rôle du runbook (README.md) dans ce projet de serveur ?",
+      "q_en": "What is the role of the runbook (README.md) in this server project?",
+      "choices": [
+        { "fr": "Remplacer les scripts de provisionnement", "en": "Replace the provisioning scripts" },
+        { "fr": "Stocker les archives de sauvegarde", "en": "Store the backup archives" },
+        { "fr": "Documenter architecture, exploitation et décisions — la moitié de la valeur du livrable", "en": "Document architecture, operations and decisions — half the deliverable's value" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le runbook explique quoi, pourquoi et comment reconstruire : un recruteur doit comprendre en deux minutes ce que fait le serveur, comment l'exploiter et pourquoi les choix sont bons. C'est l'artefact quotidien d'un vrai sysadmin, pas un remplacement des scripts.",
+      "explain_en": "The runbook explains what, why and how to rebuild: a recruiter should grasp in two minutes what the server does, how to operate it and why the choices are sound. It's a real sysadmin's daily artifact, not a replacement for the scripts."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Qu'est-ce qui rend `provision.sh` idempotent, la propriété clé d'un script de provisionnement ?",
+      "q_en": "What makes `provision.sh` idempotent, the key property of a provisioning script?",
+      "choices": [
+        { "fr": "Chaque action vérifie avant d'agir (getent group … || groupadd), donc le rejouer ne recrée rien d'existant", "en": "Each action checks before acting (getent group … || groupadd), so re-running it recreates nothing that already exists" },
+        { "fr": "Il s'exécute une seule fois puis se verrouille définitivement", "en": "It runs once and then locks itself permanently" },
+        { "fr": "Il supprime tout puis recrée l'ensemble à chaque exécution", "en": "It deletes everything and recreates it all on each run" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'idempotence vient de ce que chaque étape teste l'état avant d'agir (getent group … || groupadd, id … || useradd) : rejouer le script est sans danger et ne duplique rien. C'est ce qui rend la config rejouable et le serveur reconstructible à l'identique.",
+      "explain_en": "Idempotence comes from each step checking state before acting (getent group … || groupadd, id … || useradd): re-running the script is safe and duplicates nothing. That's what makes the config replayable and the server rebuildable identically."
+    }
+  ]
+}

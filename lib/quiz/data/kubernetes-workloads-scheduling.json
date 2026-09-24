@@ -1,0 +1,114 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi créer un namespace `cka` et le rendre courant avec `kubectl config set-context --current --namespace=cka` ?",
+      "q_en": "Why create a `cka` namespace and make it current with `kubectl config set-context --current --namespace=cka`?",
+      "choices": [
+        { "fr": "Pour isoler tes objets des pods système et éviter de retaper `-n cka` à chaque commande", "en": "To isolate your objects from system pods and avoid retyping `-n cka` on every command" },
+        { "fr": "Parce que `kubectl` refuse de fonctionner dans le namespace `default`", "en": "Because `kubectl` refuses to work in the `default` namespace" },
+        { "fr": "Pour chiffrer automatiquement tous les objets du namespace", "en": "To automatically encrypt all objects in the namespace" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le namespace isole les objets et facilite le nettoyage (le supprimer supprime tout). Le rendre courant évite de préciser `-n cka` partout — un gain de temps précieux à l'examen.",
+      "explain_en": "The namespace isolates objects and eases cleanup (deleting it deletes everything). Making it current avoids specifying `-n cka` everywhere — precious time saved in the exam."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Quelle est la différence de comportement entre l'échec d'une liveness probe et celui d'une readiness probe ?",
+      "q_en": "What is the behavioral difference between a liveness probe failure and a readiness probe failure?",
+      "choices": [
+        { "fr": "Les deux redémarrent le conteneur", "en": "Both restart the container" },
+        { "fr": "Liveness qui échoue → le conteneur est redémarré ; readiness qui échoue → le pod est retiré du Service, sans redémarrage", "en": "Liveness fails → the container is restarted; readiness fails → the pod is removed from the Service, without restart" },
+        { "fr": "Liveness qui échoue → retrait du Service ; readiness qui échoue → redémarrage", "en": "Liveness fails → removed from the Service; readiness fails → restart" }
+      ],
+      "answer": 1,
+      "explain_fr": "Liveness = « suis-je cassé ? » : l'échec redémarre le conteneur. Readiness = « puis-je servir ? » : l'échec sort le pod des endpoints du Service, sans le redémarrer.",
+      "explain_en": "Liveness = \"am I broken?\": failure restarts the container. Readiness = \"can I serve?\": failure removes the pod from the Service endpoints, without restarting it."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Un conteneur avec `limits.memory: 64Mi` alloue 150M à l'exécution. Que se passe-t-il, et quel est le rôle respectif de request et limit ?",
+      "q_en": "A container with `limits.memory: 64Mi` allocates 150M at runtime. What happens, and what are the respective roles of request and limit?",
+      "choices": [
+        { "fr": "Rien : la limit n'est qu'indicative, le conteneur continue de tourner", "en": "Nothing: the limit is only advisory, the container keeps running" },
+        { "fr": "Le pod reste `Pending` car la request est trop basse", "en": "The pod stays `Pending` because the request is too low" },
+        { "fr": "Le conteneur est `OOMKilled` : la request aide le scheduler (réservation), la limit est un plafond dur appliqué à l'exécution", "en": "The container is `OOMKilled`: the request helps the scheduler (reservation), the limit is a hard runtime ceiling" }
+      ],
+      "answer": 2,
+      "explain_fr": "Dépasser la limit mémoire fait tuer le conteneur par le noyau (`OOMKilled`), puis Kubernetes le relance en boucle (`CrashLoopBackOff`). La request sert à la planification ; la limit est un contrat dur.",
+      "explain_en": "Exceeding the memory limit makes the kernel kill the container (`OOMKilled`), then Kubernetes relaunches it in a loop (`CrashLoopBackOff`). The request is for scheduling; the limit is a hard contract."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Dans un pod, quelle est la différence entre un init container et un sidecar ?",
+      "q_en": "In a pod, what is the difference between an init container and a sidecar?",
+      "choices": [
+        { "fr": "L'init tourne d'abord jusqu'au bout puis se termine ; le sidecar tourne en parallèle du conteneur principal, toute la vie du pod", "en": "The init runs first to completion then ends; the sidecar runs in parallel with the main container, for the pod's whole life" },
+        { "fr": "L'init et le sidecar tournent tous deux en permanence en parallèle", "en": "The init and the sidecar both run continuously in parallel" },
+        { "fr": "Le sidecar tourne d'abord, puis l'init prend le relais", "en": "The sidecar runs first, then the init takes over" }
+      ],
+      "answer": 0,
+      "explain_fr": "L'init container prépare (ici il écrit `index.html`) et se termine avant les conteneurs applicatifs ; il n'apparaît pas dans `READY 2/2`. Le sidecar (`watcher`) tourne en même temps que le `web`, partageant un volume `emptyDir`.",
+      "explain_en": "The init container prepares (here it writes `index.html`) and completes before the app containers; it doesn't appear in `READY 2/2`. The sidecar (`watcher`) runs alongside `web`, sharing an `emptyDir` volume."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Quelle `restartPolicy` un pod de Job doit-il porter, et pourquoi ?",
+      "q_en": "Which `restartPolicy` must a Job's pod carry, and why?",
+      "choices": [
+        { "fr": "`Always`, comme tout pod, pour garantir qu'il tourne en continu", "en": "`Always`, like any pod, to ensure it runs continuously" },
+        { "fr": "`Never` ou `OnFailure` : un Job est une tâche ponctuelle, pas un service ; l'API refuse `Always`", "en": "`Never` or `OnFailure`: a Job is a one-off task, not a service; the API rejects `Always`" },
+        { "fr": "Aucune : les Jobs n'ont pas de `restartPolicy`", "en": "None: Jobs have no `restartPolicy`" }
+      ],
+      "answer": 1,
+      "explain_fr": "Un Job s'exécute une fois jusqu'à réussite puis s'arrête : son pod doit avoir `restartPolicy: Never` ou `OnFailure`, jamais `Always`. Un CronJob crée des Jobs selon un `schedule` cron.",
+      "explain_en": "A Job runs once to success then stops: its pod must have `restartPolicy: Never` or `OnFailure`, never `Always`. A CronJob creates Jobs on a cron `schedule`."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "En quoi un DaemonSet diffère-t-il fondamentalement d'un Deployment ?",
+      "q_en": "How does a DaemonSet fundamentally differ from a Deployment?",
+      "choices": [
+        { "fr": "Il ne peut lancer qu'un seul pod dans tout le cluster", "en": "It can only run a single pod in the whole cluster" },
+        { "fr": "Il place N répliques au hasard, comme un Deployment mais plus vite", "en": "It places N replicas at random, like a Deployment but faster" },
+        { "fr": "Il garantit exactement un pod par nœud et suit les nœuds : il déduit le compte du nombre de nœuds", "en": "It guarantees exactly one pod per node and tracks nodes: it derives the count from the number of nodes" }
+      ],
+      "answer": 2,
+      "explain_fr": "Un Deployment place N répliques n'importe où ; un DaemonSet met un pod sur chaque nœud (un nouveau nœud → un nouveau pod). On ne fixe jamais le nombre : il découle des nœuds. C'est le motif des agents de logs/métriques.",
+      "explain_en": "A Deployment places N replicas anywhere; a DaemonSet puts one pod on each node (a new node → a new pod). You never set the count: it follows the nodes. It's the pattern for log/metric agents."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Un pod a un `nodeSelector: tier: frontend`. Tu retires ce label du seul nœud qui le portait. Que devient le pod ?",
+      "q_en": "A pod has `nodeSelector: tier: frontend`. You remove that label from the only node that carried it. What happens to the pod?",
+      "choices": [
+        { "fr": "Il reste `Pending` : aucun nœud ne satisfait la contrainte (`required` est bloquant)", "en": "It stays `Pending`: no node satisfies the constraint (`required` is blocking)" },
+        { "fr": "Il est planifié sur n'importe quel nœud disponible", "en": "It is scheduled on any available node" },
+        { "fr": "Il est supprimé automatiquement", "en": "It is automatically deleted" }
+      ],
+      "answer": 0,
+      "explain_fr": "`nodeSelector` (et l'affinité `requiredDuringScheduling…`) attire strictement le pod vers un nœud labellisé. Sans nœud correspondant, le pod reste `Pending`. Une affinité `preferred…` ne serait qu'une préférence.",
+      "explain_en": "`nodeSelector` (and `requiredDuringScheduling…` affinity) strictly attracts the pod to a labeled node. With no matching node, the pod stays `Pending`. A `preferred…` affinity would be only a preference."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Quel est l'effet d'un taint `dedicated=db:NoSchedule` sur un nœud, et que fait une toleration correspondante ?",
+      "q_en": "What is the effect of a `dedicated=db:NoSchedule` taint on a node, and what does a matching toleration do?",
+      "choices": [
+        { "fr": "Le taint attire tous les pods `db` ; la toleration les en éloigne", "en": "The taint attracts all `db` pods; the toleration keeps them away" },
+        { "fr": "Le taint repousse tous les pods sauf ceux qui le tolèrent ; la toleration autorise (mais n'attire pas) le pod sur ce nœud", "en": "The taint repels all pods except those that tolerate it; the toleration allows (but doesn't attract) the pod onto that node" },
+        { "fr": "Le taint supprime les pods déjà présents et la toleration les recrée", "en": "The taint deletes existing pods and the toleration recreates them" }
+      ],
+      "answer": 1,
+      "explain_fr": "C'est l'inverse du nodeSelector : le taint repousse, la toleration lève seulement l'interdiction (elle n'envoie pas le pod là). Pour un nœud vraiment dédié, on combine taint (« pas les autres ») et affinité (« moi ici »).",
+      "explain_en": "It's the reverse of nodeSelector: the taint repels, the toleration only lifts the ban (it doesn't send the pod there). For a truly dedicated node, combine taint (\"not the others\") and affinity (\"me here\")."
+    }
+  ]
+}

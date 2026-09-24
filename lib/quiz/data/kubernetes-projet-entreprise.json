@@ -1,0 +1,114 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Pourquoi le tier de données Redis est-il monté sur un PVC et exposé par un Service ?",
+      "q_en": "Why is the Redis data tier mounted on a PVC and exposed by a Service?",
+      "choices": [
+        { "fr": "Le PVC persiste la donnée au-delà du pod, et le Service donne à Redis une adresse stable (`redis:6379`) pour l'app", "en": "The PVC persists data beyond the pod, and the Service gives Redis a stable address (`redis:6379`) for the app" },
+        { "fr": "Le PVC accélère Redis et le Service le réplique automatiquement", "en": "The PVC speeds up Redis and the Service replicates it automatically" },
+        { "fr": "Le PVC chiffre la donnée et le Service la sauvegarde", "en": "The PVC encrypts data and the Service backs it up" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le pod Redis est le premier consommateur du PVC → le PV est provisionné et la donnée survit au pod. Le Service `redis` fournit une adresse stable que le tier applicatif utilisera.",
+      "explain_en": "The Redis pod is the PVC's first consumer → the PV gets provisioned and data survives the pod. The `redis` Service provides a stable address the app tier will use."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Comment répartir la configuration de l'app entre ConfigMap et Secret ?",
+      "q_en": "How do you split the app's configuration between ConfigMap and Secret?",
+      "choices": [
+        { "fr": "Tout dans le ConfigMap, le Secret ne sert qu'aux images", "en": "Everything in the ConfigMap, the Secret is only for images" },
+        { "fr": "La config non sensible (message UI, adresse du cache) dans le ConfigMap ; les données sensibles (API_TOKEN) dans le Secret", "en": "Non-sensitive config (UI message, cache address) in the ConfigMap; sensitive data (API_TOKEN) in the Secret" },
+        { "fr": "Tout dans le Secret, car il est chiffré de bout en bout", "en": "Everything in the Secret, because it's end-to-end encrypted" }
+      ],
+      "answer": 1,
+      "explain_fr": "On ne code jamais config ni mot de passe dans l'image. Le ConfigMap porte le message et `tcp://redis:6379` ; le Secret porte l'`API_TOKEN`. La config vit hors de l'image, versionnable et modifiable sans rebuild.",
+      "explain_en": "You never bake config or password into the image. The ConfigMap carries the message and `tcp://redis:6379`; the Secret carries the `API_TOKEN`. Config lives outside the image, versionable and changeable without a rebuild."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Comment le Deployment `app` (podinfo) reçoit-il la config du ConfigMap et du Secret ?",
+      "q_en": "How does the `app` Deployment (podinfo) receive config from the ConfigMap and the Secret?",
+      "choices": [
+        { "fr": "En reconstruisant l'image podinfo avec les valeurs intégrées", "en": "By rebuilding the podinfo image with the values baked in" },
+        { "fr": "En montant le ConfigMap et le Secret comme des PVC", "en": "By mounting the ConfigMap and the Secret as PVCs" },
+        { "fr": "Via `envFrom.configMapRef` (variables du ConfigMap) et `env.valueFrom.secretKeyRef` (clé du Secret)", "en": "Via `envFrom.configMapRef` (ConfigMap variables) and `env.valueFrom.secretKeyRef` (a Secret key)" }
+      ],
+      "answer": 2,
+      "explain_fr": "La config est injectée en variables d'environnement : `envFrom` charge tout le ConfigMap, `secretKeyRef` prend l'`API_TOKEN` du Secret. Le manifeste combine aussi probes et requests/limits.",
+      "explain_en": "Config is injected as environment variables: `envFrom` loads the whole ConfigMap, `secretKeyRef` pulls the `API_TOKEN` from the Secret. The manifest also combines probes and requests/limits."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Que prouve la séquence `POST /cache/demo` puis `GET /cache/demo` renvoyant `hello-k8s` via l'Ingress ?",
+      "q_en": "What does the `POST /cache/demo` then `GET /cache/demo` returning `hello-k8s` via the Ingress prove?",
+      "choices": [
+        { "fr": "Le flux des trois tiers : Ingress → application (podinfo) → données (Redis), l'app ayant écrit puis relu dans Redis", "en": "The three-tier flow: Ingress → application (podinfo) → data (Redis), the app having written then read back from Redis" },
+        { "fr": "Que l'Ingress stocke lui-même la donnée en cache", "en": "That the Ingress itself caches the data" },
+        { "fr": "Que Redis est exposé directement au public", "en": "That Redis is exposed directly to the public" }
+      ],
+      "answer": 0,
+      "explain_fr": "La chaîne Ingress → Service → pod fonctionne, et l'app écrit/relit dans Redis via `PODINFO_CACHE_SERVER`. C'est la validation du flux présentation → application → données.",
+      "explain_en": "The Ingress → Service → pod chain works, and the app writes/reads back to Redis via `PODINFO_CACHE_SERVER`. That validates the presentation → application → data flow."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "De quoi un HorizontalPodAutoscaler basé sur le CPU a-t-il besoin pour fonctionner ?",
+      "q_en": "What does a CPU-based HorizontalPodAutoscaler need to work?",
+      "choices": [
+        { "fr": "Rien de particulier : le HPA mesure le CPU tout seul instantanément", "en": "Nothing special: the HPA measures CPU on its own instantly" },
+        { "fr": "De metrics-server ET de `requests.cpu` sur les pods, sinon il ne peut pas calculer de pourcentage d'utilisation", "en": "metrics-server AND `requests.cpu` on the pods, otherwise it can't compute a utilization percentage" },
+        { "fr": "D'un StatefulSet, car un Deployment ne s'autoscale pas", "en": "A StatefulSet, because a Deployment can't autoscale" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le HPA calcule l'utilisation en pourcentage de la `requests.cpu` : sans requests (ou sans metrics-server), les TARGETS restent `<unknown>`. La montée prend 1-3 min, la descente est lissée (anti-oscillation).",
+      "explain_en": "The HPA computes utilization as a percentage of `requests.cpu`: without requests (or without metrics-server), TARGETS stays `<unknown>`. Scale-up takes 1-3 min, scale-down is smoothed (anti-flapping)."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Que garantit la NetworkPolicy `redis-only-from-app` (sélecteur `app: redis`, source `app: podinfo`) ?",
+      "q_en": "What does the `redis-only-from-app` NetworkPolicy (selector `app: redis`, source `app: podinfo`) guarantee?",
+      "choices": [
+        { "fr": "Que Redis se réplique vers les pods podinfo", "en": "That Redis replicates to the podinfo pods" },
+        { "fr": "Que Redis n'est plus accessible par aucun pod, y compris l'app", "en": "That Redis is no longer reachable by any pod, including the app" },
+        { "fr": "Que seuls les pods labellisés `app: podinfo` peuvent joindre Redis sur 6379 ; tout autre pod est bloqué (défense en profondeur)", "en": "That only pods labeled `app: podinfo` can reach Redis on 6379; any other pod is blocked (defense in depth)" }
+      ],
+      "answer": 2,
+      "explain_fr": "La policy cloisonne le tier de données : l'app (label `app: podinfo`) continue d'accéder à Redis, un pod quelconque timeoute. k3s applique bien les NetworkPolicy.",
+      "explain_en": "The policy partitions the data tier: the app (label `app: podinfo`) keeps accessing Redis, a random pod times out. k3s does enforce NetworkPolicies."
+    }
+  ],
+  "step-07": [
+    {
+      "q_fr": "Pourquoi ajouter un `README.md` et un `architecture.md` au dépôt de manifestes ?",
+      "q_en": "Why add a `README.md` and an `architecture.md` to the manifest repo?",
+      "choices": [
+        { "fr": "Parce que le README fait la moitié de la valeur d'un livrable de CV : en deux minutes, un recruteur doit comprendre l'archi, les objets et tes choix", "en": "Because the README is half the value of a CV deliverable: in two minutes a recruiter must grasp the architecture, the objects and your choices" },
+        { "fr": "Parce que `kubectl apply` exige un README pour fonctionner", "en": "Because `kubectl apply` requires a README to work" },
+        { "fr": "Parce que le schéma remplace les manifestes YAML", "en": "Because the diagram replaces the YAML manifests" }
+      ],
+      "answer": 0,
+      "explain_fr": "Sans documentation, un beau déploiement reste invisible pour le recruteur. README (quoi/pourquoi/comment) + schéma d'architecture rendent le livrable vendable.",
+      "explain_en": "Without documentation, a fine deployment stays invisible to a recruiter. A README (what/why/how) + architecture diagram make the deliverable sellable."
+    }
+  ],
+  "step-08": [
+    {
+      "q_fr": "Que prouve un second `kubectl apply -f k8s/` affichant `unchanged`, et comment tout supprimer d'un geste ?",
+      "q_en": "What does a second `kubectl apply -f k8s/` printing `unchanged` prove, and how do you delete everything in one gesture?",
+      "choices": [
+        { "fr": "Que le déploiement est reproductible et idempotent ; supprimer le namespace emporte tous les objets du projet", "en": "That the deployment is reproducible and idempotent; deleting the namespace removes all the project's objects" },
+        { "fr": "Que le cluster est corrompu ; il faut supprimer chaque objet à la main", "en": "That the cluster is corrupted; you must delete each object by hand" },
+        { "fr": "Que les manifestes ont une erreur ; `unchanged` est un avertissement", "en": "That the manifests have an error; `unchanged` is a warning" }
+      ],
+      "answer": 0,
+      "explain_fr": "`unchanged` partout = déploiement idempotent, rejouable en une commande. Le namespace regroupe tous les objets : `kubectl delete namespace shop` nettoie tout proprement d'un seul geste.",
+      "explain_en": "`unchanged` everywhere = an idempotent deployment, replayable in one command. The namespace groups all objects: `kubectl delete namespace shop` cleans everything in one gesture."
+    }
+  ]
+}

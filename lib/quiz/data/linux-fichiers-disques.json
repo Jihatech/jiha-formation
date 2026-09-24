@@ -1,0 +1,86 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Quelle commande donne l'espace libre par système de fichiers monté (au niveau du montage) ?",
+      "q_en": "Which command shows free space per mounted filesystem (at the mount level)?",
+      "choices": [
+        { "fr": "du -sh /var/log", "en": "du -sh /var/log" },
+        { "fr": "lsblk", "en": "lsblk" },
+        { "fr": "df -h", "en": "df -h" }
+      ],
+      "answer": 2,
+      "explain_fr": "df -h donne l'espace par système de fichiers (niveau montage) ; du -sh mesure la taille d'un répertoire (niveau fichiers) ; lsblk liste les périphériques bloc. Nuance clé : df = disques/montages, du = dossiers.",
+      "explain_en": "df -h gives space per filesystem (mount level); du -sh measures a directory's size (file level); lsblk lists block devices. Key nuance: df = disks/mounts, du = folders."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Pourquoi fabriquer un fichier attaché en loopback (losetup) pour cet exercice de partitionnement ?",
+      "q_en": "Why build a file attached as a loopback device (losetup) for this partitioning exercise?",
+      "choices": [
+        { "fr": "Pour manipuler partitions et formatage sans aucun risque sur tes vrais disques", "en": "To handle partitions and formatting with zero risk to your real disks" },
+        { "fr": "Parce que parted ne fonctionne que sur des fichiers", "en": "Because parted only works on files" },
+        { "fr": "Parce qu'une table GPT exige obligatoirement un loopback", "en": "Because a GPT table strictly requires a loopback" }
+      ],
+      "answer": 0,
+      "explain_fr": "Le disque virtuel n'est qu'un fichier présenté comme /dev/loopN : toutes les opérations (mklabel gpt, mkpart, mkfs) portent dessus, jamais sur tes vrais disques. C'est un bac à sable sans risque.",
+      "explain_en": "The virtual disk is just a file presented as /dev/loopN: every operation (mklabel gpt, mkpart, mkfs) acts on it, never on your real disks. It's a risk-free sandbox."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Que fait `sudo mkfs.ext4` sur une partition fraîchement créée ?",
+      "q_en": "What does `sudo mkfs.ext4` do to a freshly created partition?",
+      "choices": [
+        { "fr": "Il la monte directement sur un dossier", "en": "It mounts it directly on a folder" },
+        { "fr": "Il y installe un système de fichiers (la structure ext4)", "en": "It installs a filesystem on it (the ext4 structure)" },
+        { "fr": "Il crée la table de partitions GPT", "en": "It creates the GPT partition table" }
+      ],
+      "answer": 1,
+      "explain_fr": "Formater, c'est installer un système de fichiers : la partition existait mais sans structure ; mkfs.ext4 y pose ext4. Le montage (mount) vient ensuite, et la table de partitions a été créée avant par parted.",
+      "explain_en": "Formatting means installing a filesystem: the partition existed but had no structure; mkfs.ext4 lays down ext4. Mounting comes afterward, and the partition table was created earlier by parted."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi référencer la partition par son UUID plutôt que par ${LOOP}p1 dans /etc/fstab ?",
+      "q_en": "Why reference the partition by its UUID rather than by ${LOOP}p1 in /etc/fstab?",
+      "choices": [
+        { "fr": "L'UUID est simplement plus court à taper", "en": "The UUID is simply shorter to type" },
+        { "fr": "L'option defaults exige un UUID", "en": "The defaults option requires a UUID" },
+        { "fr": "Le nom de périphérique peut changer, alors que l'UUID est gravé dans le système de fichiers", "en": "The device name can change, whereas the UUID is baked into the filesystem" }
+      ],
+      "answer": 2,
+      "explain_fr": "Le numéro de périphérique (loop0p1, sdaX) dépend de l'ordre de détection et peut changer, montant le mauvais disque ; l'UUID est gravé dans le système de fichiers et reste stable. On teste toujours avec mount -a avant de redémarrer.",
+      "explain_en": "The device number (loop0p1, sdaX) depends on detection order and can change, mounting the wrong disk; the UUID is baked into the filesystem and stays stable. Always test with mount -a before rebooting."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Tu supprimes original.txt. Pourquoi `cat dur.txt` (lien dur) marche-t-il encore, alors que `cat sym.txt` (lien symbolique) échoue ?",
+      "q_en": "You delete original.txt. Why does `cat dur.txt` (hard link) still work, while `cat sym.txt` (symbolic link) fails?",
+      "choices": [
+        { "fr": "Le lien dur partage l'inode (les données, qui survivent) ; le lien symbolique ne pointe qu'un chemin, désormais absent", "en": "The hard link shares the inode (the data, which survives); the symbolic link only points at a path, now gone" },
+        { "fr": "Le lien dur a recréé automatiquement le fichier original", "en": "The hard link automatically recreated the original file" },
+        { "fr": "Le lien symbolique garde une copie en cache qui a expiré", "en": "The symbolic link keeps a cached copy that expired" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un lien dur est un second nom du même inode : les données survivent tant qu'un nom pointe dessus. Un lien symbolique n'est qu'un panneau vers un chemin ; supprimé, la cible disparaît et le lien est cassé.",
+      "explain_en": "A hard link is a second name for the same inode: the data survives as long as a name points to it. A symbolic link is just a signpost to a path; once the target is deleted, the link is broken."
+    }
+  ],
+  "step-06": [
+    {
+      "q_fr": "Après `lvextend -L +200M`, pourquoi le point de montage affiche-t-il encore l'ancienne taille tant qu'on ne lance pas `resize2fs` ?",
+      "q_en": "After `lvextend -L +200M`, why does the mount point still show the old size until you run `resize2fs`?",
+      "choices": [
+        { "fr": "Parce qu'il faut d'abord redémarrer la machine", "en": "Because the machine must be rebooted first" },
+        { "fr": "Parce que lvextend agrandit le volume logique, mais resize2fs doit étendre le système de fichiers à l'intérieur", "en": "Because lvextend grows the logical volume, but resize2fs must grow the filesystem inside it" },
+        { "fr": "Parce que LVM ne sait pas agrandir un volume à chaud", "en": "Because LVM can't grow a volume live" }
+      ],
+      "answer": 1,
+      "explain_fr": "Ce sont deux temps : lvextend agrandit le volume logique, puis resize2fs (ext4) étend le système de fichiers pour qu'il occupe l'espace ajouté. L'un sans l'autre ne suffit pas — et tout se fait à chaud, sans démonter.",
+      "explain_en": "Two steps: lvextend grows the logical volume, then resize2fs (ext4) grows the filesystem to fill the added space. One without the other isn't enough — and it all happens live, without unmounting."
+    }
+  ]
+}
