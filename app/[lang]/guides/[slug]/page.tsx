@@ -17,10 +17,12 @@ import { hasPremiumAccess } from "@/lib/billing/access";
 import { Paywall } from "@/components/billing/paywall";
 import type { GuideNode, ParsedGuide } from "@/lib/content/types";
 import { sectionLabel } from "@/lib/content/section-labels";
-import { GuideContent } from "@/components/guide/guide-content";
+import { Nodes } from "@/components/content/nodes";
 import { GuideRelations } from "@/components/guide/guide-relations";
-import { DocToc } from "@/components/docs/docs-chrome";
-import { QuizProgress } from "@/components/guide/quiz-progress";
+import {
+  GuideReader,
+  type ReaderSection,
+} from "@/components/guide/guide-reader";
 import { getGuideQuiz } from "@/lib/quiz";
 import styles from "./guide.module.css";
 
@@ -119,7 +121,20 @@ export default async function GuidePage({
     ),
   );
 
-  const stepIds = guide.sections.flatMap((s) => s.steps.map((st) => st.id));
+  // Contenu rendu côté serveur (markdown + figures), découpé par étape, puis
+  // passé au lecteur client qui gère le focus/déverrouillage et le quiz au pied.
+  const readerSections: ReaderSection[] = guide.sections.map((section, i) => ({
+    id: section.id,
+    label: sectionLabel(section.id, locale),
+    index: i,
+    intro: section.nodes.length ? (
+      <Nodes nodes={section.nodes} locale={locale} figures={figures} />
+    ) : null,
+    steps: section.steps.map((st) => ({
+      id: st.id,
+      content: <Nodes nodes={st.nodes} locale={locale} figures={figures} />,
+    })),
+  }));
 
   return (
     <article className={`container ${styles.page}`}>
@@ -143,61 +158,46 @@ export default async function GuidePage({
         <p className={styles.tagline}>{tagline}</p>
       </header>
 
-      {/* Corps + ToC des sections à droite (ROADMAP D3, comme /docs). */}
-      <div className={styles.grid}>
-        <div className={styles.mainCol}>
-          {/* Prérequis résolus via le manifeste (BUILD-SPEC §3.4) */}
-          {meta.prerequisites?.length ? (
-            <section className={styles.relations}>
-              <h2 className="cli-header">{t("guide.prerequisites")}</h2>
-              <GuideRelations
-                ids={meta.prerequisites}
-                manifest={manifest}
-                locale={locale}
-                soonLabel={t("guide.soon")}
-              />
-            </section>
-          ) : null}
-
-          {/* Progression validée par QCM — îlot client (la page reste SSG). */}
-          <QuizProgress
-            guideId={meta.id}
-            steps={stepIds}
-            quiz={getGuideQuiz(meta.id)}
+      {/* Prérequis résolus via le manifeste (BUILD-SPEC §3.4) */}
+      {meta.prerequisites?.length ? (
+        <section className={styles.relations}>
+          <h2 className="cli-header">{t("guide.prerequisites")}</h2>
+          <GuideRelations
+            ids={meta.prerequisites}
+            manifest={manifest}
             locale={locale}
+            soonLabel={t("guide.soon")}
           />
+        </section>
+      ) : null}
 
-          <GuideContent guide={guide} locale={locale} figures={figures} />
+      {/* Lecture focalisée : une étape en cours à la fois, quiz au pied de
+          l'étape, rail de progression à droite. Visiteur anonyme : tout déroulé
+          (article indexable). Îlot client. */}
+      <GuideReader
+        guideId={meta.id}
+        sections={readerSections}
+        quiz={getGuideQuiz(meta.id)}
+        locale={locale}
+      />
 
-          {/* Et après ? + CTA fort (BUILD-SPEC §3.2 / §10) */}
-          <section className={styles.relations}>
-            <h2 className="cli-header">{t("guide.next")}</h2>
-            {meta.next?.length ? (
-              <GuideRelations
-                ids={meta.next}
-                manifest={manifest}
-                locale={locale}
-                soonLabel={t("guide.soon")}
-              />
-            ) : null}
-            <div className={styles.strongCta}>
-              <Link href={`/${locale}/dashboard`} className="btn btn--primary">
-                {t("nav.dashboard")} →
-              </Link>
-            </div>
-          </section>
-        </div>
-
-        <div className={styles.tocCol}>
-          <DocToc
-            items={guide.sections.map((s) => ({
-              id: s.id,
-              label: sectionLabel(s.id, locale),
-            }))}
+      {/* Et après ? + CTA fort (BUILD-SPEC §3.2 / §10) */}
+      <section className={styles.relations}>
+        <h2 className="cli-header">{t("guide.next")}</h2>
+        {meta.next?.length ? (
+          <GuideRelations
+            ids={meta.next}
+            manifest={manifest}
             locale={locale}
+            soonLabel={t("guide.soon")}
           />
+        ) : null}
+        <div className={styles.strongCta}>
+          <Link href={`/${locale}/dashboard`} className="btn btn--primary">
+            {t("nav.dashboard")} →
+          </Link>
         </div>
-      </div>
+      </section>
     </article>
   );
 }
