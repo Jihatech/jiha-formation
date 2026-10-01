@@ -42,13 +42,19 @@ export function TerminalHero({
     let ci = 0;
     const speed = 28;
     const tick = () => {
+      // On fige la valeur et l'index AVANT de déclencher setShown : l'updater de
+      // React peut s'exécuter de façon différée (rendu concurrent en prod), bien
+      // après que `li`/`ci` aient été incrémentés. Les lire dans l'updater ferait
+      // sortir `full[li]` des bornes en fin d'animation → crash `.slice` of undefined.
+      const idx = li;
+      const text = full[idx].slice(0, ci);
       setShown((prev) => {
         const next = [...prev];
-        next[li] = full[li].slice(0, ci);
+        next[idx] = text;
         return next;
       });
       ci++;
-      if (ci > full[li].length) {
+      if (ci > full[idx].length) {
         li++;
         ci = 0;
         if (li >= full.length) {

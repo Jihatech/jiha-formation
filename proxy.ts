@@ -21,6 +21,22 @@ function detectLocale(request: NextRequest): string {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Rattrapage OAuth : un code/erreur d'auth qui atterrit AILLEURS que sur
+  // /auth/callback (typiquement quand Supabase retombe sur le « Site URL »
+  // racine parce que l'URL de callback n'est pas dans l'allowlist) est
+  // réacheminé vers le callback — sinon l'utilisateur revient « connecté » sur
+  // l'accueil sans que la session soit établie. Le fix propre reste de déclarer
+  // https://<domaine>/auth/callback dans Supabase (Authentication → URL Config).
+  const params = request.nextUrl.searchParams;
+  if ((params.has("code") || params.has("error")) && !pathname.startsWith("/auth/")) {
+    const seg = pathname.split("/")[1];
+    const lang = isLocale(seg) ? seg : detectLocale(request);
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    if (!params.get("lang")) url.searchParams.set("lang", lang);
+    return NextResponse.redirect(url);
+  }
+
   const hasLocale = locales.some(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
   );

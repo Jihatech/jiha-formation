@@ -56,6 +56,12 @@ body {
   padding: 0;
   margin: 0;
 }
+/* Empêche l'inflation automatique du texte sur mobile (iOS en paysage) qui
+   casse la mise en page « adaptée à l'écran ». */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 
 body {
   background: var(--bg);
@@ -67,6 +73,17 @@ body {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  /* Garde-fou responsive : jamais de scroll horizontal de page, quelle que soit
+     la largeur. `clip` (et non `hidden`) n'ouvre pas de conteneur de défilement,
+     donc l'en-tête `position: sticky` continue de fonctionner. */
+  overflow-x: clip;
+}
+
+/* Médias fluides par défaut : ne débordent jamais de leur conteneur. */
+img,
+video {
+  max-width: 100%;
+  height: auto;
 }
 
 /* Effet CRT subtil : léger scanline en arrière-plan, désactivé en reduced-motion. */
