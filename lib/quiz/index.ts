@@ -48,6 +48,7 @@ import azureStockage from "./data/azure-stockage.json";
 import azureSupervisionLivraison from "./data/azure-supervision-livraison.json";
 import capstoneHomelab from "./data/capstone-homelab.json";
 import cicdGithubActions from "./data/cicd-github-actions.json";
+import cicdGitlabLocal from "./data/cicd-gitlab-local.json";
 import dockerCompose from "./data/docker-compose.json";
 import dockerFondamentaux from "./data/docker-fondamentaux.json";
 import dockerImagesDockerfile from "./data/docker-images-dockerfile.json";
@@ -142,6 +143,7 @@ const registry: Record<string, GuideQuiz> = {
   "azure-supervision-livraison": azureSupervisionLivraison as GuideQuiz,
   "capstone-homelab": capstoneHomelab as GuideQuiz,
   "cicd-github-actions": cicdGithubActions as GuideQuiz,
+  "cicd-gitlab-local": cicdGitlabLocal as GuideQuiz,
   "docker-compose": dockerCompose as GuideQuiz,
   "docker-fondamentaux": dockerFondamentaux as GuideQuiz,
   "docker-images-dockerfile": dockerImagesDockerfile as GuideQuiz,

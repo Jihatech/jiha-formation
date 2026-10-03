@@ -1,0 +1,72 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Où doit se trouver le fichier qui décrit un pipeline GitLab CI ?",
+      "q_en": "Where must the file describing a GitLab CI pipeline live?",
+      "choices": [
+        { "fr": "Dans un fichier `.gitlab-ci.yml` à la racine du dépôt", "en": "In a `.gitlab-ci.yml` file at the repo root" },
+        { "fr": "Dans `.github/workflows/`", "en": "In `.github/workflows/`" },
+        { "fr": "Dans `ci/pipeline.json` n'importe où", "en": "In `ci/pipeline.json` anywhere" }
+      ],
+      "answer": 0,
+      "explain_fr": "GitLab CI lit un unique fichier `.gitlab-ci.yml` à la racine du dépôt. `.github/workflows/` est propre à GitHub Actions.",
+      "explain_en": "GitLab CI reads a single `.gitlab-ci.yml` file at the repo root. `.github/workflows/` is specific to GitHub Actions."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "Que fait `gitlab-ci-local` ?",
+      "q_en": "What does `gitlab-ci-local` do?",
+      "choices": [
+        { "fr": "Il pousse ton code vers GitLab.com pour y lancer le pipeline", "en": "It pushes your code to GitLab.com to run the pipeline there" },
+        { "fr": "Il exécute les jobs du `.gitlab-ci.yml` sur ta machine, dans Docker, sans serveur ni push", "en": "It runs the `.gitlab-ci.yml` jobs on your machine, in Docker, with no server or push" },
+        { "fr": "Il convertit le `.gitlab-ci.yml` en workflow GitHub Actions", "en": "It converts the `.gitlab-ci.yml` into a GitHub Actions workflow" }
+      ],
+      "answer": 1,
+      "explain_fr": "gitlab-ci-local joue le rôle du runner en local : il lit le même `.gitlab-ci.yml`, crée les conteneurs Docker et exécute les scripts — sans serveur GitLab, sans compte, sans commit.",
+      "explain_en": "gitlab-ci-local plays the runner role locally: it reads the same `.gitlab-ci.yml`, creates the Docker containers and runs the scripts — no GitLab server, no account, no commit."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "À quoi servent `artifacts` au job `build` et `needs: [build]` au job `test` ?",
+      "q_en": "What are `artifacts` in the `build` job and `needs: [build]` in the `test` job for?",
+      "choices": [
+        { "fr": "À transmettre un fichier produit par `build` vers `test`, et ordonner leur exécution", "en": "To pass a file produced by `build` to `test`, and order their execution" },
+        { "fr": "À mettre les deux jobs dans le même conteneur", "en": "To put both jobs in the same container" },
+        { "fr": "À exécuter `test` même si `build` échoue", "en": "To run `test` even if `build` fails" }
+      ],
+      "answer": 0,
+      "explain_fr": "Un `artifact` est un fichier qu'un job produit ; `needs` fait que `test` récupère l'artifact de `build` et s'exécute après lui. Chaque job tourne dans son propre conteneur.",
+      "explain_en": "An `artifact` is a file one job produces; `needs` makes `test` pull `build`'s artifact and run after it. Each job runs in its own container."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Dans un job qui utilise un service `postgres` (alias `db`), par quel hôte le join-on ?",
+      "q_en": "In a job using a `postgres` service (alias `db`), through which host do you reach it?",
+      "choices": [
+        { "fr": "Par `localhost`", "en": "Via `localhost`" },
+        { "fr": "Par l'alias du service, `db`", "en": "Via the service alias, `db`" },
+        { "fr": "Par l'adresse IP publique du conteneur", "en": "Via the container's public IP" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le job et le service sont deux conteneurs distincts : on joint le service par son nom d'hôte (l'alias, ici `db`), pas par `localhost`.",
+      "explain_en": "The job and the service are two separate containers: you reach the service by its hostname (the alias, here `db`), not via `localhost`."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Qu'est-ce qui change entre `gitlab-ci-local` et un vrai GitLab + runner ?",
+      "q_en": "What changes between `gitlab-ci-local` and a real GitLab + runner?",
+      "choices": [
+        { "fr": "Il faut réécrire tout le `.gitlab-ci.yml` pour le vrai GitLab", "en": "You must rewrite the whole `.gitlab-ci.yml` for real GitLab" },
+        { "fr": "Rien ne change : le `.gitlab-ci.yml` est identique, seuls le déclenchement (push/MR) et le runner s'ajoutent", "en": "Nothing changes: the `.gitlab-ci.yml` is identical, only triggering (push/MR) and the runner are added" },
+        { "fr": "Le vrai GitLab n'accepte pas les artifacts", "en": "Real GitLab doesn't accept artifacts" }
+      ],
+      "answer": 1,
+      "explain_fr": "Le même `.gitlab-ci.yml` mis au point en local tourne tel quel sur un runner. Le vrai GitLab ajoute le déclenchement automatique (push/merge request) et l'exécution par un runner hébergé.",
+      "explain_en": "The same `.gitlab-ci.yml` tuned locally runs as-is on a runner. Real GitLab adds automatic triggering (push/merge request) and execution by a hosted runner."
+    }
+  ]
+}
