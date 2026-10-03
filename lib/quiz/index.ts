@@ -81,6 +81,7 @@ import linuxUtilisateursPermissions from "./data/linux-utilisateurs-permissions.
 import monitoring from "./data/monitoring.json";
 import terraformComposition from "./data/terraform-composition.json";
 import terraformFondamentaux from "./data/terraform-fondamentaux.json";
+import terraformLocalstack from "./data/terraform-localstack.json";
 import terraformModules from "./data/terraform-modules.json";
 import terraformProjetEntreprise from "./data/terraform-projet-entreprise.json";
 import terraformStateAvance from "./data/terraform-state-avance.json";
@@ -174,6 +175,7 @@ const registry: Record<string, GuideQuiz> = {
   "monitoring": monitoring as GuideQuiz,
   "terraform-composition": terraformComposition as GuideQuiz,
   "terraform-fondamentaux": terraformFondamentaux as GuideQuiz,
+  "terraform-localstack": terraformLocalstack as GuideQuiz,
   "terraform-modules": terraformModules as GuideQuiz,
   "terraform-projet-entreprise": terraformProjetEntreprise as GuideQuiz,
   "terraform-state-avance": terraformStateAvance as GuideQuiz,

@@ -1,0 +1,72 @@
+{
+  "step-01": [
+    {
+      "q_fr": "Sur quel port unique LocalStack expose-t-il toutes les API AWS ?",
+      "q_en": "On which single port does LocalStack expose all the AWS APIs?",
+      "choices": [
+        { "fr": "Le port 443, comme le vrai AWS", "en": "Port 443, like real AWS" },
+        { "fr": "Le port 4566", "en": "Port 4566" },
+        { "fr": "Un port différent par service (8080, 9000…)", "en": "A different port per service (8080, 9000…)" }
+      ],
+      "answer": 1,
+      "explain_fr": "LocalStack multiplexe tous les services sur un seul point d'entrée, http://localhost:4566. C'est cette URL que le provider Terraform et awslocal ciblent.",
+      "explain_en": "LocalStack multiplexes all services on a single entrypoint, http://localhost:4566. That's the URL the Terraform provider and awslocal target."
+    }
+  ],
+  "step-02": [
+    {
+      "q_fr": "À quoi servent le bloc `endpoints` et les options `skip_*` dans le provider AWS ?",
+      "q_en": "What are the `endpoints` block and the `skip_*` options for in the AWS provider?",
+      "choices": [
+        { "fr": "À rediriger les appels vers LocalStack et empêcher Terraform de joindre le vrai AWS", "en": "To redirect calls to LocalStack and stop Terraform from reaching real AWS" },
+        { "fr": "À chiffrer les communications avec AWS", "en": "To encrypt communications with AWS" },
+        { "fr": "À réduire la facture AWS", "en": "To reduce the AWS bill" }
+      ],
+      "answer": 0,
+      "explain_fr": "`endpoints` pointe chaque service vers http://localhost:4566, et les `skip_*` désactivent les vérifications (credentials, métadonnées) qui essaieraient de contacter le vrai AWS. Sans eux, Terraform bloque.",
+      "explain_en": "`endpoints` points each service at http://localhost:4566, and the `skip_*` options disable the checks (credentials, metadata) that would try to contact real AWS. Without them, Terraform stalls."
+    }
+  ],
+  "step-03": [
+    {
+      "q_fr": "Le code Terraform d'un `aws_s3_bucket` sur LocalStack diffère-t-il de celui du vrai AWS ?",
+      "q_en": "Does the Terraform code for an `aws_s3_bucket` on LocalStack differ from real AWS?",
+      "choices": [
+        { "fr": "Non : seule la configuration du provider change, les ressources sont identiques", "en": "No: only the provider configuration changes, the resources are identical" },
+        { "fr": "Oui : il faut un type de ressource spécial `localstack_s3_bucket`", "en": "Yes: you need a special `localstack_s3_bucket` resource type" },
+        { "fr": "Oui : il faut préfixer tous les noms par `local-`", "en": "Yes: you must prefix all names with `local-`" }
+      ],
+      "answer": 0,
+      "explain_fr": "C'est tout l'intérêt : tes ressources (`aws_s3_bucket`, `aws_lambda_function`…) sont du Terraform AWS standard. Seul le bloc provider diffère, donc le même code s'appliquera sur le vrai AWS.",
+      "explain_en": "That's the whole point: your resources (`aws_s3_bucket`, `aws_lambda_function`…) are standard AWS Terraform. Only the provider block differs, so the same code will apply on real AWS."
+    }
+  ],
+  "step-04": [
+    {
+      "q_fr": "Pourquoi monter `/var/run/docker.sock` dans le conteneur LocalStack ?",
+      "q_en": "Why mount `/var/run/docker.sock` into the LocalStack container?",
+      "choices": [
+        { "fr": "Pour persister les données S3 sur le disque", "en": "To persist S3 data to disk" },
+        { "fr": "Parce que LocalStack exécute les fonctions Lambda dans des conteneurs Docker", "en": "Because LocalStack runs Lambda functions inside Docker containers" },
+        { "fr": "Pour accélérer le démarrage du conteneur", "en": "To speed up container startup" }
+      ],
+      "answer": 1,
+      "explain_fr": "LocalStack lance chaque invocation Lambda dans un conteneur Docker dédié ; il a donc besoin d'accéder au socket Docker de l'hôte. Sans ce montage, les Lambdas échouent (InternalError / Pending).",
+      "explain_en": "LocalStack runs each Lambda invocation in a dedicated Docker container, so it needs access to the host's Docker socket. Without this mount, Lambdas fail (InternalError / Pending)."
+    }
+  ],
+  "step-05": [
+    {
+      "q_fr": "Après un `docker compose down`, que deviennent les ressources créées dans LocalStack (édition communauté) ?",
+      "q_en": "After a `docker compose down`, what happens to the resources created in LocalStack (community edition)?",
+      "choices": [
+        { "fr": "Elles sont effacées : LocalStack est éphémère, c'est le code `.tf` qui est la source de vérité", "en": "They are wiped: LocalStack is ephemeral, the `.tf` code is the source of truth" },
+        { "fr": "Elles sont sauvegardées automatiquement dans le cloud AWS", "en": "They are automatically backed up to the AWS cloud" },
+        { "fr": "Elles restent disponibles indéfiniment sur le disque", "en": "They remain available indefinitely on disk" }
+      ],
+      "answer": 0,
+      "explain_fr": "Par défaut LocalStack communautaire ne persiste pas : couper le conteneur efface tout. On commite donc le `.tf` (la source de vérité) et on refait `terraform apply` au prochain démarrage.",
+      "explain_en": "By default community LocalStack doesn't persist: stopping the container wipes everything. So you commit the `.tf` (the source of truth) and re-run `terraform apply` on the next start."
+    }
+  ]
+}
