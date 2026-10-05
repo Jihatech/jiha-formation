@@ -18,6 +18,7 @@ export function SiteHeader({ locale }: { locale: Locale }) {
           <Link href={`/${locale}/docs`}>{t("nav.docs")}</Link>
           <Link href={`/${locale}/guides`}>{t("nav.guides")}</Link>
           <Link href={`/${locale}/exams`}>{t("nav.exams")}</Link>
+          <Link href={`/${locale}/pilote`}>{t("nav.pilote")}</Link>
           <Link href={`/${locale}/dashboard`}>{t("nav.dashboard")}</Link>
           <Link href={`/${locale}/login`}>{t("nav.login")}</Link>
           <LangSwitch
