@@ -85,8 +85,8 @@
   ],
   "step-07": [
     {
-      "q_fr": "Quels leviers composent la posture données AZ-500 ?",
-      "q_en": "Which levers make up the AZ-500 data posture ?",
+      "q_fr": "Quels leviers composent la posture données SC-500 ?",
+      "q_en": "Which levers make up the SC-500 data posture ?",
       "choices": [
         { "fr": "Classer, chiffrer au repos (défaut → CMK → double couche), chiffrer en transit (TLS 1.2/HTTPS), coffrer, faire tourner", "en": "Classify, encrypt at rest (default → CMK → double layer), encrypt in transit (TLS 1.2/HTTPS), vault, rotate" },
         { "fr": "Uniquement segmenter le réseau", "en": "Only segment the network" },

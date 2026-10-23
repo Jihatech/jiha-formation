@@ -39,6 +39,8 @@ Checklist complète et preuves : skill `.claude/skills/mise-en-prod`.
 - [ ] Écran de consentement Google OAuth publié.
 - [ ] Parcours `journey-e2e` vert en production.
 - [ ] Header mobile : le menu déborde à 390 px.
+- [x] Filière sécurité Azure : ex-AZ-500 remplacé par SC-500 (titres, quiz, badge) + garde-fou `check:exams`.
+- [ ] SC-500 : écrire le volet « sécurisation des charges d'IA » (voir audit d'écart).
 
 ### Gelé (décision 2026-10-22)
 - Cluster Kubernetes `jiha-learn-infra` : conservé pour les futurs labs étudiants hébergés (CaaS). La plateforme reste sur Vercel.

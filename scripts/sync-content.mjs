@@ -53,6 +53,14 @@ async function main() {
 
   console.log(`→ Sync depuis ${RAW_BASE}`);
 
+  // Registre des examens retirés (garde-fou check:exams). Optionnel : absent
+  // tant que JIHA-Learn ne le publie pas.
+  const retired = await fetchTextOptional("retired-exams.json");
+  if (retired) {
+    await writeFile(join(OUT_DIR, "retired-exams.json"), retired, "utf8");
+    console.log("✓ retired-exams.json");
+  }
+
   const manifestRaw = await fetchText("guides.json");
   await writeFile(join(OUT_DIR, "guides.json"), manifestRaw, "utf8");
   const manifest = JSON.parse(manifestRaw);

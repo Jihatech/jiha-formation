@@ -93,8 +93,8 @@
         { "fr": "Uniquement de chiffrer les données", "en": "Only encrypting data" }
       ],
       "answer": 1,
-      "explain_fr": "Tu contrôles désormais non pas seulement si un paquet passe (NSG, AZ-500), mais par où. La suite : connectivité hybride puis distribution applicative.",
-      "explain_en": "You now control not just whether a packet passes (NSG, AZ-500), but where. Next: hybrid connectivity then application distribution."
+      "explain_fr": "Tu contrôles désormais non pas seulement si un paquet passe (NSG, SC-500), mais par où. La suite : connectivité hybride puis distribution applicative.",
+      "explain_en": "You now control not just whether a packet passes (NSG, SC-500), but where. Next: hybrid connectivity then application distribution."
     }
   ]
 }

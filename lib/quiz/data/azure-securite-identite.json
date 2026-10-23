@@ -23,8 +23,8 @@
         { "fr": "Owner sur le groupe de ressources", "en": "Owner on the resource group" }
       ],
       "answer": 0,
-      "explain_fr": "Rôle étroit, portée étroite : les trois pièces sont le principal (qui), le roleDefinitionId (quoi) et la portée (où). C'est le cœur de l'AZ-500.",
-      "explain_en": "Narrow role, narrow scope: the three pieces are the principal (who), the roleDefinitionId (what) and the scope (where). It's the core of AZ-500."
+      "explain_fr": "Rôle étroit, portée étroite : les trois pièces sont le principal (qui), le roleDefinitionId (quoi) et la portée (où). C'est le cœur du SC-500.",
+      "explain_en": "Narrow role, narrow scope: the three pieces are the principal (who), the roleDefinitionId (what) and the scope (where). It's the core of SC-500."
     }
   ],
   "step-03": [
@@ -85,8 +85,8 @@
   ],
   "step-07": [
     {
-      "q_fr": "Quels leviers composent la posture d'identité sécurisée AZ-500 ?",
-      "q_en": "Which levers make up the AZ-500 secure identity posture ?",
+      "q_fr": "Quels leviers composent la posture d'identité sécurisée SC-500 ?",
+      "q_en": "Which levers make up the SC-500 secure identity posture ?",
       "choices": [
         { "fr": "Uniquement le chiffrement des données", "en": "Only data encryption" },
         { "fr": "Uniquement un pare-feu réseau", "en": "Only a network firewall" },

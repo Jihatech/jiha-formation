@@ -40,6 +40,10 @@ jobs:
       - name: Check quizzes
         run: pnpm check:quizzes
 
+      # Aucun quiz ni libellé ne doit citer un examen retiré.
+      - name: Check retired exams
+        run: pnpm check:exams
+
       # Informatif en CI (non bloquant). Bloquant à la mise en service :
       # pnpm check:legal --strict (cf. skill mise-en-prod).
       - name: Check legal

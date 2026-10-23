@@ -31,6 +31,7 @@ Ces points correspondent à des erreurs **réellement trouvées** dans les guide
 - [ ] **Mécanisme ACME décrit correctement.** TLS challenge → port **443** requis depuis Internet ; HTTP challenge → port **80**. Ne pas confondre. *(Bug réel : Traefik affirmait que le port 80 servait au TLS challenge.)*
 - [ ] **Portée d'un wildcard exacte.** Distinguer wildcard **DNS** (routage) et certificat **wildcard** (nécessite DNS challenge). Ne pas laisser croire qu'un TLS challenge produit un certif `*.domaine`. *(Bug réel : Traefik.)*
 - [ ] **Versions d'images pinées**, jamais `:latest` (ni `release` flottant pour Immich). Cohérence avec `validated_version` du front-matter.
+- [ ] **Examen ciblé toujours actif.** Le code de certification cité (titre, filière, quiz) n'est pas retiré par l'éditeur ; vérifié automatiquement par `retired-exams.json` (JIHA-Learn) et `pnpm check:exams`. *(Bug réel : toute la filière sécurité Azure préparait encore l'ex-AZ-500, retiré le 31/08/2026 au profit du SC-500.)*
 - [ ] **Commande effet de bord = avertissement.** Toute commande destructive (`down -v`, `rm -rf`, `prune --volumes`, `--force`) est accompagnée d'un avertissement explicite.
 
 ## C. Conformité pédagogique (BUILD-SPEC §3 + ADN éditorial)

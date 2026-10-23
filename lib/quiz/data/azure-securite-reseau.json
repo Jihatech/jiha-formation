@@ -85,8 +85,8 @@
   ],
   "step-07": [
     {
-      "q_fr": "Quels leviers composent la posture réseau AZ-500 ?",
-      "q_en": "Which levers make up the AZ-500 network posture ?",
+      "q_fr": "Quels leviers composent la posture réseau SC-500 ?",
+      "q_en": "Which levers make up the SC-500 network posture ?",
       "choices": [
         { "fr": "Uniquement le chiffrement des secrets", "en": "Only secret encryption" },
         { "fr": "Segmenter, refuser par défaut (NSG), micro-segmenter, filtrer la sortie, points privés, filtrer l'applicatif (WAF/DDoS)", "en": "Segment, deny by default (NSG), micro-segment, filter egress, private endpoints, filter the app layer (WAF/DDoS)" },

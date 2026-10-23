@@ -16,7 +16,8 @@
     "journey:e2e": "node scripts/journey-e2e.mjs",
     "check:quizzes": "tsx scripts/check-quizzes.mts",
     "check:legal": "tsx scripts/check-legal.mts",
-    "check": "pnpm check:parser && pnpm check:quizzes && pnpm check:legal"
+    "check": "pnpm check:parser && pnpm check:quizzes && pnpm check:exams && pnpm check:legal",
+    "check:exams": "tsx scripts/check-exams.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

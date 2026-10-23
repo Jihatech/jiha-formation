@@ -27,7 +27,9 @@ export const TRACKS: TrackMeta[] = [
   { id: "azure-az104", label_fr: "Azure — Administration", label_en: "Azure — Administration", cert: "AZ-104" },
   { id: "azure-az305", label_fr: "Azure — Architecture", label_en: "Azure — Architecture", cert: "AZ-305" },
   { id: "azure-az400", label_fr: "Azure — DevOps", label_en: "Azure — DevOps", cert: "AZ-400" },
-  { id: "azure-az500", label_fr: "Azure — Sécurité", label_en: "Azure — Security", cert: "AZ-500" },
+  // id historique conservé (URL /exams/azure-az500 stable) : la filière prépare au SC-500,
+  // qui a remplacé l'examen ex-AZ-500 le 31/08/2026.
+  { id: "azure-az500", label_fr: "Azure — Sécurité", label_en: "Azure — Security", cert: "SC-500" },
   { id: "azure-az700", label_fr: "Azure — Réseau", label_en: "Azure — Networking", cert: "AZ-700" },
 ];
 

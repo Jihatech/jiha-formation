@@ -85,8 +85,8 @@
   ],
   "step-07": [
     {
-      "q_fr": "Que contient le livrable final du projet sécurité AZ-500 ?",
-      "q_en": "What does the final deliverable of the AZ-500 security project contain ?",
+      "q_fr": "Que contient le livrable final du projet sécurité SC-500 ?",
+      "q_en": "What does the final deliverable of the SC-500 security project contain ?",
       "choices": [
         { "fr": "Uniquement le code Terraform, sans sécurité", "en": "Only the Terraform code, without security" },
         { "fr": "Uniquement une fiche CV vide", "en": "Only an empty CV sheet" },
