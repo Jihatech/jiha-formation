@@ -21,8 +21,13 @@ const COPY = {
     reset: { title: "Mot de passe oublié", submit: "Envoyer le lien" },
     email: "Email",
     password: "Mot de passe",
-    consent:
-      "J'accepte que mes données (compte, progression) soient traitées pour fournir le service. Je peux supprimer mon compte à tout moment.",
+    consent: {
+      pre: "J'accepte les ",
+      terms: "conditions d'utilisation",
+      mid: " et le traitement de mes données (compte, progression) décrit dans la ",
+      privacy: "politique de confidentialité",
+      post: ". Je peux supprimer mon compte à tout moment.",
+    },
     or: "ou",
     toSignup: "Pas de compte ? Créer un compte",
     toLogin: "Déjà un compte ? Se connecter",
@@ -34,8 +39,13 @@ const COPY = {
     reset: { title: "Forgot password", submit: "Send the link" },
     email: "Email",
     password: "Password",
-    consent:
-      "I agree that my data (account, progress) is processed to provide the service. I can delete my account at any time.",
+    consent: {
+      pre: "I accept the ",
+      terms: "terms of use",
+      mid: " and the processing of my data (account, progress) described in the ",
+      privacy: "privacy policy",
+      post: ". I can delete my account at any time.",
+    },
     or: "or",
     toSignup: "No account? Sign up",
     toLogin: "Already have an account? Sign in",
@@ -103,7 +113,17 @@ export function AuthForm({ mode, locale }: { mode: Mode; locale: Locale }) {
         {mode === "signup" ? (
           <label className={styles.consent}>
             <input type="checkbox" name="consent" required />
-            <span>{c.consent}</span>
+            <span>
+              {c.consent.pre}
+              <Link href={`/${locale}/legal/terms`} target="_blank">
+                {c.consent.terms}
+              </Link>
+              {c.consent.mid}
+              <Link href={`/${locale}/legal/privacy`} target="_blank">
+                {c.consent.privacy}
+              </Link>
+              {c.consent.post}
+            </span>
           </label>
         ) : null}
 

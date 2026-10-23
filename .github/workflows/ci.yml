@@ -22,8 +22,28 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Contenu JIHA-Learn requis par les vérifications ci-dessous.
+      - name: Sync content
+        run: pnpm sync:content
+
       - name: Lint
         run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      # Preuve automatique : un guide mal formé ou un quiz désaligné
+      # fait échouer la CI au lieu d'être découvert en prod.
+      - name: Check parser
+        run: pnpm check:parser
+
+      - name: Check quizzes
+        run: pnpm check:quizzes
+
+      # Informatif en CI (non bloquant). Bloquant à la mise en service :
+      # pnpm check:legal --strict (cf. skill mise-en-prod).
+      - name: Check legal
+        run: pnpm check:legal
 
       # `prebuild` synchronise le contenu depuis JIHA-Learn (réseau requis).
       # Aucune variable Supabase nécessaire au build (lecture paresseuse).

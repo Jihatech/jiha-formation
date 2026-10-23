@@ -17,3 +17,20 @@
 .meta {
   color: var(--fg-faint);
 }
+.legal {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+}
+.legal a {
+  color: var(--fg-muted);
+}
+.legal a:hover {
+  color: var(--fg);
+}
+@media (max-width: 640px) {
+  .inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

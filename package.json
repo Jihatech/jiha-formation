@@ -13,7 +13,10 @@
     "lint": "eslint",
     "check:parser": "tsx scripts/check-parser.mts",
     "journey": "node scripts/journey-test.mjs",
-    "journey:e2e": "node scripts/journey-e2e.mjs"
+    "journey:e2e": "node scripts/journey-e2e.mjs",
+    "check:quizzes": "tsx scripts/check-quizzes.mts",
+    "check:legal": "tsx scripts/check-legal.mts",
+    "check": "pnpm check:parser && pnpm check:quizzes && pnpm check:legal"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

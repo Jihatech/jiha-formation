@@ -4,6 +4,7 @@ import { locales } from "@/lib/i18n/config";
 import { docsCategories } from "@/lib/docs/categories";
 import { getAllDocs } from "@/lib/docs/source";
 import { getPublicGuide } from "@/lib/content/source";
+import { legalPages } from "@/lib/legal/content";
 
 // Sitemap = couche OUVERTE uniquement (home, /docs, guide public).
 // Les pages gated (parcours, dashboard) et les pages auth redirigent ou
@@ -24,6 +25,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const pages: Page[] = [
     { path: "", changeFrequency: "weekly", priority: 1 },
     { path: "/docs", changeFrequency: "weekly", priority: 0.8 },
+    ...legalPages.map((p) => ({
+      path: `/legal/${p}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.2,
+    })),
     ...docsCategories
       .filter((cat) => docs.some((e) => e.meta.category === cat.id))
       .map((cat) => ({

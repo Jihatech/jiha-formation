@@ -1,7 +1,7 @@
 # ROADMAP — jiha.tech
 
 > Organisation du produit, du contenu et des chantiers. Mise à jour au fil des sessions.
-> Dernière mise à jour : 2026-07-02.
+> Dernière mise à jour : 2026-10-22.
 
 ---
 
@@ -28,6 +28,21 @@
 Invariants : ids stables (jamais renommés) · bilingue FR/EN systématique · code jamais dupliqué par langue · manifeste = source de vérité de la structure.
 
 ## 3. Chantiers
+
+### Maintenant : ouverture aux étudiants (go-live)
+Objectif unique : un étudiant peut s'inscrire et suivre le parcours sans aide.
+Checklist complète et preuves : skill `.claude/skills/mise-en-prod`.
+- [x] Pages légales FR/EN (mentions, confidentialité, CGU) + liens footer et consentement.
+- [x] CI bloquante : typecheck, parser, quiz (plateforme) ; lint strict `[A]`/`[E]` (JIHA-Learn).
+- [ ] Compléter `lib/legal/config.ts` (exploitant, adresse, contact, directeur de publication, région Supabase).
+- [ ] SMTP dédié (Resend) dans Supabase Auth.
+- [ ] Écran de consentement Google OAuth publié.
+- [ ] Parcours `journey-e2e` vert en production.
+- [ ] Header mobile : le menu déborde à 390 px.
+
+### Gelé (décision 2026-10-22)
+- Cluster Kubernetes `jiha-learn-infra` : conservé pour les futurs labs étudiants hébergés (CaaS). La plateforme reste sur Vercel.
+- App installable multiplateforme : piste PWA sur l'app existante, après le go-live.
 
 ### Court terme (plateforme)
 - [x] **D2** — Recherche instantanée (Pagefind) sur /docs + sitemap.xml (+ robots.txt).
