@@ -38,6 +38,22 @@ valider un QCM, retrouver sa progression et supprimer son compte.
 - Rollback : en cas de régression en production, **promouvoir le déploiement précédent dans Vercel d'abord**, corriger ensuite.
 - Ne jamais livrer le premium (Stripe) sans CGV dédiées et `active: true` du sous-traitant Stripe dans `lib/legal/config.ts`.
 
+## Test du parcours étudiant (avant toute livraison qui touche l'auth, les guides ou le tableau de bord)
+
+En local, jamais sur la production (le script crée puis supprime un compte) :
+
+```bash
+npx supabase start -x vector,logflare,imgproxy,supavisor,postgres-meta   # Supabase + Mailpit
+# .env.local : NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 + clés affichées par la commande
+pnpm build && pnpm start
+pnpm journey:student      # 16 vérifications, captures dans ./journey-shots
+npx supabase stop
+```
+
+Couvre : inscription et consentement, email de confirmation, guide validé par QCM, persistance,
+examen blanc, déconnexion, mot de passe oublié jusqu'au nouveau mot de passe, suppression du compte.
+Non couvert (à tester à la main en prod) : connexion Google, emails réels (SMTP), paiement.
+
 ## Checklist « Prêt pour les étudiants » (ouverture publique)
 
 | # | Point | Comment le prouver |
@@ -49,6 +65,7 @@ valider un QCM, retrouver sa progression et supprimer son compte.
 | G1 | Écran de consentement Google OAuth publié (hors mode Testing) | Connexion Google avec un compte non listé comme testeur |
 | S1 | URL de prod dans *Site URL* et *Redirect URLs* Supabase | Confirmation email qui ramène sur `learn.jiha.tech` |
 | S2 | Plan Supabase compatible avec l'usage (pause du projet gratuit après inactivité) | Décision écrite dans `ROADMAP.md` |
+| P0 | Parcours étudiant complet vert en local | `pnpm journey:student` : 16/16 |
 | P1 | Parcours e2e complet vert en production | `scripts/journey-e2e.mjs` |
 | P2 | Suppression de compte effective | Compte test supprimé, reconnexion impossible |
 | M1 | Rendu mobile correct (header, signup, guide) | Capture à 390 px de large |

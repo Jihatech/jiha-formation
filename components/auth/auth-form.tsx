@@ -6,19 +6,21 @@ import type { Locale } from "@/lib/i18n/config";
 import {
   requestResetAction,
   signInAction,
+  updatePasswordAction,
   signUpAction,
   type AuthState,
 } from "@/lib/auth/actions";
 import { GoogleButton } from "./google-button";
 import styles from "./auth-form.module.css";
 
-type Mode = "login" | "signup" | "reset";
+type Mode = "login" | "signup" | "reset" | "update";
 
 const COPY = {
   fr: {
     login: { title: "Connexion", submit: "Se connecter" },
     signup: { title: "Créer un compte", submit: "Créer mon compte" },
     reset: { title: "Mot de passe oublié", submit: "Envoyer le lien" },
+    update: { title: "Nouveau mot de passe", submit: "Enregistrer" },
     email: "Email",
     password: "Mot de passe",
     consent: {
@@ -37,6 +39,7 @@ const COPY = {
     login: { title: "Sign in", submit: "Sign in" },
     signup: { title: "Sign up", submit: "Create my account" },
     reset: { title: "Forgot password", submit: "Send the link" },
+    update: { title: "New password", submit: "Save" },
     email: "Email",
     password: "Password",
     consent: {
@@ -59,7 +62,9 @@ export function AuthForm({ mode, locale }: { mode: Mode; locale: Locale }) {
       ? signInAction
       : mode === "signup"
         ? signUpAction
-        : requestResetAction;
+        : mode === "update"
+          ? updatePasswordAction
+          : requestResetAction;
   const [state, formAction, pending] = useActionState<AuthState, FormData>(
     action,
     {},
@@ -74,7 +79,7 @@ export function AuthForm({ mode, locale }: { mode: Mode; locale: Locale }) {
         {c[mode].title}
       </h1>
 
-      {mode !== "reset" ? (
+      {mode === "login" || mode === "signup" ? (
         <>
           <GoogleButton locale={locale} />
           <div className={styles.divider}>{c.or}</div>
@@ -83,16 +88,18 @@ export function AuthForm({ mode, locale }: { mode: Mode; locale: Locale }) {
 
       <form action={formAction} className={styles.form}>
         <input type="hidden" name="lang" value={locale} />
-        <label className={styles.label}>
-          {c.email}
-          <input
-            type="email"
-            name="email"
-            required
-            autoComplete="email"
-            className={styles.input}
-          />
-        </label>
+        {mode !== "update" ? (
+          <label className={styles.label}>
+            {c.email}
+            <input
+              type="email"
+              name="email"
+              required
+              autoComplete="email"
+              className={styles.input}
+            />
+          </label>
+        ) : null}
 
         {mode !== "reset" ? (
           <label className={styles.label}>
@@ -103,7 +110,7 @@ export function AuthForm({ mode, locale }: { mode: Mode; locale: Locale }) {
               required
               minLength={8}
               autoComplete={
-                mode === "signup" ? "new-password" : "current-password"
+                mode === "login" ? "current-password" : "new-password"
               }
               className={styles.input}
             />
@@ -147,7 +154,7 @@ export function AuthForm({ mode, locale }: { mode: Mode; locale: Locale }) {
             <Link href={`/${locale}/reset`}>{c.toReset}</Link>
             <Link href={`/${locale}/signup`}>{c.toSignup}</Link>
           </>
-        ) : (
+        ) : mode === "update" ? null : (
           <Link href={`/${locale}/login`}>{c.toLogin}</Link>
         )}
       </nav>

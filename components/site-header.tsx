@@ -4,6 +4,7 @@ import { getDictionary } from "@/lib/i18n/dictionaries";
 import { ThemeToggle } from "./theme-toggle";
 import { LangSwitch } from "./lang-switch";
 import { Logo } from "./logo";
+import { AuthNav } from "./auth/auth-nav";
 import styles from "./site-header.module.css";
 
 export function SiteHeader({ locale }: { locale: Locale }) {
@@ -19,7 +20,11 @@ export function SiteHeader({ locale }: { locale: Locale }) {
           <Link href={`/${locale}/guides`}>{t("nav.guides")}</Link>
           <Link href={`/${locale}/exams`}>{t("nav.exams")}</Link>
           <Link href={`/${locale}/dashboard`}>{t("nav.dashboard")}</Link>
-          <Link href={`/${locale}/login`}>{t("nav.login")}</Link>
+          <AuthNav
+            locale={locale}
+            loginLabel={t("nav.login")}
+            logoutLabel={t("nav.logout")}
+          />
           <LangSwitch
             locale={locale}
             label={t("lang.switch")}

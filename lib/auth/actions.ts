@@ -84,6 +84,8 @@ export async function requestResetAction(
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    // Le lien de l'email ouvre une session via /auth/callback, puis /account
+    // permet de choisir le nouveau mot de passe (updatePasswordAction).
     redirectTo: `${SITE_URL}/auth/callback?lang=${locale}&next=/${locale}/account`,
   });
   if (error) return { error: error.message };
@@ -94,6 +96,37 @@ export async function requestResetAction(
         ? "Si un compte existe, un email de réinitialisation a été envoyé."
         : "If an account exists, a reset email has been sent.",
   };
+}
+
+// Choix d'un nouveau mot de passe, après clic sur le lien de réinitialisation
+// (la session a été ouverte par /auth/callback).
+export async function updatePasswordAction(
+  _prev: AuthState,
+  formData: FormData,
+): Promise<AuthState> {
+  const locale = readLocale(formData);
+  const password = String(formData.get("password") ?? "");
+  const fr = locale === "fr";
+  if (password.length < 8) {
+    return { error: fr ? "8 caractères minimum." : "At least 8 characters." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return {
+      error: fr
+        ? "Lien expiré. Redemande un email de réinitialisation."
+        : "Link expired. Request a new reset email.",
+    };
+  }
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: error.message };
+
+  revalidatePath("/", "layout");
+  redirect(`/${locale}/dashboard`);
 }
 
 export async function signOutAction(formData: FormData): Promise<void> {

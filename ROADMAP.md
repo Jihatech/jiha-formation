@@ -38,7 +38,13 @@ Checklist complète et preuves : skill `.claude/skills/mise-en-prod`.
 - [ ] SMTP dédié (Resend) dans Supabase Auth.
 - [ ] Écran de consentement Google OAuth publié.
 - [ ] Parcours `journey-e2e` vert en production.
-- [ ] Header mobile : le menu déborde à 390 px.
+- [x] Parcours étudiant testé de bout en bout en local (`pnpm journey:student`, 16/16).
+- [x] Corrigé : mot de passe oublié (le lien menait à une page inexistante, aucun écran pour choisir un nouveau mot de passe).
+- [x] Corrigé : le menu affichait « Connexion » à un étudiant connecté (désormais « Déconnexion »).
+- [ ] Emails Supabase (confirmation, réinitialisation) en anglais et au modèle par défaut : à traduire et habiller (Supabase > Auth > Email Templates).
+- [ ] Environnement staging (`staging.learn.jiha.tech` + projet Supabase séparé) pour tester chaque PR sans toucher la prod.
+- [ ] Auto-hébergement (`next start`) : pages prérendues /docs/<catégorie> et /legal en 404 quand Supabase est configuré (OK sur Vercel). À traiter avant toute migration vers le cluster.
+- [ ] Header mobile : menu tronqué à 390 px (défilable horizontalement, peu découvrable).
 - [x] Filière sécurité Azure : ex-AZ-500 remplacé par SC-500 (titres, quiz, badge) + garde-fou `check:exams`.
 - [ ] SC-500 : écrire le volet « sécurisation des charges d'IA » (voir audit d'écart).
 

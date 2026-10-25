@@ -57,7 +57,7 @@ try {
     await page.fill('input[name="password"]', PASSWORD);
     await Promise.all([
       page.waitForURL(/\/(en|fr)\/(dashboard|login)/, { timeout: 15000 }).catch(() => {}),
-      page.click('button[type="submit"]'),
+      page.click('main button[type="submit"]'),
     ]);
     await page.waitForLoadState("domcontentloaded");
 
