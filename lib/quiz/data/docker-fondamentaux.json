@@ -18,13 +18,13 @@
       "q_fr": "Dans -p 8080:80, pourquoi mapper sur 8080 côté hôte plutôt que 80:80 ?",
       "q_en": "In -p 8080:80, why map to 8080 on the host rather than 80:80?",
       "choices": [
-        { "fr": "Les ports sous 1024 exigent d'être root sur l'hôte", "en": "Ports below 1024 require root on the host" },
+        { "fr": "Le port 80 de l'hôte est souvent déjà occupé ou réservé (serveur web, reverse proxy) : 8080 évite le conflit", "en": "Host port 80 is often already taken or reserved (web server, reverse proxy): 8080 avoids the clash" },
         { "fr": "nginx refuse d'écouter sur le port 80", "en": "nginx refuses to listen on port 80" },
         { "fr": "Docker n'autorise pas le même numéro des deux côtés", "en": "Docker doesn't allow the same number on both sides" }
       ],
       "answer": 0,
-      "explain_fr": "La syntaxe est HOTE:CONTENEUR ; 80:80 marche, mais seulement en root — d'où la convention 8080.",
-      "explain_en": "The syntax is HOST:CONTAINER; 80:80 works, but only as root — hence the 8080 convention."
+      "explain_fr": "La syntaxe est HOTE:CONTENEUR ; 80:80 fonctionne (c'est le démon Docker, en root, qui ouvre le port), mais 8080 évite les conflits avec un service déjà sur le port 80.",
+      "explain_en": "The syntax is HOST:CONTAINER; 80:80 works (the Docker daemon, running as root, opens the port), but 8080 avoids clashing with a service already on port 80."
     }
   ],
   "step-03": [
@@ -65,8 +65,8 @@
         { "fr": "Le nouveau conteneur retélécharge les données depuis Docker Hub", "en": "The new container re-downloads the data from Docker Hub" }
       ],
       "answer": 0,
-      "explain_fr": "Sans volume, les données meurent avec le conteneur ; avec un volume nommé, elles vivent séparément de lui.",
-      "explain_en": "Without a volume, data dies with the container; with a named volume, it lives separately from it."
+      "explain_fr": "Sans volume nommé, la base part dans un volume anonyme lié à l'ancien conteneur ; avec le volume nommé db-data, elle vit séparément du conteneur et le suivant la retrouve.",
+      "explain_en": "Without a named volume, the data goes to an anonymous volume tied to the old container; with the named volume db-data, it lives apart from the container and the next one finds it."
     }
   ],
   "step-06": [
@@ -102,13 +102,13 @@
       "q_fr": "Pourquoi inventorier (docker volume ls, docker system df) AVANT de lancer docker system prune -a --volumes ?",
       "q_en": "Why take inventory (docker volume ls, docker system df) BEFORE running docker system prune -a --volumes?",
       "choices": [
-        { "fr": "Parce que cette variante supprime irréversiblement les volumes non rattachés à un conteneur — données précieuses comprises", "en": "Because that variant irreversibly deletes volumes not attached to a container — valuable data included" },
+        { "fr": "Parce que cette variante supprime définitivement les images inutilisées et les volumes anonymes orphelins : l'inventaire montre ce qui va partir", "en": "Because that variant permanently deletes unused images and orphaned anonymous volumes: the inventory shows what will go" },
         { "fr": "Parce que prune refuse de s'exécuter si on n'a pas listé les volumes avant", "en": "Because prune refuses to run if you haven't listed volumes first" },
         { "fr": "Pour accélérer le prune en pré-calculant l'espace à libérer", "en": "To speed up the prune by pre-computing the space to reclaim" }
       ],
       "answer": 0,
-      "explain_fr": "Un volume orphelin (conteneur supprimé, pas relancé) part définitivement : inventorier d'abord, supprimer ensuite.",
-      "explain_en": "An orphaned volume (container removed, not restarted) is gone for good: inventory first, delete second."
+      "explain_fr": "prune --volumes ne retire que les volumes anonymes (depuis Docker Engine 23) ; un volume nommé ne part qu'avec docker volume rm ou docker volume prune -a. Inventorier d'abord, supprimer ensuite.",
+      "explain_en": "prune --volumes only removes anonymous volumes (since Docker Engine 23); a named volume only goes with docker volume rm or docker volume prune -a. Inventory first, delete second."
     }
   ]
 }
