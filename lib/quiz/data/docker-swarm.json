@@ -75,12 +75,12 @@
       "q_en": "In a Swarm stack file, which section carries the orchestration config (replicas, updates, restart)?",
       "choices": [
         { "fr": "La section build:", "en": "The build: section" },
-        { "fr": "La section deploy:, spécifique à Swarm", "en": "The deploy: section, specific to Swarm" },
+        { "fr": "La section deploy: (dont update_config et placement ne sont appliqués que par Swarm)", "en": "The deploy: section (whose update_config and placement are applied only by Swarm)" },
         { "fr": "La section networks:", "en": "The networks: section" }
       ],
       "answer": 1,
-      "explain_fr": "La section deploy: (replicas, update_config, restart_policy) est spécifique à Swarm et n'est prise en compte que par docker stack deploy, pas par docker compose up. Un stack est l'unité de déploiement : Compose, mais pour un cluster.",
-      "explain_en": "The deploy: section (replicas, update_config, restart_policy) is Swarm-specific and only honored by docker stack deploy, not by docker compose up. A stack is the deployment unit: Compose, but for a cluster."
+      "explain_fr": "La section deploy: porte l'orchestration : docker compose up applique replicas et resources, mais update_config, restart_policy et placement ne sont appliqués que par docker stack deploy. Un stack est l'unité de déploiement : Compose, mais pour un cluster.",
+      "explain_en": "The deploy: section carries the orchestration: docker compose up applies replicas and resources, but update_config, restart_policy and placement are applied only by docker stack deploy. A stack is the deployment unit: Compose, but for a cluster."
     }
   ]
 }

@@ -44,6 +44,9 @@ Checklist complète et preuves : skill `.claude/skills/mise-en-prod`.
 - [ ] Emails Supabase (confirmation, réinitialisation) en anglais et au modèle par défaut : à traduire et habiller (Supabase > Auth > Email Templates).
 - [ ] Environnement staging (`staging.learn.jiha.tech` + projet Supabase séparé) pour tester chaque PR sans toucher la prod.
 - [ ] Auto-hébergement (`next start`) : pages prérendues /docs/<catégorie> et /legal en 404 quand Supabase est configuré (OK sur Vercel). À traiter avant toute migration vers le cluster.
+- [x] Rejeu sur machine vierge du guide public et de la filière Docker (9 guides) : correctifs appliqués, garde-fou `check-code` dans JIHA-Learn.
+- [ ] Rejeu des autres filières (Linux, Git, CI/CD, Ansible, Terraform, Kubernetes, homelab, clouds), une PR par filière.
+- [ ] Rejouer docker-swarm et docker-projet-entreprise sur une VM avec IPVS (routing mesh non testable dans le bac à sable).
 - [ ] Header mobile : menu tronqué à 390 px (défilable horizontalement, peu découvrable).
 - [x] Filière sécurité Azure : ex-AZ-500 remplacé par SC-500 (titres, quiz, badge) + garde-fou `check:exams`.
 - [ ] SC-500 : écrire le volet « sécurisation des charges d'IA » (voir audit d'écart).

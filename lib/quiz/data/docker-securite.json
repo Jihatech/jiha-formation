@@ -71,16 +71,16 @@
   ],
   "step-06": [
     {
-      "q_fr": "Que fait un scanner d'image comme Trivy ou `docker scout`, et que couvre en plus `DOCKER_CONTENT_TRUST=1` ?",
-      "q_en": "What does an image scanner like Trivy or `docker scout` do, and what does `DOCKER_CONTENT_TRUST=1` additionally cover?",
+      "q_fr": "Que fait un scanner d'image comme Trivy ou `docker scout`, et comment vérifie-t-on aujourd'hui l'authenticité d'une image ?",
+      "q_en": "What does an image scanner like Trivy or `docker scout` do, and how do you check an image's authenticity today?",
       "choices": [
-        { "fr": "Le scanner signe l'image ; content trust en liste les CVE", "en": "The scanner signs the image; content trust lists its CVEs" },
+        { "fr": "Le scanner signe l'image ; DOCKER_CONTENT_TRUST=1 en liste les CVE", "en": "The scanner signs the image; DOCKER_CONTENT_TRUST=1 lists its CVEs" },
         { "fr": "Les deux servent uniquement à réduire la taille de l'image", "en": "Both only serve to reduce the image size" },
-        { "fr": "Le scanner liste les vulnérabilités (CVE) ; content trust impose de ne tirer que des images signées", "en": "The scanner lists vulnerabilities (CVEs); content trust enforces pulling only signed images" }
+        { "fr": "Le scanner liste les vulnérabilités (CVE) ; l'authenticité se vérifie par signature, avec cosign ou Notation (l'ancien Docker Content Trust est retiré)", "en": "The scanner lists vulnerabilities (CVEs); authenticity is checked by signature, with cosign or Notation (the old Docker Content Trust is retired)" }
       ],
       "answer": 2,
-      "explain_fr": "Un scanner affiche un tableau des CVE par sévérité — le réflexe avant la prod. DOCKER_CONTENT_TRUST=1 impose de ne tirer/lancer que des images signées (authenticité + intégrité). Scanner (les failles) et signer (l'authenticité) sont les deux volets de la confiance dans les images.",
-      "explain_en": "A scanner shows a CVE table by severity — the reflex before prod. DOCKER_CONTENT_TRUST=1 enforces pulling/running only signed images (authenticity + integrity). Scanning (flaws) and signing (authenticity) are the two sides of image trust."
+      "explain_fr": "Un scanner affiche un tableau des CVE par sévérité, le réflexe avant la prod. L'authenticité se prouve par une signature : Docker Content Trust (DOCKER_CONTENT_TRUST=1) a été retiré en 2025 et n'a plus d'effet sur Docker Engine 29 ; on utilise cosign (Sigstore) ou Notation.",
+      "explain_en": "A scanner shows a CVE table by severity, the reflex before production. Authenticity is proven by a signature: Docker Content Trust (DOCKER_CONTENT_TRUST=1) was retired in 2025 and has no effect on Docker Engine 29; use cosign (Sigstore) or Notation."
     }
   ]
 }
