@@ -45,7 +45,9 @@ Checklist complète et preuves : skill `.claude/skills/mise-en-prod`.
 - [ ] Environnement staging (`staging.learn.jiha.tech` + projet Supabase séparé) pour tester chaque PR sans toucher la prod.
 - [ ] Auto-hébergement (`next start`) : pages prérendues /docs/<catégorie> et /legal en 404 quand Supabase est configuré (OK sur Vercel). À traiter avant toute migration vers le cluster.
 - [x] Rejeu sur machine vierge du guide public et de la filière Docker (9 guides) : correctifs appliqués, garde-fou `check-code` dans JIHA-Learn.
-- [ ] Rejeu des autres filières (Linux, Git, CI/CD, Ansible, Terraform, Kubernetes, homelab, clouds), une PR par filière.
+- [x] Rejeu de la filière Linux (8 guides) sur VM systemd : correctifs appliqués (dont 3 risques de coupure SSH à distance).
+- [ ] Rejeu des autres filières (Git, CI/CD, Ansible, Terraform, Kubernetes, homelab, clouds), une PR par filière.
+- [ ] Rejouer les étapes LVM, reboot, GRUB et IPv6 de la filière Linux sur une vraie VM (non testables dans le bac à sable).
 - [ ] Rejouer docker-swarm et docker-projet-entreprise sur une VM avec IPVS (routing mesh non testable dans le bac à sable).
 - [ ] Header mobile : menu tronqué à 390 px (défilable horizontalement, peu découvrable).
 - [x] Filière sécurité Azure : ex-AZ-500 remplacé par SC-500 (titres, quiz, badge) + garde-fou `check:exams`.
